@@ -33,7 +33,10 @@
         "select": "field.select.tpl",
         "text": "field.text.tpl",
         "textarea": "field.textarea.tpl",
-        "upload-area": "field.upload-area.tpl"
+        "upload-area": "field.upload-area.tpl",
+        
+        "set": "field.set.tpl",
+        "set-item": "field.set.item.tpl"
     },
     "scripts": {
         "vendor-chosen": "vendor/chosen/chosen.jquery.js",
@@ -60,6 +63,8 @@
         "field-autocomplete": "js/field.autocomplete.js",
         "geo": "js/field.geo.js",
         "image-ajax": "js/field.image-ajax.js",
+        
+        "field-set":"js/field.set.js",
         "imageset-ajax": "js/field.imageset-ajax.js"
     },
     "styles": {
