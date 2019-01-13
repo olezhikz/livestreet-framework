@@ -35,7 +35,10 @@
         "textarea": "field.textarea.tpl",
         "upload-area": "field.upload-area.tpl",
         
+<<<<<<< HEAD
         
+=======
+>>>>>>> 2ae9ce994615e373c964fe9b48e335be85542166
         "set": "field.set.tpl",
         "set-item": "field.set.item.tpl"
     },
@@ -67,6 +70,7 @@
         "imageset-ajax": "js/field.imageset-ajax.js",
         
         "field-set":"js/field.set.js"
+
     },
     "styles": {
         "vendor-chosen": "vendor/chosen/chosen.css",

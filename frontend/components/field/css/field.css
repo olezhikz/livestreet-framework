@@ -240,3 +240,15 @@ select[multiple].ls-field-input { max-width: 300px; }
 .pika-label:first-child {
     margin-right: 5px;
 }
+
+/**
+ * Набор полей
+ *
+ */
+.ls-fieldset-item            { margin-bottom: 10px; padding-right: 25px; position: relative; }
+.ls-fieldset-item .ls-field { margin-bottom: 0; }
+.ls-fieldset-item-remove     { position: absolute; top: 7px; right: 0; cursor: pointer; }
+
+.ls-field-set .fieldset-footer{
+    padding: 0;
+}
