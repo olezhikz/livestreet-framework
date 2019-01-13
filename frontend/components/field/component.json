@@ -34,11 +34,7 @@
         "text": "field.text.tpl",
         "textarea": "field.textarea.tpl",
         "upload-area": "field.upload-area.tpl",
-        
-<<<<<<< HEAD
-        
-=======
->>>>>>> 2ae9ce994615e373c964fe9b48e335be85542166
+
         "set": "field.set.tpl",
         "set-item": "field.set.item.tpl"
     },
