@@ -117,7 +117,7 @@ class ModuleNotify extends Module
          * Если в конфигураторе указан отложенный метод отправки,
          * то добавляем задание в массив. В противном случае,
          * сразу отсылаем на email
-         */$this->Logger_Notice($sBody);
+         */
         $oNotifyTask = Engine::GetEntity('Notify_Task');
         $oNotifyTask->setUserMail($sMail);
         $oNotifyTask->setUserLogin($sName);
