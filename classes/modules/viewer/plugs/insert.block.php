@@ -28,7 +28,7 @@
  * @return string
  */
 function smarty_insert_block($aParams, &$oSmarty)
-{
+{    
     if (!isset($aParams['block'])) {
         trigger_error('Not found param "block"', E_USER_WARNING);
         return;
