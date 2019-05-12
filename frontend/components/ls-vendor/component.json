@@ -6,7 +6,6 @@
         "browser": "jquery.browser.js",
         "widget": "widget.js",
         "cookie": "jquery.cookie.js",
-        "fileupload": "jquery.fileupload.js",
         "form": "jquery.form.js",
         "hotkeys": "jquery.hotkeys.js",
         "jqplugin": "jquery.jqplugin.js",
