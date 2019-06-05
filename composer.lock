@@ -1,0 +1,71 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "5d53a94ca510e284d67b125c9011663e",
+    "content-hash": "48283fb0460a2a713d86a95ff25ac202",
+    "packages": [
+        {
+            "name": "agelxnash/jevix",
+            "version": "1.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AgelxNash/Jevix.git",
+                "reference": "c37170e3d60f357ee1087adde89df7fd938fdb8b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AgelxNash/Jevix/zipball/c37170e3d60f357ee1087adde89df7fd938fdb8b",
+                "reference": "c37170e3d60f357ee1087adde89df7fd938fdb8b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-0": {
+                    "Jevix": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Roman Shamritskiy",
+                    "email": "roman@litgroup.ru"
+                },
+                {
+                    "name": "ur001"
+                },
+                {
+                    "name": "livestreet framework"
+                },
+                {
+                    "name": "Bezumkin"
+                },
+                {
+                    "name": "Evgeniy Borisov",
+                    "email": "agel-nash@mail.ru"
+                }
+            ],
+            "description": "Library for html filtering",
+            "time": "2019-03-29 12:26:55"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
