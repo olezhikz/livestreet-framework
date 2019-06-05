@@ -1,4 +1,10 @@
 {
+    "name":"livestreet/framework",
+    "license": "MIT",
+    "description": "Livestreet Framework",
+    "authors": [
+      {"name": "OlegDemidov"}
+    ],
     "require": {
         "agelxnash/jevix": "1.2.4"
     }
