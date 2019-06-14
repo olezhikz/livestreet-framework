@@ -19,8 +19,8 @@
  *
  */
 
-require_once(Config::Get('path.framework.libs_vendor.server') . '/Smarty/libs/Smarty.class.php');
-require_once(Config::Get('path.framework.libs_application.server') . '/SmartyLS/SmartyLS.class.php');
+//require_once(Config::Get('path.framework.libs_vendor.server') . '/Smarty/libs/Smarty.class.php');
+//require_once(Config::Get('path.framework.libs_application.server') . '/SmartyLS/SmartyLS.class.php');
 
 /**
  * Модуль обработки шаблонов используя шаблонизатор Smarty
@@ -342,7 +342,7 @@ class ModuleViewer extends Module
      */
     public function CreateSmartyObject()
     {
-        return new SmartyLS();
+        return new Smarty();
     }
 
     /**
@@ -1241,6 +1241,54 @@ class ModuleViewer extends Module
                 }
             }
         }
+        
+        $bSkipDelegate = false;
+        if (preg_match('#^Inherit@(.+)#i', $sName, $aMatch)) {
+            /**
+             * Получаем шаблон по цепочке наследования
+             */
+            $sTpl = trim($aMatch[1]);
+            $sParentTemplate = Engine::getInstance()->Plugin_GetParentInherit($sTpl);
+            if ($sTpl == $sParentTemplate) {
+                /**
+                 * Сбрасываем цепочку наследования к начальному состоянию
+                 */
+                Engine::getInstance()->Plugin_ResetInheritPosition($sParentTemplate);
+                /**
+                 * В параметре может быть путь до шаблона с ".tpl" в конце, а таже может быть путь до шаблона компонента вида "component.name.template"
+                 */
+                if (!preg_match("#^\.tpl$#i", $sTpl)) {
+                    $aPath = explode('.', $sTpl);
+                    if (count($aPath) == 3 and preg_match('#^([\w\_]+\:)?component$#i', $aPath[0], $aMatch2)) {
+                        $sPrefix = '';
+                        if (isset($aMatch2[1])) {
+                            $sPrefix = $aMatch2[1];
+                        }
+                        $sTemplate = Engine::getInstance()->Component_GetTemplatePath($sPrefix . $aPath[1],
+                            $aPath[2], false);
+                    }
+                }
+            }
+            $bSkipDelegate = true;
+        }
+        /*
+         * Ловим использование extends на файлы компонентов
+         * Синтаксис: {extends 'Component@compname.template'}
+         */
+        if (preg_match('#^Component@(.+)#i', $sName, $aMatch)) {
+            $aPath = explode('.', $aMatch[1], 2);
+            $sTemplate = Engine::getInstance()->Component_GetTemplatePath($aPath[0], isset($aPath[1]) ? $aPath[1] : null, true);
+            $bSkipDelegate = true;
+        }
+
+        if (!$bSkipDelegate) {
+            $sTemplate = Engine::getInstance()->Plugin_GetDelegate('template', $sTemplate);
+        }
+                
+        if ($this->TemplateExists($sTemplate)) {
+            return $sTemplate;
+        }
+        
         return false;
     }
 

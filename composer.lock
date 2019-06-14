@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5d53a94ca510e284d67b125c9011663e",
-    "content-hash": "48283fb0460a2a713d86a95ff25ac202",
+    "hash": "6aba4214bd1b5e551cb1b60f2a3ef629",
+    "content-hash": "4aeaa45fd295bdd2d6c858701b35897c",
     "packages": [
         {
             "name": "agelxnash/jevix",
@@ -58,12 +58,70 @@
             ],
             "description": "Library for html filtering",
             "time": "2019-03-29 12:26:55"
+        },
+        {
+            "name": "livestreet/smarty",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/olezhikz/smarty.git",
+                "reference": "07697ea07a949c5497aab5be7ff8dcb13b4b0f1f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/olezhikz/smarty/zipball/07697ea07a949c5497aab5be7ff8dcb13b4b0f1f",
+                "reference": "07697ea07a949c5497aab5be7ff8dcb13b4b0f1f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "6.4.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "libs/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Monte Ohrt",
+                    "email": "monte@ohrt.com"
+                },
+                {
+                    "name": "Uwe Tews",
+                    "email": "uwe.tews@googlemail.com"
+                },
+                {
+                    "name": "Rodney Rehm",
+                    "email": "rodney.rehm@medialize.de"
+                }
+            ],
+            "description": "Smarty - the compiling PHP template engine",
+            "homepage": "http://www.smarty.net",
+            "keywords": [
+                "templating"
+            ],
+            "time": "2019-06-13 08:39:17"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "livestreet/smarty": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

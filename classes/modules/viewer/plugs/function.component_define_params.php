@@ -40,10 +40,11 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
         return;
     }
 
-    $aLocalVars = $oSmarty->tpl_vars_local;
+    $aVars = $oSmarty->getTemplateVars('params');
+    $aVars = $aVars?$aVars:[];
     foreach ($aComponentParams as $sParamName) {
-        if (array_key_exists($sParamName, $aLocalVars)) {
-            $oSmarty->assign($sParamName, $aLocalVars[$sParamName]->value);
+        if (array_key_exists($sParamName, $aVars)) {
+            $oSmarty->assign($sParamName, $aVars[$sParamName]);
         } else {
             $oSmarty->assign($sParamName, null);
         }

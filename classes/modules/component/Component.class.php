@@ -352,12 +352,16 @@ class ModuleComponent extends Module
      */
     public function GetTemplatePath($sNameFull, $sTemplate = null, $bCheckDelegate = true)
     {
-        list($sPlugin, $sName) = $this->ParseName($sNameFull);
+        list($sPlugin, $sName, $sTemplateParse) = $this->ParseName($sNameFull);
         /**
          * По дефолту используем в качестве имени шаблона название компонента
          */
         if (!$sTemplate) {
             $sTemplate = $sName;
+        }
+        
+        if($sTemplateParse){
+            $sTemplate = $sTemplateParse;
         }
         if ($bCheckDelegate) {
             /**
@@ -441,12 +445,23 @@ class ModuleComponent extends Module
     protected function ParseName($sName)
     {
         $sName = strtolower($sName);
+        
+        $sPluginName = null;
+        $sTemplate =  null;
+        
         $aPath = explode(':', $sName);
         if (count($aPath) == 2) {
-            return array($aPath[0], $aPath[1]);
+            $sPluginName = $aPath[0];
+            $sName = $aPath[1];
+        }
+        
+        $aPath = explode('.', $sName, 2);
+        if (count($aPath) == 2) {
+            $aPath = $aPath[0];
+            $sTemplate = $aPath[1];
         }
         //if (preg_match("#^\{([\w_-]+)\}/?([\w_-]+)$#", $sName, $aMatch)) {
-        return array(null, $sName);
+        return array($sPluginName, $sName, $sTemplate);
     }
 
     /**
