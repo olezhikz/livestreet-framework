@@ -680,18 +680,28 @@ class ModuleViewer extends Module
         $sClassBlock = ($sPlugin ? 'Plugin' . func_camelize($sPlugin) . '_' : '') . 'Block' . func_camelize($sName);
         if (class_exists($sClassBlock)) {
             return 'block';
-        } elseif ($this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/'))) {
+        }
+        if ($this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/'))) {
             /**
              * Если найден шаблон по имени блока то считаем его простым шаблоном
              */
             return 'template';
-        } else {
+        } 
+        
+        $sBlockTemplate = Engine::getInstance()->Component_GetTemplatePath($sName );
+        
+        if ($this->TemplateExists($sBlockTemplate)) {
             /**
-             * Считаем что тип не определен
+             * Если найден шаблон по имени блока то считаем его простым шаблоном
              */
-            throw new Exception('Can not find the block`s template: ' . $sName);
-            return 'undefined';
-        }
+            return 'template';
+        } 
+        
+        /**
+         * Считаем что тип не определен
+         */
+        throw new Exception('Can not find the block`s template: ' . $sName);
+        return 'undefined';
     }
 
     /**

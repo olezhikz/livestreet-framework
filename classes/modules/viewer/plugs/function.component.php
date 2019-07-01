@@ -61,8 +61,6 @@ function smarty_function_component($aParams, &$oSmarty)
     }
 
     unset($aComponentParams['_default_short']);
-    unset($aComponentParams['component']);
-    unset($aComponentParams['template']);
     unset($aComponentParams['params']);
 
     //$aComponentParams['params'] = $aComponentParams;
@@ -74,7 +72,7 @@ function smarty_function_component($aParams, &$oSmarty)
             $sTemplate) and Engine::getInstance()->Viewer_TemplateExists($sPathTemplate)
     ) {
         $oTemplate = $oSmarty->createTemplate($sPathTemplate, $oSmarty->cache_id, $oSmarty->compile_id, $oSmarty);
-        $oTemplate->assign('params', $aComponentParams);
+        $oTemplate->assign( $aComponentParams);
         $sResult = $oTemplate->fetch();
     } else {
         $sResult = 'Component template not found: ' . $sName . '/' . ($sTemplate ? $sTemplate : $sName) . '.tpl';

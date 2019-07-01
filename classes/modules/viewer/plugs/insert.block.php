@@ -76,12 +76,13 @@ function smarty_insert_block($aParams, &$oSmarty)
          * Получаем шаблон, возможно его переопределили в обработчике блока
          */
         $sBlockTemplate = Engine::getInstance()->Plugin_GetDelegate('template', $oBlock->GetTemplate());
+        
         if (!Engine::getInstance()->Viewer_TemplateExists($sBlockTemplate)) {
             /**
              * Попытаться получить путь компонента
              */
             $sBlockTemplate = Engine::getInstance()->Component_GetTemplatePath($sBlockTemplate );
-            if ( Engine::getInstance()->Viewer_TemplateExists($sBlockTemplate) ){
+            if ( !Engine::getInstance()->Viewer_TemplateExists($sBlockTemplate) ){
                 trigger_error("Not found template for block: {$sBlockTemplate} ({$sBlock})", E_USER_WARNING);
                 return;
             }
@@ -90,6 +91,7 @@ function smarty_insert_block($aParams, &$oSmarty)
     }
     /**
      * Возвращаем результат в виде обработанного шаблона блока
-     */
+     */           
+
     return Engine::getInstance()->Viewer_Fetch($sBlockTemplate);
 }

@@ -444,24 +444,14 @@ class ModuleComponent extends Module
      */
     protected function ParseName($sName)
     {
-        $sName = strtolower($sName);
-        
-        $sPluginName = null;
-        $sTemplate =  null;
-        
-        $aPath = explode(':', $sName);
-        if (count($aPath) == 2) {
-            $sPluginName = $aPath[0];
-            $sName = $aPath[1];
+        if(!preg_match('/^(component@)?(([\w]+):)?([\w-]+)\.?([\w\.-]+)?$/', $sName, $aMatches)){
+            return array('', '', '');
         }
         
-        $aPath = explode('.', $sName, 2);
-        if (count($aPath) == 2) {
-            $aPath = $aPath[0];
-            $sTemplate = $aPath[1];
-        }
-        //if (preg_match("#^\{([\w_-]+)\}/?([\w_-]+)$#", $sName, $aMatch)) {
-        return array($sPluginName, $sName, $sTemplate);
+        $sTemplate = isset($aMatches[5])?$aMatches[5]:'';
+        
+        return array($aMatches[3], $aMatches[4], $sTemplate);
+        
     }
 
     /**
