@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "5d53a94ca510e284d67b125c9011663e",
-    "content-hash": "48283fb0460a2a713d86a95ff25ac202",
+    "content-hash": "f46786582a306f4d34b88a1e820e73a1",
     "packages": [
         {
             "name": "agelxnash/jevix",
@@ -57,7 +56,7 @@
                 }
             ],
             "description": "Library for html filtering",
-            "time": "2019-03-29 12:26:55"
+            "time": "2019-03-29T12:26:55+00:00"
         }
     ],
     "packages-dev": [],
