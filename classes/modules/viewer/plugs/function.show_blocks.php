@@ -49,7 +49,9 @@ function smarty_function_show_blocks($aParams, &$oSmarty)
                     $aDataTpl = $aBlock['params'];
                     $aDataTpl['params'] = $aBlock['params'];
                 }
-                $sResult .= $oSmarty->getSubTemplate($aBlock['name'], $oSmarty->cache_id, $oSmarty->compile_id, null, null, $aDataTpl, Smarty::SCOPE_LOCAL);
+                $oTemplate = $oSmarty->createTemplate($aBlock['name'], $oSmarty->cache_id, $oSmarty->compile_id, $oSmarty);
+                $oTemplate->assign( $aDataTpl);
+                $sResult .= $oTemplate->fetch();
             }
         }
     }

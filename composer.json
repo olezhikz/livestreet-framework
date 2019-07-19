@@ -5,7 +5,15 @@
     "authors": [
       {"name": "OlegDemidov"}
     ],
+    
     "require": {
-        "agelxnash/jevix": "1.2.4"
+        "agelxnash/jevix": "1.2.4",
+        "livestreet/smarty": "dev-master"
+    },
+    "autoload": {
+        "classmap": [
+            "libs/application/SmartyLS/SmartyLS.class.php",
+            "libs/application/SmartyLS/smarty_internal_template_ls.php"
+        ]
     }
 }

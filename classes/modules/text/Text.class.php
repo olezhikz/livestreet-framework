@@ -19,7 +19,7 @@
  *
  */
 
-require_once(Config::Get('path.framework.libs_vendor.server') . '/Jevix/jevix.class.php');
+use Jevix;
 
 /**
  * Модуль обработки текста на основе типографа Jevix

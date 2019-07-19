@@ -61,11 +61,9 @@ function smarty_function_component($aParams, &$oSmarty)
     }
 
     unset($aComponentParams['_default_short']);
-    unset($aComponentParams['component']);
-    unset($aComponentParams['template']);
     unset($aComponentParams['params']);
 
-    $aComponentParams['params'] = $aComponentParams;
+    //$aComponentParams['params'] = $aComponentParams;
 
     /**
      * Получаем путь до шаблона
@@ -73,8 +71,9 @@ function smarty_function_component($aParams, &$oSmarty)
     if ($sPathTemplate = Engine::getInstance()->Component_GetTemplatePath($sName,
             $sTemplate) and Engine::getInstance()->Viewer_TemplateExists($sPathTemplate)
     ) {
-        $sResult = $oSmarty->getSubTemplate($sPathTemplate, $oSmarty->cache_id, $oSmarty->compile_id, null, null,
-            $aComponentParams, Smarty::SCOPE_LOCAL);
+        $oTemplate = $oSmarty->createTemplate($sPathTemplate, $oSmarty->cache_id, $oSmarty->compile_id, $oSmarty);
+        $oTemplate->assign( $aComponentParams);
+        $sResult = $oTemplate->fetch();
     } else {
         $sResult = 'Component template not found: ' . $sName . '/' . ($sTemplate ? $sTemplate : $sName) . '.tpl';
     }

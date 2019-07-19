@@ -32,20 +32,16 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
     if (isset($aParams['params'])) {
         if (is_array($aParams['params'])) {
             $aComponentParams = $aParams['params'];
-        } else {
-            $aComponentParams = explode(',', $aParams['params']);
-        }
+        } 
     } else {
         trigger_error("component_define_params: missing 'params' parameter", E_USER_WARNING);
         return;
     }
-
-    $aLocalVars = $oSmarty->tpl_vars_local;
-    foreach ($aComponentParams as $sParamName) {
-        if (array_key_exists($sParamName, $aLocalVars)) {
-            $oSmarty->assign($sParamName, $aLocalVars[$sParamName]->value);
-        } else {
-            $oSmarty->assign($sParamName, null);
+    
+    foreach ($aComponentParams as $key => $mValue) {
+        $mVar = $oSmarty->getTemplateVars($key);
+        if (!$mVar) {
+            $oSmarty->assign($key, $mValue);
         }
     }
 
