@@ -2,7 +2,6 @@
     "name": "confirm",
     "version": "1.0.0",
     "dependencies": {
-        "css-reset": "*",
         "ls-vendor": "*",
         "ls-core": "*",
         "ls-component": "*",

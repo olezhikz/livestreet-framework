@@ -1,0 +1,14 @@
+{
+    "name": "tinymce",
+    "version": "1.0.0",
+    "templates": {
+        "tinymce": "tinymce.tpl"
+    },
+    "scripts": {
+        "tinymce": {
+            "file":"tinymce/tinymce.min.js",
+            "merge": false
+        },
+        "init": "js/init.js"
+    }
+}

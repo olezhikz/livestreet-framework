@@ -19,62 +19,39 @@
 {$show = $show|default:true}
 
 {if $show}
-    <div class="{$component} {cmods name=$component mods=$mods} {$classes}" {cattr list=$attributes}>
-        {* Шапка *}
-        {if $title}
-            <header class="{$component}-header">
-                {block 'block_header_inner'}
-                    <h3 class="{$component}-title">
-                        {if $titleUrl}
-                            <a href="{$titleUrl}">{$title}</a>
-                        {else}
-                            {$title}
-                        {/if}
-                    </h3>
-                {/block}
-            </header>
+    {capture name="title"}
+        {if $titleUrl}
+            <a href="{$titleUrl}">{$title}</a>
+        {else}
+            {$title}
         {/if}
-
-        {block 'block_header_after'}{/block}
-
-        {* Содержимое *}
-        {if $content}
-            {block 'block_content'}
-                <div class="{$component}-content">
-                    {block 'block_content_inner'}
-                        {$content}
-                    {/block}
-                </div>
-            {/block}
-        {/if}
-
-        {block 'block_content_after'}{/block}
-
+    {/capture}
+    
+    {capture name="list"}
         {* List group *}
         {if is_array( $list )}
-            {component 'item' template='group' params=$list}
+            {component 'bs-list-group' params=$list}
         {elseif $list}
             {$list}
         {/if}
+    {/capture}
 
-        {* Tabs *}
-        {if is_array( $tabs )}
-            {component 'tabs' classes='js-tabs-block' params=$tabs}
-        {elseif $tabs}
-            {$tabs}
-        {/if}
-
-        {* Подвал *}
-        {if $footer}
-            {block 'block_footer'}
-                <div class="{$component}-footer">
-                    {block 'block_footer_inner'}
-                        {$footer}
-                    {/block}
-                </div>
-            {/block}
-        {/if}
-
-        {block 'block_footer_after'}{/block}
-    </div>
+    {component 'bs-card' 
+        bmods=$mods 
+        classes="{$classes} mt-3"
+        attributes=$attributes 
+        text="white" 
+        content=[
+            [type=>"header", content=>$smarty.capture.title],
+            [   
+                type => 'body',
+                content => [
+                    {$smarty.capture.list},
+                    [type=>"text", content=>$content],
+                    {$footer}
+                ]
+            ]
+        ]
+    }
+    
 {/if}

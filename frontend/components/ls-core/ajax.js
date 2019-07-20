@@ -114,10 +114,10 @@ ls.ajax = (function ($) {
             url = aRouter['ajax'] + url + '/';
         }
 
-        if ($.isFunction(form.parsley)) {
-            form.parsley().off('form:validate', ls.ajax.onFormValidate);
-            form.parsley().on('form:validate', ls.ajax.onFormValidate);
-        }
+//        if ($.isFunction(form.parsley)) {
+//            form.parsley().off('form:validate', ls.ajax.onFormValidate);
+//            form.parsley().on('form:validate', ls.ajax.onFormValidate);
+//        }
 
         var options = {
             type: 'POST',
@@ -131,42 +131,33 @@ ls.ajax = (function ($) {
                 // Сбрасываем текущие ошибки
                 this.clearFieldErrors(form);
             }.bind(this),
-            beforeSerialize: function (form, options) {
-                if (typeof more.validate == 'undefined' || more.validate === true) {
-                    var res=form.parsley('validate');
-                    if (!res) {
-                        NProgress.done();
-                        if ( $.isFunction( more.onValidateFail ) ) more.onValidateFail.apply( this, arguments );
-                    }
-                    return res;
-                }
-
-                return true;
-            },
+//            beforeSerialize: function (form, options) {
+//                if (typeof more.validate == 'undefined' || more.validate === true) {
+//                    var res=form.parsley('validate');
+//                    if (!res) {
+//                        NProgress.done();
+//                        if ( $.isFunction( more.onValidateFail ) ) more.onValidateFail.apply( this, arguments );
+//                    }
+//                    return res;
+//                }
+//
+//                return true;
+//            },
             success: function (response, status, xhr, form) {
                 if ( response.bStateError ) {
-                    if ( response.errors ) {
-                        this.showFieldErrors(form, response.errors);
-                    } else {
-                        if ( more.showNotices ) {
-                            if ( response.sMsgTitle || response.sMsg )
-                                ls.msg.error( response.sMsgTitle, response.sMsg );
-                        } else {
-                            if ( response.is_form_error && ( response.sMsgTitle || response.sMsg ) )
-                                this.showFormAlert(form, response.sMsgTitle, response.sMsg);
-                        }
-                    }
-
+                    if ( more.showNotices && ( response.sMsgTitle || response.sMsg ) ) ls.msg.error( response.sMsgTitle, response.sMsg );
                     if ( $.isFunction( more.onError ) ) more.onError.apply( this, arguments );
                 } else {
                     if ( more.showNotices && ( response.sMsgTitle || response.sMsg ) ) ls.msg.notice( response.sMsgTitle, response.sMsg );
-                    if ( $.isFunction( callback ) ) callback.apply( this, arguments );
+
+                }
+                if ( $.isFunction( callback ) ) callback.apply( this, arguments );
+                
+                if ( !response.bStateError ) {
+                    response.sUrlRedirect && (window.location = response.sUrlRedirect);
+                    response.bRefresh && (window.location.reload());
                 }
 
-                response.sUrlRedirect && (window.location = response.sUrlRedirect);
-                response.bRefresh && (window.location.reload());
-
-                if ( $.isFunction( more.onResponse ) ) more.onResponse.apply( this, arguments );
             }.bind(this),
             error: function(msg){
                 if ( $.isFunction( more.onError ) ) more.onError.apply( this, arguments );
@@ -174,9 +165,9 @@ ls.ajax = (function ($) {
             complete: function() {
                 NProgress.done();
                 button.prop('disabled', false).removeClass(ls.options.classes.states.loading);
-
-                if ( $.isFunction( more.onComplete ) ) more.onComplete.apply( this, arguments );
                 if ( lock ) ls.utils.formUnlock( form );
+                
+                if ( $.isFunction( more.onComplete ) ) more.onComplete.apply( this, arguments );                
             }.bind(this)
         };
 

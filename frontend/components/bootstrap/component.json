@@ -1,0 +1,22 @@
+{
+    "name": "bootstrap",
+    "version": "1.0.0",
+    "templates": {
+    },
+    "scripts":{
+        "popper":{
+            "file":"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js",
+            "merge":false
+        },
+        "bootstrap":{
+            "file":"bootstrap-4.3.1-dist/js/bootstrap.min.js",
+            "merge":false
+        }
+    },
+    "styles":{
+        "bootstrap":{
+            "file":"bootstrap-4.3.1-dist/css/bootstrap.min.css",
+            "merge":false
+        }
+    }
+}

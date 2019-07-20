@@ -38,14 +38,13 @@ $.widget( "livestreet.lsConfirm", $.livestreet.lsComponent, {
     _onClick: function ( event ) {
         if ( window.confirm( this.option( 'message' ) ) ) {
             if ( $.isFunction( this.option( 'onconfirm' ) ) ) {
-                this.option( 'onconfirm' ).call( this, event );
+                this._trigger('onconfirm', event );
                 event.preventDefault();
             }
         } else {
-            if ( $.isFunction( this.option( 'oncancel' ) ) ) {
-                this.option( 'oncancel' ).call( this, event );
+            if ( $.isFunction( this.option( 'onconfirm' ) ) ) {
+                this._trigger('oncancel', event );
             }
-
             event.preventDefault();
         }
     }
