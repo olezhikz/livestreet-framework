@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "6aba4214bd1b5e551cb1b60f2a3ef629",
-    "content-hash": "4aeaa45fd295bdd2d6c858701b35897c",
+    "content-hash": "819a3e81d27a42e7645203195f1a4c81",
     "packages": [
         {
             "name": "agelxnash/jevix",
@@ -57,7 +56,51 @@
                 }
             ],
             "description": "Library for html filtering",
-            "time": "2019-03-29 12:26:55"
+            "time": "2019-03-29T12:26:55+00:00"
+        },
+        {
+            "name": "livestreet/dbsimple",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/olezhikz/DbSimple.git",
+                "reference": "c333fba100e73ebd5e0df42a69061ba324818f02"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/olezhikz/DbSimple/zipball/c333fba100e73ebd5e0df42a69061ba324818f02",
+                "reference": "c333fba100e73ebd5e0df42a69061ba324818f02",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Dmitry Koterov",
+                    "email": "dmitry.koterov@gmail.com"
+                },
+                {
+                    "name": "Sergey Bondarenko",
+                    "email": "s.bondarenko@ambalus.ru"
+                }
+            ],
+            "description": "Interface to work with various DBs.",
+            "keywords": [
+                "Simple",
+                "db"
+            ],
+            "time": "2019-07-20T18:31:16+00:00"
         },
         {
             "name": "livestreet/smarty",
@@ -113,14 +156,15 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2019-06-13 08:39:17"
+            "time": "2019-06-13T08:39:17+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "livestreet/smarty": 20
+        "livestreet/smarty": 20,
+        "livestreet/dbsimple": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

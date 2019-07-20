@@ -19,7 +19,7 @@
  *
  */
 
-require_once(Config::Get('path.framework.libs_vendor.server') . '/DbSimple/Generic.php');
+//require_once(Config::Get('path.framework.libs_vendor.server') . '/DbSimple/Generic.php');
 
 /**
  * Модуль для работы с базой данных

@@ -8,7 +8,8 @@
     
     "require": {
         "agelxnash/jevix": "1.2.4",
-        "livestreet/smarty": "dev-master"
+        "livestreet/smarty": "dev-master",
+        "livestreet/dbsimple": "dev-master"
     },
     "autoload": {
         "classmap": [
