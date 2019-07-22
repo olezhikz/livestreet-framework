@@ -59,11 +59,11 @@ class ModuleCache_EntityBackendLibmemcached extends ModuleCache_EntityBackend
      */
     public function Init($aParams = array())
     {
-        require_once(LS_DKCACHE_PATH . 'Cache/Backend/TagEmuWrapper.php');
-        require_once(LS_DKCACHE_PATH . 'Zend/Cache/Backend/Libmemcached.php');
+//        require_once(LS_DKCACHE_PATH . 'Cache/Backend/TagEmuWrapper.php');
+//        require_once(LS_DKCACHE_PATH . 'Zend/Cache/Backend/Libmemcached.php');
         $aConfig = Config::Get('libmemcached');
 
-        $oCahe = new Zend_Cache_Backend_Libmemcached(is_array($aConfig) ? $aConfig : array());
+        $oCahe = new ZendZend_Cache_Backend_Libmemcached(is_array($aConfig) ? $aConfig : array());
         if (isset($aParams['stats_callback'])) {
             $this->oCacheBackend = new Dklab_Cache_Backend_TagEmuWrapper(new Dklab_Cache_Backend_Profiler($oCahe,
                 $aParams['stats_callback']));

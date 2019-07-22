@@ -260,7 +260,7 @@ class ModuleImage extends Module
              * Создаем объект изображения библиотеки Imagine
              */
             $oImagine = new $sClassDriver();
-            $oImageObject = $oImagine->create(new Imagine\Image\Box($iWidth, $iHeight));
+            $oImageObject = $oImagine->create(new \Imagine\Image\Box($iWidth, $iHeight));
             /**
              * Создаем объект для работы с изображением
              */

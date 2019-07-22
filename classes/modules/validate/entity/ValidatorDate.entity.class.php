@@ -41,7 +41,7 @@ class ModuleValidate_EntityValidatorDate extends ModuleValidate_EntityValidator
      *
      * @var string|array
      */
-    public $format = 'yyyy-MM-dd';
+    public $format = 'Y-m-d';
     /**
      * Допускать или нет пустое значение
      *
@@ -70,8 +70,8 @@ class ModuleValidate_EntityValidatorDate extends ModuleValidate_EntityValidator
         $aFormats = is_string($this->format) ? array($this->format) : $this->format;
         $bValid = false;
         foreach ($aFormats as $sFormat) {
-            $iTimestamp = DateTimeParser::parse($sValue, $sFormat);
-            if ($iTimestamp !== false) {
+            $dateTime = DateTime::createFromFormat($sFormat, $sValue );
+            if ($dateTime !== false) {
                 $bValid = true;
                 break;
             }

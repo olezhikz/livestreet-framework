@@ -76,7 +76,7 @@ class ModuleDatabase extends Module
             /**
              * Если такого коннекта еще не было то создаём его
              */
-            $oDbSimple = DbSimple_Generic::connect($sDSN);
+            $oDbSimple = DbSimple\Generic::connect($sDSN);
             /**
              * Устанавливаем хук на перехват ошибок при работе с БД
              */

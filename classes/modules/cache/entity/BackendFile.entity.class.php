@@ -73,7 +73,7 @@ class ModuleCache_EntityBackendFile extends ModuleCache_EntityBackend
      */
     public function Init($aParams = array())
     {
-        require_once(LS_DKCACHE_PATH . 'Zend/Cache/Backend/File.php');
+//        require_once(LS_DKCACHE_PATH . 'Zend/Cache/Backend/File.php');
         $sDirCache = $this->GetCacheDir();
         $oCahe = new Zend_Cache_Backend_File(
             array(

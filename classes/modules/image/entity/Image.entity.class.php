@@ -131,7 +131,7 @@ class ModuleImage_EntityImage extends Entity
                      */
                     $oBoxResize = $oBox->heighten($iHeightDest);
                 } else {
-                    $oBoxResize = new Imagine\Image\Box($iWidthDest, $iHeightDest);
+                    $oBoxResize = new \Imagine\Image\Box($iWidthDest, $iHeightDest);
                 }
 
                 $oImage->resize($oBoxResize);
@@ -177,11 +177,11 @@ class ModuleImage_EntityImage extends Entity
                     $iNewWidth = $iNewHeight * $iProp;
                 }
 
-                $oBoxCrop = new Imagine\Image\Box($iNewWidth, $iNewHeight);
+                $oBoxCrop = new \Imagine\Image\Box($iNewWidth, $iNewHeight);
                 if ($sPosition == 'center') {
-                    $oPointStart = new Imagine\Image\Point(($iWidth - $iNewWidth) / 2, ($iHeight - $iNewHeight) / 2);
+                    $oPointStart = new \Imagine\Image\Point(($iWidth - $iNewWidth) / 2, ($iHeight - $iNewHeight) / 2);
                 } else {
-                    $oPointStart = new Imagine\Image\Point(0, 0);
+                    $oPointStart = new \Imagine\Image\Point(0, 0);
                 }
                 $oImage->crop($oPointStart, $oBoxCrop);
                 return $this;
@@ -284,8 +284,8 @@ class ModuleImage_EntityImage extends Entity
              * Вырезаем
              */
             try {
-                $oPointStart = new Imagine\Image\Point($x1, $y1);
-                $oBoxCrop = new Imagine\Image\Box($iW, $iH);
+                $oPointStart = new \Imagine\Image\Point($x1, $y1);
+                $oBoxCrop = new \Imagine\Image\Box($iW, $iH);
                 $oImage->crop($oPointStart, $oBoxCrop);
             } catch (Imagine\Exception\Exception $e) {
                 $this->setLastError($e->getMessage());
@@ -478,17 +478,17 @@ class ModuleImage_EntityImage extends Entity
                  * Определяем координаты позиции ватермарка
                  */
                 if ($mPosition == 'bottom-left') {
-                    $oPosition = new Imagine\Image\Point(0, $oSize->getHeight() - $oSizeW->getHeight());
+                    $oPosition = new \Imagine\Image\Point(0, $oSize->getHeight() - $oSizeW->getHeight());
                 } elseif ($mPosition == 'top-left') {
-                    $oPosition = new Imagine\Image\Point(0, 0);
+                    $oPosition = new \Imagine\Image\Point(0, 0);
                 } elseif ($mPosition == 'top-right') {
-                    $oPosition = new Imagine\Image\Point($oSize->getWidth() - $oSizeW->getWidth(), 0);
+                    $oPosition = new \Imagine\Image\Point($oSize->getWidth() - $oSizeW->getWidth(), 0);
                 } elseif ($mPosition == 'center') {
-                    $oPosition = new Imagine\Image\Point(round(($oSize->getWidth() - $oSizeW->getWidth()) / 2),
+                    $oPosition = new \Imagine\Image\Point(round(($oSize->getWidth() - $oSizeW->getWidth()) / 2),
                         round(($oSize->getHeight() - $oSizeW->getHeight()) / 2));
                 } else {
                     // bottom-right and other
-                    $oPosition = new Imagine\Image\Point($oSize->getWidth() - $oSizeW->getWidth(),
+                    $oPosition = new \Imagine\Image\Point($oSize->getWidth() - $oSizeW->getWidth(),
                         $oSize->getHeight() - $oSizeW->getHeight());
                 }
             } else {

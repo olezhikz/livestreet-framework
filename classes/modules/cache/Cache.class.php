@@ -19,9 +19,9 @@
  *
  */
 
-require_once(Config::Get('path.framework.libs_vendor.server') . '/DklabCache/config.php');
-require_once(LS_DKCACHE_PATH . 'Zend/Cache.php');
-require_once(LS_DKCACHE_PATH . 'Cache/Backend/Profiler.php');
+//require_once(Config::Get('path.framework.libs_vendor.server') . '/DklabCache/config.php');
+//require_once(LS_DKCACHE_PATH . 'Zend/Cache.php');
+//require_once(LS_DKCACHE_PATH . 'Cache/Backend/Profiler.php');
 
 /**
  * Модуль кеширования.
