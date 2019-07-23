@@ -26,4 +26,3 @@ if (isset($bUseEnvironmentTesting)) {
     Engine::SetEnvironment($sEnv = 'testing');
 }
 
-require dirname(__DIR__). '/vendor/autoload.php';

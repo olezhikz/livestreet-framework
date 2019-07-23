@@ -23,9 +23,11 @@
         "phpmailer/phpmailer": "~6.0"
     },
     "autoload": {
-        "classmap": [
-            "libs/application/SmartyLS/SmartyLS.class.php",
-            "libs/application/SmartyLS/smarty_internal_template_ls.php"
+        "files": [
+            "classes/engine/Engine.class.php",
+            "bootstrap/start.php",
+            "config/loader.php"            
         ]
-    }
+    },
+    "minimum-stability": "dev"
 }
