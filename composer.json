@@ -29,5 +29,6 @@
             "config/loader.php"            
         ]
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
