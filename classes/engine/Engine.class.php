@@ -1444,8 +1444,7 @@ class Engine
         /**
          * Подключаем PSR-4 автозагрузчик
          */
-        require_once(Config::Get('path.framework.libs_vendor.server') . DIRECTORY_SEPARATOR . 'php-fig' . DIRECTORY_SEPARATOR . 'PSR-4' . DIRECTORY_SEPARATOR . 'Psr4AutoloaderClass.php');
-        self::$oAutoloader = new Psr4AutoloaderClass();
+        self::$oAutoloader = new Aura\Autoload\Loader();
         self::$oAutoloader->register();
     }
 
@@ -1460,7 +1459,7 @@ class Engine
      */
     static public function AddAutoloaderNamespace($sPrefix, $sBaseDir, $bPrepend = false)
     {
-        self::$oAutoloader->addNamespace($sPrefix, $sBaseDir, $bPrepend);
+        self::$oAutoloader->addPrefix($sPrefix, $sBaseDir, $bPrepend);
     }
 
     /**

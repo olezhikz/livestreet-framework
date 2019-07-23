@@ -57,7 +57,7 @@ class ModuleCron extends ModuleORM
 
         if (Config::Get('module.cron.use_fork')) {
             $that = $this;
-            $aResult = \iFixit\Forker\Forker::map($aTasksReady, function ($iIndex, $oTask) use ($that) {
+            $aResult = Forker::map($aTasksReady, function ($iIndex, $oTask) use ($that) {
                 /**
                  * Производим переподключение к основной БД
                  */

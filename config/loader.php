@@ -22,7 +22,7 @@ define('LS_VERSION_FRAMEWORK', '2.0.1');
 /**
  * Operations with Config object
  */
-require_once(dirname(dirname(__FILE__)) . "/libs/application/ConfigSimple/Config.class.php");
+require_once(dirname(dirname(__FILE__)) . "/classes/engine/Config.class.php");
 /**
  * Загружаем основной конфиг фреймворка
  */

@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "30f32bf73ae3148650e45eb35123d18c",
-    "content-hash": "0381eae50f97ce5434a7d1830dd5d2a0",
+    "content-hash": "3a46d220a7beba867077ce6b25778e53",
     "packages": [
         {
             "name": "agelxnash/jevix",
@@ -57,7 +56,89 @@
                 }
             ],
             "description": "Library for html filtering",
-            "time": "2019-03-29 12:26:55"
+            "time": "2019-03-29T12:26:55+00:00"
+        },
+        {
+            "name": "aura/autoload",
+            "version": "2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/auraphp/Aura.Autoload.git",
+                "reference": "306a7f8d3cb58fb6f94bcff1dddf20c543f68668"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/auraphp/Aura.Autoload/zipball/306a7f8d3cb58fb6f94bcff1dddf20c543f68668",
+                "reference": "306a7f8d3cb58fb6f94bcff1dddf20c543f68668",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "aura": {
+                    "type": "library"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Aura\\Autoload\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Aura.Autoload Contributors",
+                    "homepage": "https://github.com/auraphp/Aura.Autoload/contributors"
+                }
+            ],
+            "description": "Provides a PSR-4 compliant autoloader implementation.",
+            "homepage": "https://github.com/auraphp/Aura.Autoload",
+            "keywords": [
+                "PSR-4",
+                "SPL autoloader",
+                "autoload",
+                "autoloader",
+                "class loader"
+            ],
+            "time": "2016-10-03T19:36:19+00:00"
+        },
+        {
+            "name": "ganlvtech/kcaptcha",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ganlvtech/kcaptcha.git",
+                "reference": "42f6d73a1122ee90a25b3ba8915e59a8283e520d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ganlvtech/kcaptcha/zipball/42f6d73a1122ee90a25b3ba8915e59a8283e520d",
+                "reference": "42f6d73a1122ee90a25b3ba8915e59a8283e520d",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "KCAPTCHA\\": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ganlv",
+                    "email": "ganlvtech@qq.com"
+                }
+            ],
+            "description": "KCAPTCHA for composer",
+            "time": "2018-02-14T06:20:49+00:00"
         },
         {
             "name": "imagine/imagine",
@@ -115,7 +196,7 @@
                 "image manipulation",
                 "image processing"
             ],
-            "time": "2019-07-09 06:55:48"
+            "time": "2019-07-09T06:55:48+00:00"
         },
         {
             "name": "livestreet/dbsimple",
@@ -159,7 +240,39 @@
                 "Simple",
                 "db"
             ],
-            "time": "2019-07-20 18:31:16"
+            "time": "2019-07-20T18:31:16+00:00"
+        },
+        {
+            "name": "livestreet/forker",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/olezhikz/forker.git",
+                "reference": "751317359717fb10490c48cfab66b09571f57da0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/olezhikz/forker/zipball/751317359717fb10490c48cfab66b09571f57da0",
+                "reference": "751317359717fb10490c48cfab66b09571f57da0",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "ryancco"
+                }
+            ],
+            "description": "Forker presents a simple interfacing for forking in PHP.",
+            "time": "2019-07-23T07:39:59+00:00"
         },
         {
             "name": "livestreet/smarty",
@@ -215,7 +328,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2019-06-13 08:39:17"
+            "time": "2019-06-13T08:39:17+00:00"
         },
         {
             "name": "maximebf/consolekit",
@@ -259,7 +372,7 @@
                 "console",
                 "shell"
             ],
-            "time": "2013-01-01 16:03:55"
+            "time": "2013-01-01T16:03:55+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -337,7 +450,54 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2018-11-05 09:00:11"
+            "time": "2018-11-05T09:00:11+00:00"
+        },
+        {
+            "name": "natxet/cssmin",
+            "version": "v3.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/natxet/CssMin.git",
+                "reference": "d5d9f4c3e5cedb1ae96a95a21731f8790e38f1dd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/natxet/CssMin/zipball/d5d9f4c3e5cedb1ae96a95a21731f8790e38f1dd",
+                "reference": "d5d9f4c3e5cedb1ae96a95a21731f8790e38f1dd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joe Scylla",
+                    "email": "joe.scylla@gmail.com",
+                    "homepage": "https://profiles.google.com/joe.scylla"
+                }
+            ],
+            "description": "Minifying CSS",
+            "homepage": "http://code.google.com/p/cssmin/",
+            "keywords": [
+                "css",
+                "minify"
+            ],
+            "time": "2018-01-09T11:15:01+00:00"
         },
         {
             "name": "patchwork/jsqueeze",
@@ -384,7 +544,73 @@
                 "javascript",
                 "minification"
             ],
-            "time": "2016-04-19 09:28:22"
+            "time": "2016-04-19T09:28:22+00:00"
+        },
+        {
+            "name": "phpmailer/phpmailer",
+            "version": "v6.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPMailer/PHPMailer.git",
+                "reference": "0c41a36d4508d470e376498c1c0c527aa36a2d59"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/0c41a36d4508d470e376498c1c0c527aa36a2d59",
+                "reference": "0c41a36d4508d470e376498c1c0c527aa36a2d59",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-filter": "*",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "doctrine/annotations": "1.2.*",
+                "friendsofphp/php-cs-fixer": "^2.2",
+                "phpdocumentor/phpdocumentor": "2.*",
+                "phpunit/phpunit": "^4.8 || ^5.7",
+                "zendframework/zend-eventmanager": "3.0.*",
+                "zendframework/zend-i18n": "2.7.3",
+                "zendframework/zend-serializer": "2.7.*"
+            },
+            "suggest": {
+                "ext-mbstring": "Needed to send email in multibyte encoding charset",
+                "hayageek/oauth2-yahoo": "Needed for Yahoo XOAUTH2 authentication",
+                "league/oauth2-google": "Needed for Google XOAUTH2 authentication",
+                "psr/log": "For optional PSR-3 debug logging",
+                "stevenmaguire/oauth2-microsoft": "Needed for Microsoft XOAUTH2 authentication",
+                "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PHPMailer\\PHPMailer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Jim Jagielski",
+                    "email": "jimjag@gmail.com"
+                },
+                {
+                    "name": "Marcus Bointon",
+                    "email": "phpmailer@synchromedia.co.uk"
+                },
+                {
+                    "name": "Andy Prevost",
+                    "email": "codeworxtech@users.sourceforge.net"
+                },
+                {
+                    "name": "Brent R. Matzelle"
+                }
+            ],
+            "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
+            "time": "2019-02-01T15:04:28+00:00"
         },
         {
             "name": "psr/log",
@@ -431,7 +657,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2018-11-20 15:27:04"
+            "time": "2018-11-20T15:27:04+00:00"
         },
         {
             "name": "web-monster/dklabcache",
@@ -478,7 +704,7 @@
                 "redis",
                 "system"
             ],
-            "time": "2016-05-23 22:47:44"
+            "time": "2016-05-23T22:47:44+00:00"
         },
         {
             "name": "xxtea/xxtea",
@@ -529,7 +755,7 @@
                 "security",
                 "xxtea"
             ],
-            "time": "2016-03-02 15:39:42"
+            "time": "2016-03-02T15:39:42+00:00"
         }
     ],
     "packages-dev": [],
@@ -537,7 +763,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "livestreet/smarty": 20,
-        "livestreet/dbsimple": 20
+        "livestreet/dbsimple": 20,
+        "livestreet/forker": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

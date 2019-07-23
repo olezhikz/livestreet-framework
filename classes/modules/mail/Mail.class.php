@@ -18,8 +18,8 @@
  * @author Maxim Mzhelskiy <rus.engine@gmail.com>
  *
  */
-
-require_once(Config::Get('path.framework.libs_vendor.server') . '/phpMailer/PHPMailerAutoload.php');
+use PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 /**
  * Модуль для отправки почты(e-mail) через phpMailer
@@ -173,28 +173,33 @@ class ModuleMail extends Module
         /**
          * Создаём объект phpMailer и устанвливаем ему необходимые настройки
          */
-        $this->oMailer = new phpmailer();
-        $this->oMailer->Host = $this->sHost;
-        $this->oMailer->Port = $this->iPort;
-        $this->oMailer->Username = $this->sUsername;
-        $this->oMailer->Password = $this->sPassword;
-        $this->oMailer->SMTPAuth = $this->bSmtpAuth;
-        $this->oMailer->SMTPSecure = $this->sSmtpSecure;
-        $this->oMailer->Mailer = $this->sMailerType;
-        $this->oMailer->WordWrap = $this->iWordWrap;
-        $this->oMailer->CharSet = $this->sCharSet;
+        $this->oMailer = new PHPMailer(true);
+                
+        try {
+            $this->oMailer->Host = $this->sHost;
+            $this->oMailer->Port = $this->iPort;
+            $this->oMailer->Username = $this->sUsername;
+            $this->oMailer->Password = $this->sPassword;
+            $this->oMailer->SMTPAuth = $this->bSmtpAuth;
+            $this->oMailer->SMTPSecure = $this->sSmtpSecure;
+            $this->oMailer->Mailer = $this->sMailerType;
+            $this->oMailer->WordWrap = $this->iWordWrap;
+            $this->oMailer->CharSet = $this->sCharSet;
 
-        $this->oMailer->From = $this->sFrom;
-        $this->oMailer->Sender = $this->sFrom;
-        $this->oMailer->FromName = $this->sFromName;
-        /**
-         * Настройки DKIM
-         */
-        $this->oMailer->DKIM_selector = Config::Get('sys.mail.dkim.selector');
-        $this->oMailer->DKIM_identity = Config::Get('sys.mail.dkim.identity') ?: $this->sFrom;
-        $this->oMailer->DKIM_passphrase = Config::Get('sys.mail.dkim.passphrase');
-        $this->oMailer->DKIM_domain = Config::Get('sys.mail.dkim.domain');
-        $this->oMailer->DKIM_private = Config::Get('sys.mail.dkim.private');
+            $this->oMailer->From = $this->sFrom;
+            $this->oMailer->Sender = $this->sFrom;
+            $this->oMailer->FromName = $this->sFromName;
+            /**
+             * Настройки DKIM
+             */
+            $this->oMailer->DKIM_selector = Config::Get('sys.mail.dkim.selector');
+            $this->oMailer->DKIM_identity = Config::Get('sys.mail.dkim.identity') ?: $this->sFrom;
+            $this->oMailer->DKIM_passphrase = Config::Get('sys.mail.dkim.passphrase');
+            $this->oMailer->DKIM_domain = Config::Get('sys.mail.dkim.domain');
+            $this->oMailer->DKIM_private = Config::Get('sys.mail.dkim.private');
+            } catch (Exception $e) {
+                $this->Logger_Error("Message could not be sent. Mailer Error: {$mail->ErrorInfo}") ;
+        }
     }
 
     /**
