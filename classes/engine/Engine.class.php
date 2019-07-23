@@ -21,6 +21,7 @@
 
 set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__));
 
+require_once("Config.class.php");
 require_once("LsObject.class.php");
 require_once("Plugin.class.php");
 require_once("Block.class.php");

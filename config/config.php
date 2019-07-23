@@ -46,7 +46,7 @@ $config['pagination']['pages']['count'] = 4;                  // количес�
  * Настройки путей
  * Основные
  */
-$config['path']['root']['server'] = dirname(dirname(dirname(__FILE__))); // Из расчета, что каталог с фреймворком лежит в корне сайта, иначе нужно переопределить настройку в конфиге /application/config/config.php
+$config['path']['root']['server'] = dirname(dirname(dirname(dirname(__DIR__)))); // Из расчета, что каталог с фреймворком лежит в vendor, иначе нужно переопределить настройку в конфиге /application/config/config.php
 $config['path']['root']['web'] = isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] : null;
 $config['path']['application']['server'] = '___path.root.server___/application';
 $config['path']['application']['web'] = '___path.root.web___/application';

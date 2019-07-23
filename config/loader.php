@@ -19,18 +19,19 @@
  * Основные константы
  */
 define('LS_VERSION_FRAMEWORK', '2.0.1');
-/**
- * Operations with Config object
- */
-require_once(dirname(dirname(__FILE__)) . "/classes/engine/Config.class.php");
+
 /**
  * Загружаем основной конфиг фреймворка
  */
 Config::LoadFromFile(dirname(__FILE__) . '/config.php');
+/*
+ * Берем путь до приложения
+ */
+$aPathApp = defined('LS_APP_DIR') ? LS_APP_DIR : Config::Get('path.application.server');
 /**
  * Загружаем основной конфиг приложения
  */
-Config::LoadFromFile(Config::Get('path.application.server') . '/config/config.php', false);
+Config::LoadFromFile($aPathApp . '/config/config.php', false);
 /**
  * Вспомогательная функция
  */
