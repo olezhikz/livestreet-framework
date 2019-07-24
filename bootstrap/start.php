@@ -18,11 +18,18 @@
  * @author Maxim Mzhelskiy <rus.engine@gmail.com>
  *
  */
-
+/*
+ * Подключаем ядро
+ */
+require_once dirname(__DIR__).'/classes/engine/Engine.class.php';
 /**
  * Проверяем на необходимость выставить тестовое окружение
  */
 if (isset($bUseEnvironmentTesting)) {
     Engine::SetEnvironment($sEnv = 'testing');
 }
+/*
+ * Загружаем конфиги фреймворка
+ */
+require_once dirname(__DIR__).'/config/loader.php';
 

@@ -20,13 +20,12 @@
         "livestreet/forker": "dev-master",
         "ganlvtech/kcaptcha": "1.0.1",
         "aura/autoload": "2.0.4",
-        "phpmailer/phpmailer": "~6.0"
+        "phpmailer/phpmailer": "~6.0",
+        "kriswallsmith/assetic":"v1.4.0"
     },
     "autoload": {
         "files": [
-            "classes/engine/Engine.class.php",
-            "bootstrap/start.php",
-            "config/loader.php"            
+            "bootstrap/start.php"
         ]
     },
     "minimum-stability": "dev",
