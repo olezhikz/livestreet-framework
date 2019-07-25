@@ -25,13 +25,15 @@ define('LS_VERSION_FRAMEWORK', '2.0.1');
  */
 Config::LoadFromFile(dirname(__FILE__) . '/config.php');
 /*
- * Берем путь до приложения
+ * Устанавливаем в конфиг корневой путь проекта
  */
-$aPathApp = defined('LS_APP_DIR') ? LS_APP_DIR : Config::Get('path.application.server');
+if(defined('LS_ROOT_DIR')){
+    Config::Get('path.root.server', LS_ROOT_DIR);
+}
 /**
  * Загружаем основной конфиг приложения
  */
-Config::LoadFromFile($aPathApp . '/config/config.php', false);
+Config::LoadFromFile(Config::Get('path.application.server') . '/config/config.php', false);
 /**
  * Вспомогательная функция
  */

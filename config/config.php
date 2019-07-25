@@ -46,10 +46,16 @@ $config['pagination']['pages']['count'] = 4;                  // количес�
  * Настройки путей
  * Основные
  */
+
 $config['path']['root']['server'] = dirname(dirname(dirname(dirname(__DIR__)))); // Из расчета, что каталог с фреймворком лежит в vendor, иначе нужно переопределить настройку в конфиге /application/config/config.php
 $config['path']['root']['web'] = isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] : null;
-$config['path']['application']['server'] = '___path.root.server___/application';
-$config['path']['application']['web'] = '___path.root.web___/application';
+
+$config['path']['application']['dirname'] = "application";
+$config['path']['application']['server'] = '___path.root.server___/___path.application.dirname___';
+$config['path']['application']['web'] = '___path.root.web___/___path.application.dirname___';
+
+$config['path']['public'] = '___path.root.server___/web';
+
 $config['path']['framework']['server'] = dirname(dirname(__FILE__));
 $config['path']['framework']['web'] = '___path.root.web___/' . trim(str_replace(dirname(dirname(dirname(__FILE__))), '',
             $config['path']['framework']['server']),
@@ -59,17 +65,17 @@ $config['path']['framework']['web'] = '___path.root.web___/' . trim(str_replace(
  */
 $config['path']['application']['plugins']['server'] = '___path.application.server___/plugins';
 $config['path']['application']['plugins']['web'] = '___path.application.web___/plugins';
-$config['path']['framework']['libs_vendor']['server'] = '___path.framework.server___/libs/vendor';
-$config['path']['framework']['libs_vendor']['web'] = '___path.framework.web___/libs/vendor';
-$config['path']['framework']['libs_application']['server'] = '___path.framework.server___/libs/application';
-$config['path']['framework']['libs_application']['web'] = '___path.framework.web___/libs/application';
+
 $config['path']['framework']['frontend']['web'] = '___path.framework.web___/frontend/framework';
 $config['path']['skin']['web'] = '___path.application.web___/frontend/skin/___view.skin___';
+$config['path']['skin']['server'] = '___path.application.server___/frontend/skin/___view.skin___';
+$config['path']['skin']['assets']['server'] = '___path.skin.server___/assets';
 $config['path']['skin']['assets']['web'] = '___path.skin.web___/assets';
 $config['path']['uploads']['base'] = '/web/uploads';
 $config['path']['uploads']['images'] = '___path.uploads.base___/images';
 $config['path']['tmp']['server'] = '___path.application.server___/tmp';
-$config['path']['cache_assets']['server'] = '___path.tmp.server___/templates/cache';
+$config['path']['cache_assets']['server'] = '___path.public___/assets';
+$config['path']['cache_assets']['web'] = '___path.root.server___/assets';
 $config['path']['offset_request_url'] = 0;                                                       // иногда помогает если сервер использует внутренние реврайты
 /**
  * Для совместимости с прошлыми версиями
@@ -77,7 +83,7 @@ $config['path']['offset_request_url'] = 0;                                      
  */
 //$config['path']['root']['application']     	= '___path.root.server___/application';           // полный путь до сайта в файловой системе
 $config['path']['root']['engine'] = '___path.framework.server___';                         // полный путь до сайта в файловой системе;
-$config['path']['root']['engine_lib'] = '___path.framework.web___/libs';                        // полный путь до сайта в файловой системе
+//$config['path']['root']['engine_lib'] = '___path.framework.web___/libs';                        // полный путь до сайта в файловой системе
 //$config['path']['root']['framework']		= '___path.root.engine___';
 $config['path']['static']['root'] = '___path.root.web___';                                   // чтоб можно было статику засунуть на отдельный сервер
 $config['path']['static']['skin'] = '___path.skin.web___';

@@ -36,6 +36,8 @@ class ModuleAsset_EntityTypeJs extends ModuleAsset_EntityType
         $this->setContent(
             rtrim($this->getContent(), ";") . ";" . PHP_EOL
         );
+        
+        $this->setAsset($this->createAsset());
     }
 
     /**

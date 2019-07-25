@@ -19,9 +19,6 @@
  *
  */
 
-//require_once(Config::Get('path.framework.libs_vendor.server') . '/Smarty/libs/Smarty.class.php');
-//require_once(Config::Get('path.framework.libs_application.server') . '/SmartyLS/SmartyLS.class.php');
-
 /**
  * Модуль обработки шаблонов используя шаблонизатор Smarty
  *

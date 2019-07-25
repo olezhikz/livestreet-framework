@@ -19,6 +19,10 @@
  *
  */
 
+use Assetic\Asset\FileAsset;
+use Assetic\Asset\HttpAsset;
+use Assetic\AssetWriter;
+
 /**
  * Модуль управления статическими файлами css стилей и js сриптов
  * Позволяет сжимать и объединять файлы для более быстрой загрузки
@@ -28,6 +32,9 @@
  */
 class ModuleAsset extends Module
 {
+    
+    protected $oAssetWriter;
+
     /**
      * Тип для файлов стилей
      */
@@ -59,6 +66,11 @@ class ModuleAsset extends Module
          * Задаем начальную структуру для хранения списка файлов по типам
          */
         $this->InitAssets();
+        
+        /*
+         * Инициализируем объект записи/кэширования ресурсов с путем web/assets
+         */
+        $this->oAssetWriter = new AssetWriter(Config::Get('path.cache_assets.server'));
     }
 
     /**
@@ -301,10 +313,14 @@ class ModuleAsset extends Module
 
         $aHeader = array_combine(array_keys($this->aAssets), array('', ''));
         foreach ($aAssets as $sType => $aFile) {
-            if ($oType = $this->CreateObjectType($sType)) {
+            if ($oType = $this->CreateObjectType($sType, $this->oAssetWriter)) {
                 foreach ($aFile as $aParams) {
-                    $sFile = $this->Fs_GetPathWeb($aParams['file']);
-                    $aHeader[$sType] .= $oType->getHeadHtml($sFile, $aParams) . PHP_EOL;
+    //                $this->Logger_Notice($aParams['file']);
+                    $oAsset = $this->CreateAssetType($aParams['file']);
+                    $this->oAssetWriter->writeAsset($oAsset);
+                    $aHeader[$sType] .= $oAsset->dump();
+    //                    $sFile = $this->Fs_GetPathWeb($aParams['file']);
+    //                    $aHeader[$sType] .= $oType->getHeadHtml($sFile, $aParams) . PHP_EOL;
                 }
             }
         }
@@ -539,7 +555,8 @@ class ModuleAsset extends Module
     protected function Merge($aAssetItems, $sType, $bCompress = false)
     {
         $sCacheDir = Config::Get('path.cache_assets.server') . "/" . Config::Get('view.skin');
-        $sCacheFile = $sCacheDir . "/" . md5(serialize(array_keys($aAssetItems)) . '_head') . '.' . $sType;
+        $sCacheFile = Config::Get('path.cache_assets.web') . "/" . Config::Get('view.skin') 
+                . "/" . md5(serialize(array_keys($aAssetItems)) . '_head') . '.' . $sType;
         /**
          * Если файла еще нет, то создаем его
          */
@@ -609,17 +626,38 @@ class ModuleAsset extends Module
      *
      * @return bool|ModuleAsset_EntityType
      */
-    public function CreateObjectType($sType)
+    public function CreateObjectType($sType, $oAssetWriter)
     {
         /**
          * Формируем имя класса для типа
          */
         $sClass = "ModuleAsset_EntityType" . func_camelize($sType);
         if (class_exists(Engine::GetEntityClass($sClass))) {
-            return Engine::GetEntity($sClass);
+            return Engine::GetEntity($sClass, ['writer' => $oAssetWriter]);
         }
         return false;
     }
+    
+    /**
+     * Создает и возврашает объект
+     *
+     * @param string $sPath
+     *
+     * @return AssetInterface
+     */
+    public function CreateAssetType( $sPath)
+    {
+        /**
+         * Формируем имя класса для типа пути HTTP или local
+         */
+        if(parse_url($sPath, PHP_URL_SCHEME)){
+            return new HttpAsset($sPath);
+        }
+        
+        return new FileAsset($sPath);
+
+    }
+   
 
     public function GetRealpath($sPath)
     {
