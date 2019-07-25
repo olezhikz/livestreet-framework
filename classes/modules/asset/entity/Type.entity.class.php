@@ -27,6 +27,8 @@
  */
 abstract class ModuleAsset_EntityType extends Entity
 {
+    
+    protected $oAsset;
     /**
      * Производит предварительную обработку содержимого
      *
@@ -90,15 +92,26 @@ abstract class ModuleAsset_EntityType extends Entity
         $this->_aData['file'] = $sFile;
     }
     
+    
     public function createAsset() {
         /**
          * Формируем имя класса для типа пути HTTP или local
          */
         if(parse_url($this->getFile(), PHP_URL_SCHEME)){
-            return new HttpAsset($this->getFile());
+            return false;
         }
         
-        return new FileAsset($this->getFile());
+        $this->oAsset = new FileAsset($this->getFile());       
+        
+        
+    }
+    
+    public function write() {
+        $this->getWriter()->writeAsset($this->oAsset);
+    }
+    
+    public function getTargetPath() {
+        return $this->oAsset->getTargetPath();
     }
 
     /**

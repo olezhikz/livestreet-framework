@@ -27,17 +27,24 @@
  */
 class ModuleAsset_EntityTypeJs extends ModuleAsset_EntityType
 {
+    
+    public function Init() {
+        if($this->createAsset()){
+            $this->write();
+        }
+    }
+    
     /**
      * Производит предварительную обработку содержимого
      *
      */
     public function prepare()
     {
+        
         $this->setContent(
             rtrim($this->getContent(), ";") . ";" . PHP_EOL
         );
         
-        $this->setAsset($this->createAsset());
     }
 
     /**

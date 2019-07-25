@@ -22,6 +22,9 @@
 use Assetic\Asset\FileAsset;
 use Assetic\Asset\HttpAsset;
 use Assetic\AssetWriter;
+use Assetic\AssetManager;
+use Assetic\Asset\AssetCollection;
+
 
 /**
  * Модуль управления статическими файлами css стилей и js сриптов
@@ -33,7 +36,7 @@ use Assetic\AssetWriter;
 class ModuleAsset extends Module
 {
     
-    protected $oAssetWriter;
+    protected $assetManager;
 
     /**
      * Тип для файлов стилей
@@ -55,7 +58,7 @@ class ModuleAsset extends Module
      *
      * @var array
      */
-    protected $aAssets = array();
+//    protected $assetCollection = array();
 
     /**
      * Инициалищация модуля
@@ -78,23 +81,48 @@ class ModuleAsset extends Module
      */
     protected function InitAssets()
     {
-        $this->aAssets = array(
-            self::ASSET_TYPE_CSS => array(
-                /**
-                 * Список файлов для добавления в конец списка
-                 * В качестве ключей используется путь до файла либо уникальное имя, в качестве значений - дополнительные параметры
-                 */
-                'append'  => array(),
-                /**
-                 * Список файлов для добавления в начало списка
-                 */
-                'prepend' => array(),
-            ),
-            self::ASSET_TYPE_JS  => array(
-                'append'  => array(),
-                'prepend' => array(),
-            ),
-        );
+        $this->assetManager = new AssetManager();
+        
+        $this->assetManager->set(self::ASSET_TYPE_CSS, new AssetCollection([
+            /**
+             * Список файлов css для добавления в начало списка
+             */
+            new AssetCollection(),
+            /**
+             * Список файлов css  для добавления в конец списка
+             */
+            new AssetCollection()
+        ]));
+        
+        $this->assetManager->set(self::ASSET_TYPE_JS, new AssetCollection([
+            /**
+             * Список файлов js для добавления в начало списка
+             */
+            new AssetCollection(),
+            /**
+             * Список файлов js  для добавления в конец списка
+             */
+            new AssetCollection()
+        ]));
+        
+        
+//        $this->aAssets = array(
+//            self::ASSET_TYPE_CSS => array(
+//                /**
+//                 * Список файлов для добавления в конец списка
+//                 * В качестве ключей используется путь до файла либо уникальное имя, в качестве значений - дополнительные параметры
+//                 */
+//                'append'  => array(),
+//                /**
+//                 * Список файлов для добавления в начало списка
+//                 */
+//                'prepend' => array(),
+//            ),
+//            self::ASSET_TYPE_JS  => array(
+//                'append'  => array(),
+//                'prepend' => array(),
+//            ),
+//        );
     }
 
     /**
@@ -313,15 +341,15 @@ class ModuleAsset extends Module
 
         $aHeader = array_combine(array_keys($this->aAssets), array('', ''));
         foreach ($aAssets as $sType => $aFile) {
-            if ($oType = $this->CreateObjectType($sType, $this->oAssetWriter)) {
-                foreach ($aFile as $aParams) {
-    //                $this->Logger_Notice($aParams['file']);
-                    $oAsset = $this->CreateAssetType($aParams['file']);
-                    $this->oAssetWriter->writeAsset($oAsset);
-                    $aHeader[$sType] .= $oAsset->dump();
-    //                    $sFile = $this->Fs_GetPathWeb($aParams['file']);
-    //                    $aHeader[$sType] .= $oType->getHeadHtml($sFile, $aParams) . PHP_EOL;
+            foreach ($aFile as $aParams) {
+                $aParams['writer'] = $this->oAssetWriter;
+                if ($oType = $this->CreateObjectType($sType, $aParams)) {
+                    $oType
                 }
+//                $this->Logger_Notice($aParams['file']);
+                $aHeader[$sType] .= $oAsset->dump();
+//                    $sFile = $this->Fs_GetPathWeb($aParams['file']);
+//                    $aHeader[$sType] .= $oType->getHeadHtml($sFile, $aParams) . PHP_EOL;
             }
         }
         return $aHeader;
@@ -626,14 +654,14 @@ class ModuleAsset extends Module
      *
      * @return bool|ModuleAsset_EntityType
      */
-    public function CreateObjectType($sType, $oAssetWriter)
+    public function CreateObjectType($sType, $aParams)
     {
         /**
          * Формируем имя класса для типа
          */
         $sClass = "ModuleAsset_EntityType" . func_camelize($sType);
         if (class_exists(Engine::GetEntityClass($sClass))) {
-            return Engine::GetEntity($sClass, ['writer' => $oAssetWriter]);
+            return Engine::GetEntity($sClass, $aParams);
         }
         return false;
     }
