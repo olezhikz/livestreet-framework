@@ -73,10 +73,7 @@ class ModuleAsset extends Module
          */
         $this->InitAssets();
         
-        /*
-         * Инициализируем объект записи/кэширования ресурсов с путем web/assets
-         */
-        $this->oAssetWriter = new AssetWriter(Config::Get('path.cache_assets.server'));
+        
     }
 
     /**
@@ -117,14 +114,14 @@ class ModuleAsset extends Module
         $sFileKey = (isset($aParams['name']) and $aParams['name']) ? $aParams['name'] : $this->getNameByPath($sFile);
         /*
          * Если файл уже добавлен пропускаем
-         */$this->Logger_Notice($sFileKey.' '.$sFile. print_r($aParams, true));
+         */
         if($assetManager->has($sFileKey) and !$bReaplace){
             return false;
         }
         /**
          * Подготавливаем параметры
          */
-        $aParams = $this->PrepareParams($aParams);
+        $aParams = $this->PrepareParams($aParams);//$this->Logger_Notice($sFileKey.' '.$sFile. print_r($aParams, true));
         /*
          * Определяем объект ассета HTTP удаленный или FILE локальный
          */
@@ -296,7 +293,7 @@ class ModuleAsset extends Module
         $aResult = array();
 
         $aResult['merge'] = (isset($aParams['merge']) and !$aParams['merge']) ? false : true;
-        $aResult['remote'] = (isset($aParams['remote']) and $aParams['merge']) ? true : false;
+        $aResult['remote'] = (isset($aParams['remote']) and $aParams['remote']) ? true : false;
         $aResult['compress'] = (isset($aParams['compress']) and !$aParams['compress']) ? false : true;
         $aResult['browser'] = (isset($aParams['browser']) and $aParams['browser']) ? $aParams['browser'] : null;
         $aResult['plugin'] = (isset($aParams['plugin']) and $aParams['plugin']) ? $aParams['plugin'] : null;
@@ -395,28 +392,44 @@ class ModuleAsset extends Module
         /**
          * Запускаем обработку
          */
-        $aAssets = $this->Processing();
+        $this->Processing();
+        /*
+         * Записываем ресурсы в публичную папку
+         */
+        $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
 
-        $aHeader = array_combine(array_keys($this->aAssets), array('', ''));
-        foreach ($aAssets as $sType => $aFile) {
-            foreach ($aFile as $aParams) {
-                $aParams['writer'] = $this->oAssetWriter;
-                if ($oType = $this->CreateObjectType($sType, $aParams)) {
-//                    $oType
-                }
-//                $this->Logger_Notice($aParams['file']);
-                $aHeader[$sType] .= $oAsset->dump();
-//                    $sFile = $this->Fs_GetPathWeb($aParams['file']);
-//                    $aHeader[$sType] .= $oType->getHeadHtml($sFile, $aParams) . PHP_EOL;
-            }
-        }
+        $aHeader = [];
+//        foreach ($aAssets as $sType => $aFile) {
+//            foreach ($aFile as $aParams) {
+//                $aParams['writer'] = $this->oAssetWriter;
+//                if ($oType = $this->CreateObjectType($sType, $aParams)) {
+////                    $oType
+//                }
+////                $this->Logger_Notice($aParams['file']);
+//                $aHeader[$sType] .= $oAsset->dump();
+////                    $sFile = $this->Fs_GetPathWeb($aParams['file']);
+////                    $aHeader[$sType] .= $oType->getHeadHtml($sFile, $aParams) . PHP_EOL;
+//            }
+//        }
         return $aHeader;
+    }
+    
+    /**
+     * Записывает кэширует ресурсы в публичной папке
+     * 
+     * @param Assetic\AssetManager $assets
+     */
+    public function WritePublic($assets) {
+        /*
+         * Инициализируем объект записи/кэширования ресурсов с путем web/assets
+         */
+        $this->Logger_Notice(print_r($assets->getNames(), true));
+        $assetWriter = new AssetWriter(Config::Get('path.cache_assets.server'));
+        $assetWriter->writeManagerAssets($assets);
     }
 
     /**
      * Производит обработку файлов
-     *
-     * @return array    Возвращает список результирующих файлов вида array( 'css'=>array( 'name'=>$aParams, ... ), ... )
      */
     public function Processing()
     {
@@ -716,18 +729,18 @@ class ModuleAsset extends Module
          * Если удаленный и нужно/можно сливать
          */
         if($aParams['remote'] and $aParams['merge']){
-            return new HttpAsset($sPath);
+            return new HttpAsset($sPath, null, null, $aParams);
         }
         /*
          * Если удаленный и не нужно сливать
          */
         if($aParams['remote'] and !$aParams['merge']){
-            return new RemoteAsset($sPath);
+            return new RemoteAsset($sPath, null, null, $aParams);
         }
         /*
          *  По умолчанию локальный
          */
-        return new FileAsset($sPath);
+        return new FileAsset($sPath, null, null, $aParams);
 
     }
    
