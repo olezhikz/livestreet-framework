@@ -24,6 +24,8 @@ use Assetic\Asset\HttpAsset;
 use Assetic\AssetWriter;
 use Assetic\AssetManager;
 use Assetic\Asset\AssetCollection;
+use Assetic\Asset\AssetReference;
+use Assetic\Asset\AssetInterface;
 
 
 /**
@@ -36,7 +38,7 @@ use Assetic\Asset\AssetCollection;
 class ModuleAsset extends Module
 {
     
-    protected $assetManager;
+    protected $assets;
 
     /**
      * Тип для файлов стилей
@@ -46,6 +48,7 @@ class ModuleAsset extends Module
      * Тип для файлов скриптов
      */
     const ASSET_TYPE_JS = 'js';
+    
     /**
      * Каталог для проверки блокировки
      *
@@ -81,48 +84,11 @@ class ModuleAsset extends Module
      */
     protected function InitAssets()
     {
-        $this->assetManager = new AssetManager();
-        
-        $this->assetManager->set(self::ASSET_TYPE_CSS, new AssetCollection([
-            /**
-             * Список файлов css для добавления в начало списка
-             */
-            new AssetCollection(),
-            /**
-             * Список файлов css  для добавления в конец списка
-             */
-            new AssetCollection()
-        ]));
-        
-        $this->assetManager->set(self::ASSET_TYPE_JS, new AssetCollection([
-            /**
-             * Список файлов js для добавления в начало списка
-             */
-            new AssetCollection(),
-            /**
-             * Список файлов js  для добавления в конец списка
-             */
-            new AssetCollection()
-        ]));
-        
-        
-//        $this->aAssets = array(
-//            self::ASSET_TYPE_CSS => array(
-//                /**
-//                 * Список файлов для добавления в конец списка
-//                 * В качестве ключей используется путь до файла либо уникальное имя, в качестве значений - дополнительные параметры
-//                 */
-//                'append'  => array(),
-//                /**
-//                 * Список файлов для добавления в начало списка
-//                 */
-//                'prepend' => array(),
-//            ),
-//            self::ASSET_TYPE_JS  => array(
-//                'append'  => array(),
-//                'prepend' => array(),
-//            ),
-//        );
+        $this->assets = [
+            self::ASSET_TYPE_CSS => new AssetManager(),
+            self::ASSET_TYPE_JS => new AssetManager()
+        ];
+
     }
 
     /**
@@ -131,55 +97,145 @@ class ModuleAsset extends Module
      * @param string $sFile Полный путь до файла
      * @param array $aParams Дополнительные параметры
      * @param string $sType Тип файла
-     * @param bool $bPrepend Добавлять файл в начало общего списка или нет
      * @param bool $bReplace Если такой файл уже добавлен, то заменяет его
      *
      * @return bool
      */
-    protected function Add($sFile, $aParams, $sType, $bPrepend = false, $bReplace = false)
+    protected function Add($sFile, $aParams, $sType, $bReaplace = false)
     {
-        if (!$this->CheckAssetType($sType)) {
+        
+        if (!$sType = $this->CheckAssetType($sType)) {
             return false;
         }
-        $aParams['file'] = $sFile;
+        /*
+         * Определяем рабочий менеджер ресурсов
+         */
+        $assetManager = $this->assets[$sType];
+        /**
+         * В качестве уникального ключа использется имя или путь до файла
+         */
+        $sFileKey = (isset($aParams['name']) and $aParams['name']) ? $aParams['name'] : $this->getNameByPath($sFile);
+        /*
+         * Если файл уже добавлен пропускаем
+         */$this->Logger_Notice($sFileKey.' '.$sFile. print_r($aParams, true));
+        if($assetManager->has($sFileKey) and !$bReaplace){
+            return false;
+        }
         /**
          * Подготавливаем параметры
          */
         $aParams = $this->PrepareParams($aParams);
-        /**
-         * В качестве уникального ключа использется имя или путь до файла
+        /*
+         * Определяем объект ассета HTTP удаленный или FILE локальный
          */
-        $sFileKey = $aParams['name'] ? $aParams['name'] : $aParams['file'];
-        /**
-         * Проверям на необходимость замены
+        $asset = $this->CreateAsset($sFile, $aParams);
+        /*
+         * Добавляем фильтры исходя из параметров
          */
-        foreach (array('prepend', 'append') as $sTypeAdd) {
-            if (isset($this->aAssets[$sType][$sTypeAdd][$sFileKey])) {
-                if ($bReplace) {
-                    unset($this->aAssets[$sType][$sTypeAdd][$sFileKey]);
-                } else {
-                    return false;
-                }
-            }
-            /**
-             * Дополнительно проверим на путь к файлу, если в качестве ключа использовалось имя
-             * todo: при таком подходе смысла в ключах массива нет и можно искать на дубли только по значению
-             */
-            if ($aParams['name']) {
-                foreach ($this->aAssets[$sType][$sTypeAdd] as $sFindKey => $aFileParams) {
-                    if ($aParams['file'] == $aFileParams['file']) {
-                        if ($bReplace) {
-                            unset($this->aAssets[$sType][$sTypeAdd][$sFindKey]);
-                        } else {
-                            return false;
-                        }
-                    }
-                }
-            }
+        $this->ensureFilters( $asset, $sType, $aParams);
+        /*
+         * Определяем есть ли зависимости
+         */
+        if($assetDependencies = $this->getDependencies($assetManager,$aParams)){
+            $assetDependencies->add($asset);
+            $asset = $assetDependencies;
         }
-
-        $this->aAssets[$sType][$bPrepend ? 'prepend' : 'append'][$sFileKey] = $aParams;
+        
+        $assetManager->set($sFileKey, $asset);
+        
         return true;
+    }
+    
+    /**
+     * Генерирует name из path Убирает из строки все кроме букв и цифр
+     * 
+     * @param string $sPath
+     * @return string
+     */
+    protected function getNameByPath($sPath) {
+        return preg_replace(["/[^ a-zа-яё\d]/ui"], "", $sPath);
+    }
+    
+    /**
+     * Применяет фильтры к любому типу ресурса исходя из параметров
+     * 
+     * @param AssetInterface $asset
+     * @param type $sType
+     * @param array $aParams
+     */
+    protected function ensureFilters( AssetInterface $asset, $sType, array $aParams) {
+        switch ($sType) {
+            case self::ASSET_TYPE_JS:
+                $this->ensureJsFilters( $asset,  $aParams);
+                break;
+            
+            case self::ASSET_TYPE_CSS:
+                $this->ensureCssFilters( $asset,  $aParams);
+                break;
+        }
+                
+    }
+    
+    /**
+     * Применяет фильтры к CSS ресурсу исходя из параметров
+     * 
+     * @param AssetInterface $asset
+     * @param array $aParams
+     */
+    protected function ensureCssFilters(AssetInterface $asset, array $aParams) {
+        if($aParams['compress'] and (bool)Config::Get("module.asset.css.compress")){
+            $asset->ensureFilter(new \Assetic\Filter\CssMinFilter());
+        }else{
+            /*
+            * Если задано не сжимать то применяем фильтр HTML для вывода на страницу CSS
+            */
+            $asset->ensureFilter(new CssHtmlFilter($aParams));
+        }
+    }
+    
+    /**
+     * Применяет фильтры к JS ресурсу исходя из параметров
+     * 
+     * @param AssetInterface $asset
+     * @param array $aParams
+     */
+    protected function ensureJsFilters(AssetInterface $asset, array $aParams) {
+        if($aParams['compress'] and (bool)Config::Get("module.asset.js.compress")){
+            $asset->ensureFilter(new Assetic\Filter\JSqueezeFilter());
+        }else{
+            /*
+            * Если задано не сжимать то применяем фильтр HTML для вывода на страницу JS
+            */
+            $asset->ensureFilter(new JsHtmlFilter($aParams));
+        }
+    }
+    
+    /**
+     * Определяем все зависимости ресурса по параметрам 
+     * и отдаем коллекцию ссылок
+     * 
+     * @param AssetManager $assetManager
+     * @param array $aParams
+     * 
+     * @return AssetCollection
+     */
+    protected function getDependencies($assetManager, $aParams){
+        
+        if(!isset($aParams['dependencies'])){
+            return false;
+        }
+        
+        $assets = new AssetCollection();
+        
+        foreach ( $aParams['dependencies'] as $sKey) {
+            if(!$assetManager->has($sKey)){
+                $this->Logger_Notice("Dependency {$sKey} not found");
+                continue;
+            }
+            $assets->add(new AssetReference($assetManager, $sKey));
+        }
+        
+        return $assets;
     }
 
     /**
@@ -192,9 +248,9 @@ class ModuleAsset extends Module
      *
      * @return bool
      */
-    public function AddCss($sFile, $aParams, $bPrepend = false, $bReplace = false)
+    public function AddCss($sFile, $aParams,  $bReplace = false)
     {
-        return $this->Add($sFile, $aParams, self::ASSET_TYPE_CSS, $bPrepend, $bReplace);
+        return $this->Add($sFile, $aParams, self::ASSET_TYPE_CSS,  $bReplace);
     }
 
     /**
@@ -207,9 +263,9 @@ class ModuleAsset extends Module
      *
      * @return bool
      */
-    public function AddJs($sFile, $aParams, $bPrepend = false, $bReplace = false)
+    public function AddJs($sFile, $aParams, $bReplace = false)
     {
-        return $this->Add($sFile, $aParams, self::ASSET_TYPE_JS, $bPrepend, $bReplace);
+        return $this->Add($sFile, $aParams, self::ASSET_TYPE_JS,  $bReplace);
     }
 
     /**
@@ -221,7 +277,11 @@ class ModuleAsset extends Module
      */
     public function CheckAssetType($sType)
     {
-        return in_array($sType, array(self::ASSET_TYPE_CSS, self::ASSET_TYPE_JS));
+        if(in_array($sType, array(self::ASSET_TYPE_CSS, self::ASSET_TYPE_JS))){
+            return $sType;
+        }
+        
+        return false;
     }
 
     /**
@@ -236,17 +296,15 @@ class ModuleAsset extends Module
         $aResult = array();
 
         $aResult['merge'] = (isset($aParams['merge']) and !$aParams['merge']) ? false : true;
+        $aResult['remote'] = (isset($aParams['remote']) and $aParams['merge']) ? true : false;
         $aResult['compress'] = (isset($aParams['compress']) and !$aParams['compress']) ? false : true;
         $aResult['browser'] = (isset($aParams['browser']) and $aParams['browser']) ? $aParams['browser'] : null;
         $aResult['plugin'] = (isset($aParams['plugin']) and $aParams['plugin']) ? $aParams['plugin'] : null;
         $aResult['name'] = (isset($aParams['name']) and $aParams['name']) ? strtolower($aParams['name']) : null;
         $aResult['defer'] = (isset($aParams['defer']) and $aParams['defer']) ? true : false;
         $aResult['async'] = (isset($aParams['async']) and $aParams['async']) ? true : false;
-        if (isset($aParams['file'])) {
-            $aResult['file'] = $this->GetFileWeb($aParams['file'], $aParams);
-        } else {
-            $aResult['file'] = null;
-        }
+        
+        
         return $aResult;
     }
 
@@ -344,7 +402,7 @@ class ModuleAsset extends Module
             foreach ($aFile as $aParams) {
                 $aParams['writer'] = $this->oAssetWriter;
                 if ($oType = $this->CreateObjectType($sType, $aParams)) {
-                    $oType
+//                    $oType
                 }
 //                $this->Logger_Notice($aParams['file']);
                 $aHeader[$sType] .= $oAsset->dump();
@@ -362,8 +420,7 @@ class ModuleAsset extends Module
      */
     public function Processing()
     {
-        $aTypes = array_keys($this->aAssets);
-        $aFilesMain = $aFilesTemplate = $aResult = array_combine($aTypes, array_pad(array(), count($aTypes), array()));
+       
         /**
          * Сначала добавляем файлы из конфига
          */
@@ -380,7 +437,6 @@ class ModuleAsset extends Module
                     $sFile = $aParams;
                     $aParams = array();
                 }
-                $aParams['file'] = $sFile;
                 /**
                  * Подготавливаем параметры
                  */
@@ -388,8 +444,7 @@ class ModuleAsset extends Module
                 /**
                  * В качестве уникального ключа использется имя или путь до файла
                  */
-                $sFileKey = $aParams['name'] ? $aParams['name'] : $aParams['file'];
-                $aFilesMain[$sType][$sFileKey] = $aParams;
+                $this->Add($sFile, $aParams, $sType);
             }
         }
         /**
@@ -408,7 +463,6 @@ class ModuleAsset extends Module
                     $sFile = $aParams;
                     $aParams = array();
                 }
-                $aParams['file'] = $sFile;
                 /**
                  * Подготавливаем параметры
                  */
@@ -416,133 +470,132 @@ class ModuleAsset extends Module
                 /**
                  * В качестве уникального ключа использется имя или путь до файла
                  */
-                $sFileKey = $aParams['name'] ? $aParams['name'] : $aParams['file'];
-                $aFilesTemplate[$sType][$sFileKey] = $aParams;
+                $this->Add($sFile, $aParams, $sType);
             }
         }
 
-        foreach ($aTypes as $sType) {
-            /**
-             * Объединяем списки
-             */
-            $aFilesMain[$sType] = array_merge(
-                $this->aAssets[$sType]['prepend'],
-                $aFilesMain[$sType],
-                $this->aAssets[$sType]['append'],
-                $aFilesTemplate[$sType]
-            );
-            /**
-             * Выделяем файлы для конкретных браузеров
-             */
-            $aFilesBrowser = array_filter(
-                $aFilesMain[$sType],
-                function ($aParams) {
-                    return $aParams['browser'] ? true : false;
-                }
-            );
-            /**
-             * Выделяем файлы с атрибутом defer
-             */
-            $aFilesDefer = array_filter(
-                $aFilesMain[$sType],
-                function ($aParams) {
-                    return $aParams['defer'] ? true : false;
-                }
-            );
-            /**
-             * Выделяем файлы с атрибутом async
-             */
-            $aFilesAsync = array_filter(
-                $aFilesMain[$sType],
-                function ($aParams) {
-                    return $aParams['async'] ? true : false;
-                }
-            );
-            /**
-             * Исключаем файлы из основного списка
-             */
-            $aFilesMain[$sType] = array_diff_key($aFilesMain[$sType], $aFilesBrowser);
-            /**
-             * Если необходимо сливать файлы, то выделяем исключения
-             */
-            $aFilesNoMerge = array();
-            if (Config::Get("module.asset.{$sType}.merge")) {
-                $aFilesNoMerge = array_filter(
-                    $aFilesMain[$sType],
-                    function ($aParams) {
-                        return !$aParams['merge'];
-                    }
-                );
-                /**
-                 * Исключаем файлы из основного списка
-                 */
-                $aFilesMain[$sType] = array_diff_key($aFilesMain[$sType], $aFilesNoMerge);
-            }
-            /**
-             * Обрабатываем основной список
-             * Проверка необходимости мержа файлов
-             */
-            $bMergeComplete = false;
-            if (Config::Get("module.asset.{$sType}.merge")) {
-                /**
-                 * Список файлов для основного мержа
-                 */
-                $aFileNeedMerge = array_diff_key($aFilesMain[$sType], $aFilesDefer, $aFilesAsync);
-                if ($sFilePathMerge = $this->Merge($aFileNeedMerge, $sType,
-                    (bool)Config::Get("module.asset.{$sType}.compress"))
-                ) {
-                    $aResult[$sType][$sFilePathMerge] = array('file' => $sFilePathMerge);
-
-                    /**
-                     * Список файлов для мержа с атрибутом defer
-                     */
-                    $bMergeDeferComplete = false;
-                    $aFileNeedMerge = array_diff_key($aFilesDefer, $aFilesNoMerge);
-                    if ($aFileNeedMerge) {
-                        if ($sFilePathMerge = $this->Merge($aFileNeedMerge, $sType,
-                            (bool)Config::Get("module.asset.{$sType}.compress"))
-                        ) {
-                            $aResult[$sType][$sFilePathMerge] = array('file' => $sFilePathMerge, 'defer' => true);
-                            $bMergeDeferComplete = true;
-                        }
-                    } else {
-                        $bMergeDeferComplete = true;
-                    }
-
-                    /**
-                     * Список файлов для мержа с атрибутом async
-                     */
-                    $bMergeAsyncComplete = false;
-                    $aFileNeedMerge = array_diff_key($aFilesAsync, $aFilesNoMerge);
-                    if ($aFileNeedMerge) {
-                        if ($sFilePathMerge = $this->Merge($aFileNeedMerge, $sType,
-                            (bool)Config::Get("module.asset.{$sType}.compress"))
-                        ) {
-                            $aResult[$sType][$sFilePathMerge] = array('file' => $sFilePathMerge, 'async' => true);
-                            $bMergeAsyncComplete = true;
-                        }
-                    } else {
-                        $bMergeAsyncComplete = true;
-                    }
-
-                    if ($bMergeDeferComplete and $bMergeAsyncComplete) {
-                        $bMergeComplete = true;
-                    }
-                }
-            }
-            if (!$bMergeComplete) {
-                $aResult[$sType] = array_merge($aResult[$sType], $aFilesMain[$sType]);
-            }
-            /**
-             * Обрабатываем список исключения объединения
-             */
-            $aResult[$sType] = array_merge($aResult[$sType], $aFilesNoMerge);
-            /**
-             * Обрабатываем список для отдельных браузеров
-             */
-            $aResult[$sType] = array_merge($aResult[$sType], $aFilesBrowser);
-        }
-        return $aResult;
+//        foreach ($aTypes as $sType) {
+//            /**
+//             * Объединяем списки
+//             */
+//            $aFilesMain[$sType] = array_merge(
+//                $this->aAssets[$sType]['prepend'],
+//                $aFilesMain[$sType],
+//                $this->aAssets[$sType]['append'],
+//                $aFilesTemplate[$sType]
+//            );
+//            /**
+//             * Выделяем файлы для конкретных браузеров
+//             */
+//            $aFilesBrowser = array_filter(
+//                $aFilesMain[$sType],
+//                function ($aParams) {
+//                    return $aParams['browser'] ? true : false;
+//                }
+//            );
+//            /**
+//             * Выделяем файлы с атрибутом defer
+//             */
+//            $aFilesDefer = array_filter(
+//                $aFilesMain[$sType],
+//                function ($aParams) {
+//                    return $aParams['defer'] ? true : false;
+//                }
+//            );
+//            /**
+//             * Выделяем файлы с атрибутом async
+//             */
+//            $aFilesAsync = array_filter(
+//                $aFilesMain[$sType],
+//                function ($aParams) {
+//                    return $aParams['async'] ? true : false;
+//                }
+//            );
+//            /**
+//             * Исключаем файлы из основного списка
+//             */
+//            $aFilesMain[$sType] = array_diff_key($aFilesMain[$sType], $aFilesBrowser);
+//            /**
+//             * Если необходимо сливать файлы, то выделяем исключения
+//             */
+//            $aFilesNoMerge = array();
+//            if (Config::Get("module.asset.{$sType}.merge")) {
+//                $aFilesNoMerge = array_filter(
+//                    $aFilesMain[$sType],
+//                    function ($aParams) {
+//                        return !$aParams['merge'];
+//                    }
+//                );
+//                /**
+//                 * Исключаем файлы из основного списка
+//                 */
+//                $aFilesMain[$sType] = array_diff_key($aFilesMain[$sType], $aFilesNoMerge);
+//            }
+//            /**
+//             * Обрабатываем основной список
+//             * Проверка необходимости мержа файлов
+//             */
+//            $bMergeComplete = false;
+//            if (Config::Get("module.asset.{$sType}.merge")) {
+//                /**
+//                 * Список файлов для основного мержа
+//                 */
+//                $aFileNeedMerge = array_diff_key($aFilesMain[$sType], $aFilesDefer, $aFilesAsync);
+//                if ($sFilePathMerge = $this->Merge($aFileNeedMerge, $sType,
+//                    (bool)Config::Get("module.asset.{$sType}.compress"))
+//                ) {
+//                    $aResult[$sType][$sFilePathMerge] = array('file' => $sFilePathMerge);
+//
+//                    /**
+//                     * Список файлов для мержа с атрибутом defer
+//                     */
+//                    $bMergeDeferComplete = false;
+//                    $aFileNeedMerge = array_diff_key($aFilesDefer, $aFilesNoMerge);
+//                    if ($aFileNeedMerge) {
+//                        if ($sFilePathMerge = $this->Merge($aFileNeedMerge, $sType,
+//                            (bool)Config::Get("module.asset.{$sType}.compress"))
+//                        ) {
+//                            $aResult[$sType][$sFilePathMerge] = array('file' => $sFilePathMerge, 'defer' => true);
+//                            $bMergeDeferComplete = true;
+//                        }
+//                    } else {
+//                        $bMergeDeferComplete = true;
+//                    }
+//
+//                    /**
+//                     * Список файлов для мержа с атрибутом async
+//                     */
+//                    $bMergeAsyncComplete = false;
+//                    $aFileNeedMerge = array_diff_key($aFilesAsync, $aFilesNoMerge);
+//                    if ($aFileNeedMerge) {
+//                        if ($sFilePathMerge = $this->Merge($aFileNeedMerge, $sType,
+//                            (bool)Config::Get("module.asset.{$sType}.compress"))
+//                        ) {
+//                            $aResult[$sType][$sFilePathMerge] = array('file' => $sFilePathMerge, 'async' => true);
+//                            $bMergeAsyncComplete = true;
+//                        }
+//                    } else {
+//                        $bMergeAsyncComplete = true;
+//                    }
+//
+//                    if ($bMergeDeferComplete and $bMergeAsyncComplete) {
+//                        $bMergeComplete = true;
+//                    }
+//                }
+//            }
+//            if (!$bMergeComplete) {
+//                $aResult[$sType] = array_merge($aResult[$sType], $aFilesMain[$sType]);
+//            }
+//            /**
+//             * Обрабатываем список исключения объединения
+//             */
+//            $aResult[$sType] = array_merge($aResult[$sType], $aFilesNoMerge);
+//            /**
+//             * Обрабатываем список для отдельных браузеров
+//             */
+//            $aResult[$sType] = array_merge($aResult[$sType], $aFilesBrowser);
+//        }
+//        return $aResult;
     }
 
     /**
@@ -647,41 +700,33 @@ class ModuleAsset extends Module
         return $this->Fs_GetPathWebFromServer($sCacheFile);
     }
 
-    /**
-     * Создает и возврашает объект типа
-     *
-     * @param string $sType
-     *
-     * @return bool|ModuleAsset_EntityType
-     */
-    public function CreateObjectType($sType, $aParams)
-    {
-        /**
-         * Формируем имя класса для типа
-         */
-        $sClass = "ModuleAsset_EntityType" . func_camelize($sType);
-        if (class_exists(Engine::GetEntityClass($sClass))) {
-            return Engine::GetEntity($sClass, $aParams);
-        }
-        return false;
-    }
     
     /**
      * Создает и возврашает объект
+     * Определяем тип ресурса для библиотеки Assetic 
      *
      * @param string $sPath
-     *
+     * @param array $aParams
+     * 
      * @return AssetInterface
      */
-    public function CreateAssetType( $sPath)
+    public function CreateAsset( $sPath, $aParams)
     {
-        /**
-         * Формируем имя класса для типа пути HTTP или local
+        /*
+         * Если удаленный и нужно/можно сливать
          */
-        if(parse_url($sPath, PHP_URL_SCHEME)){
+        if($aParams['remote'] and $aParams['merge']){
             return new HttpAsset($sPath);
         }
-        
+        /*
+         * Если удаленный и не нужно сливать
+         */
+        if($aParams['remote'] and !$aParams['merge']){
+            return new RemoteAsset($sPath);
+        }
+        /*
+         *  По умолчанию локальный
+         */
         return new FileAsset($sPath);
 
     }
@@ -716,4 +761,6 @@ class ModuleAsset extends Module
          */
         $this->RemoveLockMerge();
     }
+
+
 }

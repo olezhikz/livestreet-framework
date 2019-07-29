@@ -223,7 +223,7 @@ class ModuleComponent extends Module
                     }
                 }
                 $sFileName = (is_int($mName) ? md5($sAsset) : $mName);
-                $aParams['name'] = "component.{$sName}.{$sFileName}";
+                $aParams['name'] = $this->getNormalName( "component_{$sName}_{$sFileName}" );
                 $this->Viewer_PrependStyle($sFile, $aParams);
             }
         }
@@ -261,10 +261,24 @@ class ModuleComponent extends Module
                     }
                 }
                 $sFileName = (is_int($mName) ? md5($sAsset) : $mName);
-                $aParams['name'] = "component.{$sName}.{$sFileName}";
+                $aParams['name'] = $this->getNormalName( "component_{$sName}_{$sFileName}" );
                 $this->Viewer_PrependScript($sFile, $aParams);
             }
         }
+    }
+    
+    /**
+     * Имя не должно содержать некоторых символов
+     * 
+     * @param type $sName
+     * @return string
+     */
+    protected function getNormalName($sName) {
+        return preg_replace([
+            '/\./', '/-/', '/:/'
+        ], [
+            '_', '', '1'
+        ], $sName);
     }
 
     /**

@@ -907,7 +907,7 @@ class ModuleViewer extends Module
      */
     public function AppendStyle($sCss, $aParams = array(), $bReplace = false)
     {
-        return $this->Asset_AddCss($sCss, $aParams, false, $bReplace);
+        return $this->Asset_AddCss($sCss, $aParams,  $bReplace);
     }
 
     /**
@@ -920,7 +920,7 @@ class ModuleViewer extends Module
      */
     public function PrependStyle($sCss, $aParams = array(), $bReplace = false)
     {
-        return $this->Asset_AddCss($sCss, $aParams, true, $bReplace);
+        return $this->Asset_AddCss($sCss, $aParams,  $bReplace);
     }
 
     /**
