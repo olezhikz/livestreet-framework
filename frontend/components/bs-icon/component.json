@@ -8,6 +8,10 @@
         "bs-icon": "icon.tpl"
     },
     "styles": {
-        "fontawesome": "https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+        "fontawesome":{
+            "file":"https://use.fontawesome.com/releases/v5.6.3/css/all.css",
+            "merge": false,
+            "remote": true
+        }
     }
 }

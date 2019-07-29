@@ -6,7 +6,8 @@
     "scripts":{
         "popper":{
             "file":"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js",
-            "merge":false
+            "merge":false,
+            "remote":true
         },
         "bootstrap":{
             "file":"bootstrap-4.3.1-dist/js/bootstrap.min.js",

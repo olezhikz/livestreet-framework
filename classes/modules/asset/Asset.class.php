@@ -19,6 +19,11 @@
  *
  */
 
+require_once 'HtmlFilter.php';
+require_once 'CssHtmlFilter.php';
+require_once 'JsHtmlFilter.php';
+require_once 'RemoteAsset.php';
+
 use Assetic\Asset\FileAsset;
 use Assetic\Asset\HttpAsset;
 use Assetic\AssetWriter;
@@ -126,6 +131,13 @@ class ModuleAsset extends Module
          * Определяем объект ассета HTTP удаленный или FILE локальный
          */
         $asset = $this->CreateAsset($sFile, $aParams);
+        if(!$asset){
+            return false;
+        }
+        /*
+         * Установим путь для  ресурса с учетом пути
+         */
+        $asset->setTargetPath($sType.'/'.$sFileKey.'.'.$sType);
         /*
          * Добавляем фильтры исходя из параметров
          */
@@ -140,7 +152,7 @@ class ModuleAsset extends Module
         
         $assetManager->set($sFileKey, $asset);
         
-        return true;
+        return $asset;
     }
     
     /**
@@ -319,70 +331,6 @@ class ModuleAsset extends Module
     }
 
     /**
-     * Приводит путь до файла к единому виду
-     *
-     * @param       $sFile
-     * @param array $aParams
-     *
-     * @return string
-     */
-    protected function NormalizeFilePath($sFile, $aParams = array())
-    {
-        /**
-         * По дефолту считаем, что это локальный абсолютный путь до файла: /var/www/site.com  или c:\server\root\site.com
-         */
-        $sProtocol = '';
-        $sPath = $sFile;
-        $sSeparate = DIRECTORY_SEPARATOR;
-        /**
-         * Проверяем на URL https://site.com или http://site.com
-         */
-        if (preg_match('#^(https?://)(.*)#i', $sFile, $aMatch)) {
-            $sProtocol = $aMatch[1];
-            $sPath = $aMatch[2];
-            $sSeparate = '/';
-            /**
-             * Если необходимо, то меняем протокол на https
-             */
-            if (Router::GetIsSecureConnection() and strtolower($sProtocol) == 'http://' and Config::Get('module.asset.force_https')) {
-                $sProtocol = 'https://';
-            }
-            /**
-             * Проверяем на //site.com
-             */
-        } elseif (strpos($sFile, '//') === 0) {
-            $sProtocol = '//';
-            $sPath = substr($sFile, 2);
-            $sSeparate = '/';
-            /**
-             * Проверяем на относительный путь без протокола и без первого слеша
-             */
-        } elseif (strpos($sFile, '/') !== 0 and strpos($sFile, ':') === false) {
-            /**
-             * Считаем, что указывался путь относительно корня текущего шаблона
-             */
-            $sSeparate = '/';
-            if (isset($aParams['plugin']) and $aParams['plugin']) {
-                /**
-                 * Относительно шаблона плагина
-                 */
-                $sPath = Plugin::GetTemplateWebPath($aParams['plugin']) . $sFile;
-            } else {
-                $sPath = Router::GetFixPathWeb(Config::Get('path.skin.web')) . $sSeparate . $sFile;
-            }
-            return $sPath;
-        }
-        /**
-         * Могут встречаться двойные слеши, поэтому делаем замену
-         */
-        $sPath = preg_replace("#([\\\/])+#", $sSeparate, $sPath);
-        /**
-         * Возвращаем результат
-         */
-        return $sProtocol . $sPath;
-    }
-
-    /**
      * Возвращает HTML код подключения файлов в HEAD'ер страницы
      *
      * @return array    Список HTML оберток подключения файлов
@@ -396,7 +344,16 @@ class ModuleAsset extends Module
         /*
          * Записываем ресурсы в публичную папку
          */
-        $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
+        try{
+            $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
+            $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
+
+        }catch (Exception $e){
+            $this->Logger_Notice( $e->getMessage());
+            return false;
+        }
+
+        
 
         $aHeader = [];
 //        foreach ($aAssets as $sType => $aFile) {
@@ -729,18 +686,22 @@ class ModuleAsset extends Module
          * Если удаленный и нужно/можно сливать
          */
         if($aParams['remote'] and $aParams['merge']){
-            return new HttpAsset($sPath, null, null, $aParams);
+            return new HttpAsset($sPath, [] ,true);
         }
         /*
          * Если удаленный и не нужно сливать
          */
         if($aParams['remote'] and !$aParams['merge']){
-            return new RemoteAsset($sPath, null, null, $aParams);
+            return new RemoteAsset($sPath);
         }
         /*
          *  По умолчанию локальный
          */
-        return new FileAsset($sPath, null, null, $aParams);
+        if (!is_file($sPath)) {
+            $this->Logger_Notice("Asset File {$sPath} not found");
+            return false;
+        }
+        return new FileAsset($sPath);
 
     }
    

@@ -74,8 +74,8 @@ $config['path']['skin']['assets']['web'] = '___path.skin.web___/assets';
 $config['path']['uploads']['base'] = '/web/uploads';
 $config['path']['uploads']['images'] = '___path.uploads.base___/images';
 $config['path']['tmp']['server'] = '___path.application.server___/tmp';
-$config['path']['cache_assets']['server'] = '___path.public___/assets';
-$config['path']['cache_assets']['web'] = '___path.root.server___/assets';
+$config['path']['cache_assets']['server'] = '___path.public___/assets/___view.skin___';
+$config['path']['cache_assets']['web'] = '___path.root.server___/assets/___view.skin___';
 $config['path']['offset_request_url'] = 0;                                                       // иногда помогает если сервер использует внутренние реврайты
 /**
  * Для совместимости с прошлыми версиями
