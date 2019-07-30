@@ -126,7 +126,7 @@ class ModuleAsset extends Module
         /**
          * Подготавливаем параметры
          */
-        $aParams = $this->PrepareParams($aParams);//$this->Logger_Notice($sFileKey.' '.$sFile. print_r($aParams, true));
+        $aParams = $this->PrepareParams($aParams);
         /*
          * Определяем объект ассета HTTP удаленный или FILE локальный
          */
@@ -337,6 +337,7 @@ class ModuleAsset extends Module
      */
     public function BuildHeadItems()
     {
+        $aHeader = [];
         /**
          * Запускаем обработку
          */
@@ -344,18 +345,15 @@ class ModuleAsset extends Module
         /*
          * Записываем ресурсы в публичную папку
          */
-        try{
-            $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
-            $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
-
-        }catch (Exception $e){
-            $this->Logger_Notice( $e->getMessage());
-            return false;
+        if(!$this->cache()){
+            // В случае неудачи останавливаем
+            return $aHeader;
         }
+        
 
         
 
-        $aHeader = [];
+        
 //        foreach ($aAssets as $sType => $aFile) {
 //            foreach ($aFile as $aParams) {
 //                $aParams['writer'] = $this->oAssetWriter;
@@ -372,6 +370,31 @@ class ModuleAsset extends Module
     }
     
     /**
+     * Кэшируем файлы в публичную папку
+     * 
+     * @return boolean
+     */
+    protected function cache() {
+        try{
+            /*
+             * Если уже записывали пропускаем
+             */
+            if(!$this->Cache_Get('asset_cached')){
+                
+                $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
+                $this->WritePublic($this->assets[self::ASSET_TYPE_CSS]);
+                
+                //Указываем что записали
+                $this->Cache_Set(true, 'asset_cached', ['assets']);
+            }
+
+        }catch (Exception $e){
+            $this->Logger_Notice( $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Записывает кэширует ресурсы в публичной папке
      * 
      * @param Assetic\AssetManager $assets
@@ -380,7 +403,6 @@ class ModuleAsset extends Module
         /*
          * Инициализируем объект записи/кэширования ресурсов с путем web/assets
          */
-        $this->Logger_Notice(print_r($assets->getNames(), true));
         $assetWriter = new AssetWriter(Config::Get('path.cache_assets.server'));
         $assetWriter->writeManagerAssets($assets);
     }
