@@ -86,9 +86,12 @@ class ModuleAsset extends Module
      */
     protected function InitAssets()
     {
+        $am = new AssetManager();
+        $am->set('links', new AssetCollection);
+        
         $this->assets = [
-            self::ASSET_TYPE_CSS => new AssetManager(),
-            self::ASSET_TYPE_JS => new AssetManager()
+            self::ASSET_TYPE_CSS => $am,
+            self::ASSET_TYPE_JS => clone $am,
         ];
 
     }
@@ -151,6 +154,11 @@ class ModuleAsset extends Module
         }
         
         $assetManager->set($sFileKey, $asset);
+        
+        /*
+         * Добавляем ссылки на все ресурсы в коллекцию links
+         */
+        $assetManager->get('links')->add( new AssetReference($assetManager, $sFileKey));
         
         return $asset;
     }
@@ -351,7 +359,16 @@ class ModuleAsset extends Module
         }
         
 
-        
+        $factory = new AssetFactory('/path/to/asset/directory/');
+        $factory->setAssetManager($am);
+        $factory->setFilterManager($fm);
+        $factory->setDebug(true);
+
+        $css = $factory->createAsset(array(
+            '@all',         // load the asset manager's "reset" asset
+        ));
+
+        echo $css->dump();
 
         
 //        foreach ($aAssets as $sType => $aFile) {
@@ -465,6 +482,8 @@ class ModuleAsset extends Module
                 $this->Add($sFile, $aParams, $sType);
             }
         }
+        
+        
 
 //        foreach ($aTypes as $sType) {
 //            /**
