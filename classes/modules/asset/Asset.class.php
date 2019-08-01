@@ -19,7 +19,7 @@
  *
  */
 
-require_once 'HtmlFilter.php';
+require_once 'ParamsFilter.php';
 require_once 'CssHtmlFilter.php';
 require_once 'JsHtmlFilter.php';
 require_once 'RemoteAsset.php';
@@ -31,7 +31,9 @@ use Assetic\AssetManager;
 use Assetic\Asset\AssetCollection;
 use Assetic\Asset\AssetReference;
 use Assetic\Asset\AssetInterface;
-
+use Assetic\FilterManager;
+use Assetic\Factory\AssetFactory;
+use Assetic\Factory\Worker\CacheBustingWorker;
 
 /**
  * Модуль управления статическими файлами css стилей и js сриптов
@@ -44,6 +46,8 @@ class ModuleAsset extends Module
 {
     
     protected $assets;
+    
+    protected $filters;
 
     /**
      * Тип для файлов стилей
@@ -87,13 +91,18 @@ class ModuleAsset extends Module
     protected function InitAssets()
     {
         $am = new AssetManager();
-        $am->set('links', new AssetCollection);
         
         $this->assets = [
-            self::ASSET_TYPE_CSS => $am,
-            self::ASSET_TYPE_JS => clone $am,
+            self::ASSET_TYPE_CSS => new AssetManager(),
+            self::ASSET_TYPE_JS => new AssetManager(),
         ];
 
+        /*
+         * Фильтры для разных ресурсов для Фабрики
+         */
+        $this->filters = new FilterManager();
+        $this->filters->set(self::ASSET_TYPE_JS, new JsHtmlFilter());
+        $this->filters->set(self::ASSET_TYPE_CSS, new CssHtmlFilter());
     }
 
     /**
@@ -119,7 +128,7 @@ class ModuleAsset extends Module
         /**
          * В качестве уникального ключа использется имя или путь до файла
          */
-        $sFileKey = (isset($aParams['name']) and $aParams['name']) ? $aParams['name'] : $this->getNameByPath($sFile);
+        $sFileKey = (isset($aParams['name']) and $aParams['name']) ? $aParams['name'] : $this->getAssetName($sFile);
         /*
          * Если файл уже добавлен пропускаем
          */
@@ -140,7 +149,7 @@ class ModuleAsset extends Module
         /*
          * Установим путь для  ресурса с учетом пути
          */
-        $asset->setTargetPath($sType.'/'.$sFileKey.'.'.$sType);
+        $asset->setTargetPath($sFileKey.'.'.$sType);
         /*
          * Добавляем фильтры исходя из параметров
          */
@@ -154,12 +163,7 @@ class ModuleAsset extends Module
         }
         
         $assetManager->set($sFileKey, $asset);
-        
-        /*
-         * Добавляем ссылки на все ресурсы в коллекцию links
-         */
-        $assetManager->get('links')->add( new AssetReference($assetManager, $sFileKey));
-        
+                
         return $asset;
     }
     
@@ -169,8 +173,8 @@ class ModuleAsset extends Module
      * @param string $sPath
      * @return string
      */
-    protected function getNameByPath($sPath) {
-        return preg_replace(["/[^ a-zа-яё\d]/ui"], "", $sPath);
+    protected function getAssetName($sPath) {
+        return md5($sPath);
     }
     
     /**
@@ -190,6 +194,8 @@ class ModuleAsset extends Module
                 $this->ensureCssFilters( $asset,  $aParams);
                 break;
         }
+        
+        $asset->ensureFilter(new ParamsFilter($aParams));
                 
     }
     
@@ -200,13 +206,8 @@ class ModuleAsset extends Module
      * @param array $aParams
      */
     protected function ensureCssFilters(AssetInterface $asset, array $aParams) {
-        if($aParams['compress'] and (bool)Config::Get("module.asset.css.compress")){
+        if($aParams['compress']){
             $asset->ensureFilter(new \Assetic\Filter\CssMinFilter());
-        }else{
-            /*
-            * Если задано не сжимать то применяем фильтр HTML для вывода на страницу CSS
-            */
-            $asset->ensureFilter(new CssHtmlFilter($aParams));
         }
     }
     
@@ -217,13 +218,8 @@ class ModuleAsset extends Module
      * @param array $aParams
      */
     protected function ensureJsFilters(AssetInterface $asset, array $aParams) {
-        if($aParams['compress'] and (bool)Config::Get("module.asset.js.compress")){
+        if($aParams['compress']){
             $asset->ensureFilter(new Assetic\Filter\JSqueezeFilter());
-        }else{
-            /*
-            * Если задано не сжимать то применяем фильтр HTML для вывода на страницу JS
-            */
-            $asset->ensureFilter(new JsHtmlFilter($aParams));
         }
     }
     
@@ -315,6 +311,10 @@ class ModuleAsset extends Module
         $aResult['merge'] = (isset($aParams['merge']) and !$aParams['merge']) ? false : true;
         $aResult['remote'] = (isset($aParams['remote']) and $aParams['remote']) ? true : false;
         $aResult['compress'] = (isset($aParams['compress']) and !$aParams['compress']) ? false : true;
+        /*
+         * Устанавливаем сжатие если в конфиге true
+         */
+        $aResult['compress'] = (Config::Get("module.asset.css.compress") and $aResult['compress']) ? true : false;
         $aResult['browser'] = (isset($aParams['browser']) and $aParams['browser']) ? $aParams['browser'] : null;
         $aResult['plugin'] = (isset($aParams['plugin']) and $aParams['plugin']) ? $aParams['plugin'] : null;
         $aResult['name'] = (isset($aParams['name']) and $aParams['name']) ? strtolower($aParams['name']) : null;
@@ -343,9 +343,28 @@ class ModuleAsset extends Module
      *
      * @return array    Список HTML оберток подключения файлов
      */
-    public function BuildHeadItems()
+    public function BuildHeadItems() {
+        $aHeaders = [
+            self::ASSET_TYPE_CSS => null,
+            self::ASSET_TYPE_JS => null
+        ];
+        
+        $aHeaders[self::ASSET_TYPE_JS] = $this->dump(self::ASSET_TYPE_JS);
+        $aHeaders[self::ASSET_TYPE_CSS] = $this->dump(self::ASSET_TYPE_CSS);
+        
+        return $aHeaders;
+    }
+    
+    /**
+     * Возвращает HTML разметку с ресурсами <script></script> <link></link> итд
+     * 
+     * @param string $sType
+     * @param array $aKeys
+     * @param array $aFilters
+     * @return string
+     */
+    public function dump(string $sType, array $aKeys = [], array $aFilters = [])
     {
-        $aHeader = [];
         /**
          * Запускаем обработку
          */
@@ -355,35 +374,30 @@ class ModuleAsset extends Module
          */
         if(!$this->cache()){
             // В случае неудачи останавливаем
-            return $aHeader;
+            return null;
         }
         
-
-        $factory = new AssetFactory('/path/to/asset/directory/');
-        $factory->setAssetManager($am);
-        $factory->setFilterManager($fm);
-        $factory->setDebug(true);
-
-        $css = $factory->createAsset(array(
-            '@all',         // load the asset manager's "reset" asset
-        ));
-
-        echo $css->dump();
-
+        /*
+         * Если ключи не указаны выбираем все
+         */
+        if(!$aKeys){
+            /*
+             * Добавить @ к каждому элементу массива
+             */
+            $aKeys = array_map( function($sName){
+                return '@'.$sName;
+            }, $this->assets[$sType]->getNames());
+        }
         
-//        foreach ($aAssets as $sType => $aFile) {
-//            foreach ($aFile as $aParams) {
-//                $aParams['writer'] = $this->oAssetWriter;
-//                if ($oType = $this->CreateObjectType($sType, $aParams)) {
-////                    $oType
-//                }
-////                $this->Logger_Notice($aParams['file']);
-//                $aHeader[$sType] .= $oAsset->dump();
-////                    $sFile = $this->Fs_GetPathWeb($aParams['file']);
-////                    $aHeader[$sType] .= $oType->getHeadHtml($sFile, $aParams) . PHP_EOL;
-//            }
-//        }
-        return $aHeader;
+        $factory = new AssetFactory( Config::Get('path.cache_assets.server') );
+        $factory->setAssetManager($this->assets[$sType]);
+//        $factory->setDebug(true);
+//        $factory->addWorker(new CacheBustingWorker());
+        $assets = $factory->createAsset($aKeys);
+        
+        
+        return $assets->dump($this->filters->get($sType));
+        
     }
     
     /**
@@ -392,23 +406,29 @@ class ModuleAsset extends Module
      * @return boolean
      */
     protected function cache() {
+        /*
+         * Ключ указателя кэширования с учетом скина
+         */
+        $sKeyCache = 'assets_cached_'.Config::Get('view.skin');
+        
         try{
             /*
-             * Если уже записывали пропускаем
+             * Если не кэшировали кэшируем
              */
-            if(!$this->Cache_Get('asset_cached')){
+//            if(!$this->Cache_Get($sKeyCache)){
+                $this->WritePublic(self::ASSET_TYPE_JS, $this->assets[self::ASSET_TYPE_JS]);
+                $this->WritePublic(self::ASSET_TYPE_CSS, $this->assets[self::ASSET_TYPE_CSS]);
                 
-                $this->WritePublic($this->assets[self::ASSET_TYPE_JS]);
-                $this->WritePublic($this->assets[self::ASSET_TYPE_CSS]);
-                
-                //Указываем что записали
-                $this->Cache_Set(true, 'asset_cached', ['assets']);
-            }
+//                //Указываем что записали
+//                $this->Cache_Set(true, $sKeyCache, ['assets']);
+//            }
 
         }catch (Exception $e){
             $this->Logger_Notice( $e->getMessage());
             return false;
         }
+        
+        return true;
     }
     
     /**
@@ -416,11 +436,11 @@ class ModuleAsset extends Module
      * 
      * @param Assetic\AssetManager $assets
      */
-    public function WritePublic($assets) {
+    public function WritePublic(string $sType, AssetManager $assets) {
         /*
          * Инициализируем объект записи/кэширования ресурсов с путем web/assets
          */
-        $assetWriter = new AssetWriter(Config::Get('path.cache_assets.server'));
+        $assetWriter = new AssetWriter(Config::Get('path.cache_assets.server').'/'.$sType.'/');
         $assetWriter->writeManagerAssets($assets);
     }
 

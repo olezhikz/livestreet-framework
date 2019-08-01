@@ -5,10 +5,22 @@
  *
  * @author oleg
  */
-class JsHtmlFilter extends HtmlFilter implements Assetic\Filter\FilterInterface{
+class JsHtmlFilter implements Assetic\Filter\FilterInterface{
+    
+    
     //put your code here
     public function filterDump(\Assetic\Asset\AssetInterface $asset) {
-        return '<script src="'.$asset->getTargetPath().'"></script>';
+        /*
+         * Вытягиваем папраметры из фильтра параметров
+         */
+        $aParams = [];
+        foreach ($asset->getFilters() as $filter) {
+            if($filter instanceof ParamsFilter){
+                $aParams = $filter->getParams();
+            }
+        }
+        echo Config::Get('path.cache_assets.web'),PHP_EOL;
+        $asset->setContent('<script src="'. Config::Get('path.cache_assets.web'). '/'. $asset->getTargetPath(). '"></script>');
     }
 
     public function filterLoad(\Assetic\Asset\AssetInterface $asset) {

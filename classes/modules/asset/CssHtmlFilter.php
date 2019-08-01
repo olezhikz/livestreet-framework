@@ -5,10 +5,12 @@
  *
  * @author oleg
  */
-class CssHtmlFilter extends HtmlFilter implements Assetic\Filter\FilterInterface{
+class CssHtmlFilter implements Assetic\Filter\FilterInterface{
+    
+    
     //put your code here
     public function filterDump(\Assetic\Asset\AssetInterface $asset) {
-        return '<script src="'.$asset->getTargetPath().'"></script>';
+        $asset->setContent('<link rel="stylesheet" type="text/css" href="'.$asset->getTargetPath().'" />');
     }
 
     public function filterLoad(\Assetic\Asset\AssetInterface $asset) {

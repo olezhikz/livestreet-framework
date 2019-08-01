@@ -54,7 +54,7 @@ $config['path']['application']['dirname'] = "application";
 $config['path']['application']['server'] = '___path.root.server___/___path.application.dirname___';
 $config['path']['application']['web'] = '___path.root.web___/___path.application.dirname___';
 
-$config['path']['public'] = '___path.root.server___/web';
+$config['path']['public'] = 'web';
 
 $config['path']['framework']['server'] = dirname(dirname(__FILE__));
 $config['path']['framework']['web'] = '___path.root.web___/' . trim(str_replace(dirname(dirname(dirname(__FILE__))), '',
@@ -74,8 +74,8 @@ $config['path']['skin']['assets']['web'] = '___path.skin.web___/assets';
 $config['path']['uploads']['base'] = '/web/uploads';
 $config['path']['uploads']['images'] = '___path.uploads.base___/images';
 $config['path']['tmp']['server'] = '___path.application.server___/tmp';
-$config['path']['cache_assets']['server'] = '___path.public___/assets/___view.skin___';
-$config['path']['cache_assets']['web'] = '___path.root.server___/assets/___view.skin___';
+$config['path']['cache_assets']['server'] = '___path.root.server___/___path.public___/assets/___view.skin___';
+$config['path']['cache_assets']['web'] = '___path.root.web___/___path.public___/assets/___view.skin___';
 $config['path']['offset_request_url'] = 0;                                                       // иногда помогает если сервер использует внутренние реврайты
 /**
  * Для совместимости с прошлыми версиями
