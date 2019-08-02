@@ -19,7 +19,7 @@ class JsHtmlFilter implements Assetic\Filter\FilterInterface{
                 $aParams = $filter->getParams();
             }
         }
-        echo Config::Get('path.cache_assets.web'),PHP_EOL;
+        
         $asset->setContent('<script src="'. Config::Get('path.cache_assets.web'). '/'. $asset->getTargetPath(). '"></script>');
     }
 

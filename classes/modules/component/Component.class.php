@@ -232,7 +232,7 @@ class ModuleComponent extends Module
          */
         if (isset($aDataMeta['scripts']) and is_array($aDataMeta['scripts'])) {
             foreach ($aDataMeta['scripts'] as $mName => $mAsset) {
-                $aParams = array();
+                $aParams = [];
                 if (is_array($mAsset)) {
                     $sAsset = isset($mAsset['file']) ? $mAsset['file'] : 'not_found_file_param';
                     unset($mAsset['file']);
@@ -262,6 +262,8 @@ class ModuleComponent extends Module
                 }
                 $sFileName = (is_int($mName) ? md5($sAsset) : $mName);
                 $aParams['name'] = $this->getNormalName( "component_{$sName}_{$sFileName}" );
+                $aParams['dependencies'] = $aDataMeta['dependencies'];
+                var_dump($aParams);
                 $this->Viewer_PrependScript($sFile, $aParams);
             }
         }

@@ -48,6 +48,10 @@ class ModuleAsset extends Module
     protected $assets;
     
     protected $filters;
+    
+    protected $factory;
+
+    protected $assetWriter;
 
     /**
      * Тип для файлов стилей
@@ -82,7 +86,14 @@ class ModuleAsset extends Module
          */
         $this->InitAssets();
         
-        
+        /*
+         * Инициируем фабрику ресурсов
+         */
+        $this->factory = new AssetFactory( Config::Get('path.cache_assets.server') );
+        /*
+         * Инициируем объект записи в папку web/assets
+         */
+        $this->assetWriter = new AssetWriter(Config::Get('path.cache_assets.server'));
     }
 
     /**
@@ -129,6 +140,7 @@ class ModuleAsset extends Module
          * В качестве уникального ключа использется имя или путь до файла
          */
         $sFileKey = (isset($aParams['name']) and $aParams['name']) ? $aParams['name'] : $this->getAssetName($sFile);
+        echo $sFileKey.PHP_EOL;
         /*
          * Если файл уже добавлен пропускаем
          */
@@ -147,13 +159,10 @@ class ModuleAsset extends Module
             return false;
         }
         /*
-         * Установим путь для  ресурса с учетом пути
-         */
-        $asset->setTargetPath($sFileKey.'.'.$sType);
-        /*
          * Добавляем фильтры исходя из параметров
          */
         $this->ensureFilters( $asset, $sType, $aParams);
+        
         /*
          * Определяем есть ли зависимости
          */
@@ -234,9 +243,9 @@ class ModuleAsset extends Module
      */
     protected function getDependencies($assetManager, $aParams){
         
-        if(!isset($aParams['dependencies'])){
+        if(!$aParams['dependencies']){
             return false;
-        }
+        } print_r($aParams);
         
         $assets = new AssetCollection();
         
@@ -320,7 +329,7 @@ class ModuleAsset extends Module
         $aResult['name'] = (isset($aParams['name']) and $aParams['name']) ? strtolower($aParams['name']) : null;
         $aResult['defer'] = (isset($aParams['defer']) and $aParams['defer']) ? true : false;
         $aResult['async'] = (isset($aParams['async']) and $aParams['async']) ? true : false;
-        
+        $aResult['dependencies'] = (isset($aParams['dependencies'])) ? $aParams['dependencies'] : [];
         
         return $aResult;
     }
@@ -345,12 +354,9 @@ class ModuleAsset extends Module
      */
     public function BuildHeadItems() {
         $aHeaders = [
-            self::ASSET_TYPE_CSS => null,
-            self::ASSET_TYPE_JS => null
-        ];
-        
-        $aHeaders[self::ASSET_TYPE_JS] = $this->dump(self::ASSET_TYPE_JS);
-        $aHeaders[self::ASSET_TYPE_CSS] = $this->dump(self::ASSET_TYPE_CSS);
+            self::ASSET_TYPE_CSS => $this->dump(self::ASSET_TYPE_CSS),
+            self::ASSET_TYPE_JS => $this->dump(self::ASSET_TYPE_JS)
+        ];        
         
         return $aHeaders;
     }
@@ -369,13 +375,6 @@ class ModuleAsset extends Module
          * Запускаем обработку
          */
         $this->Processing();
-        /*
-         * Записываем ресурсы в публичную папку
-         */
-        if(!$this->cache()){
-            // В случае неудачи останавливаем
-            return null;
-        }
         
         /*
          * Если ключи не указаны выбираем все
@@ -389,12 +388,19 @@ class ModuleAsset extends Module
             }, $this->assets[$sType]->getNames());
         }
         
-        $factory = new AssetFactory( Config::Get('path.cache_assets.server') );
-        $factory->setAssetManager($this->assets[$sType]);
+        $this->factory->setAssetManager($this->assets[$sType]);
 //        $factory->setDebug(true);
-//        $factory->addWorker(new CacheBustingWorker());
-        $assets = $factory->createAsset($aKeys);
+//        $this->factory->addWorker(new CacheBustingWorker());
+        $assets = $this->factory->createAsset($aKeys, $aFilters, [
+            'output' => $sType.'/*.'.$sType
+        ]);
         
+        /*
+         * Отправляем на кэширование
+         */
+        foreach ($assets as $asset) {
+            $this->cache($asset);
+        }
         
         return $assets->dump($this->filters->get($sType));
         
@@ -405,23 +411,22 @@ class ModuleAsset extends Module
      * 
      * @return boolean
      */
-    protected function cache() {
+    protected function cache($asset) {
         /*
          * Ключ указателя кэширования с учетом скина
          */
-        $sKeyCache = 'assets_cached_'.Config::Get('view.skin');
-        
+        $sKeyCache = basename($asset->getTargetPath());
+
         try{
             /*
              * Если не кэшировали кэшируем
              */
-//            if(!$this->Cache_Get($sKeyCache)){
-                $this->WritePublic(self::ASSET_TYPE_JS, $this->assets[self::ASSET_TYPE_JS]);
-                $this->WritePublic(self::ASSET_TYPE_CSS, $this->assets[self::ASSET_TYPE_CSS]);
+            if(!$this->Cache_Get($sKeyCache)){
+                $this->assetWriter->writeAsset($asset);
                 
-//                //Указываем что записали
-//                $this->Cache_Set(true, $sKeyCache, ['assets']);
-//            }
+                //Указываем что записали
+                $this->Cache_Set(true, $sKeyCache, ['assets']);
+            }
 
         }catch (Exception $e){
             $this->Logger_Notice( $e->getMessage());
@@ -431,19 +436,7 @@ class ModuleAsset extends Module
         return true;
     }
     
-    /**
-     * Записывает кэширует ресурсы в публичной папке
-     * 
-     * @param Assetic\AssetManager $assets
-     */
-    public function WritePublic(string $sType, AssetManager $assets) {
-        /*
-         * Инициализируем объект записи/кэширования ресурсов с путем web/assets
-         */
-        $assetWriter = new AssetWriter(Config::Get('path.cache_assets.server').'/'.$sType.'/');
-        $assetWriter->writeManagerAssets($assets);
-    }
-
+    
     /**
      * Производит обработку файлов
      */
