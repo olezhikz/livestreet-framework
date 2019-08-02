@@ -139,7 +139,12 @@ class ModuleAsset extends Module
         /**
          * В качестве уникального ключа использется имя или путь до файла
          */
-        $sFileKey = (isset($aParams['name']) and $aParams['name']) ? $aParams['name'] : $this->getAssetName($sFile);
+        if ( isset($aParams['name']) ) {
+            $sFileKey = $this->normalName($aParams['name']);
+        }else{
+            $sFileKey = $this->getAssetNameByPath($sFile);
+        }
+        
         echo $sFileKey.PHP_EOL;
         /*
          * Если файл уже добавлен пропускаем
@@ -182,8 +187,25 @@ class ModuleAsset extends Module
      * @param string $sPath
      * @return string
      */
-    protected function getAssetName($sPath) {
-        return md5($sPath);
+    protected function getAssetNameByPath($sPath) {
+        return $this->normalName( md5($sPath) . '_' . basename($sPath) );
+    }
+    
+    /**
+     * Имя для модуля asset не должно содержать некоторых символов
+     * 
+     * @param type $sName
+     * @return string
+     */
+    protected function normalName($sName) {
+        if (ctype_alnum(str_replace('_', '', $name))) {
+            return $sName;
+        }
+        return preg_replace([
+            '/[^\w]/',
+        ], [
+            '_',
+        ], $sName);
     }
     
     /**
@@ -250,7 +272,8 @@ class ModuleAsset extends Module
         $assets = new AssetCollection();
         
         foreach ( $aParams['dependencies'] as $sKey) {
-            if(!$assetManager->has($sKey)){
+            $sKey = $this->normalName($sKey);
+            if(!$assetManager->has( $sKey )){
                 $this->Logger_Notice("Dependency {$sKey} not found");
                 continue;
             }

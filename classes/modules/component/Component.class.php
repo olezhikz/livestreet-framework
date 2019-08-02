@@ -48,7 +48,14 @@ class ModuleComponent extends Module
      * @var int
      */
     protected $iCountDependsRecursive = 0;
-
+    
+    /**
+     * Констанаты ресурсов JSON
+     */
+    const DATA_SCRIPTS = "scripts";
+    const DATA_STYLES = "styles";
+    const DATA_TEMPLATES = "templates";
+    
     /**
      * Инициализация модуля
      */
@@ -188,12 +195,31 @@ class ModuleComponent extends Module
          * Json данные
          */
         $aData = $this->GetComponentData($sName);
-        $aDataMeta = $aData['json'];
+        /**
+         * Подключаем скрипты
+         */
+        $this->loadData($sName, $aData, self::DATA_SCRIPTS);
         /**
          * Подключаем стили
          */
-        if (isset($aDataMeta['styles']) and is_array($aDataMeta['styles'])) {
-            foreach ($aDataMeta['styles'] as $mName => $mAsset) {
+        $this->loadData($sName, $aData, self::DATA_STYLES);
+    
+        
+    }
+    
+    /**
+     * Заружает выбранный тип ресурсов компонента в Asset
+     * 
+     * @param string $sName //имя компонента
+     * @param string $sType //тип ресурсов
+     * @param array $aData //данные из GetComponentData
+     */
+    protected function loadData(string $sName, array $aData, string $sType) {
+        
+        $aDataMeta = $aData['json'];
+        
+        if (isset($aDataMeta[$sType]) and is_array($aDataMeta[$sType])) {
+            foreach ($aDataMeta[$sType] as $mName => $mAsset) {
                 $aParams = array();
                 if (is_array($mAsset)) {
                     $sAsset = isset($mAsset['file']) ? $mAsset['file'] : 'not_found_file_param';
@@ -205,82 +231,90 @@ class ModuleComponent extends Module
                 if ($sAsset === false) {
                     continue;
                 }
-                /**
-                 * Может быть внешний ресурс
-                 */
-                $iPos = strpos($sAsset, '//');
-                if ($iPos !== false and $iPos < 7) {
-                    $sFile = $sAsset;
-                } else {
-                    /**
-                     * Смотрим в каком каталоге есть файл
-                     */
-                    foreach ($aData['paths'] as $sPath) {
-                        $sFile = $sPath . '/' . $sAsset;
-                        if (file_exists($sFile)) {
-                            break;
-                        }
+                
+                foreach ($aData['paths'] as $sPath) {
+                    $sFile = $sPath . '/' . $sAsset;
+                    if (file_exists($sFile)) {
+                        break;
                     }
                 }
-                $sFileName = (is_int($mName) ? md5($sAsset) : $mName);
-                $aParams['name'] = $this->getNormalName( "component_{$sName}_{$sFileName}" );
-                $this->Viewer_PrependStyle($sFile, $aParams);
-            }
-        }
-        /**
-         * Подключаем скрипты
-         */
-        if (isset($aDataMeta['scripts']) and is_array($aDataMeta['scripts'])) {
-            foreach ($aDataMeta['scripts'] as $mName => $mAsset) {
-                $aParams = [];
-                if (is_array($mAsset)) {
-                    $sAsset = isset($mAsset['file']) ? $mAsset['file'] : 'not_found_file_param';
-                    unset($mAsset['file']);
-                    $aParams = $mAsset;
-                } else {
-                    $sAsset = $mAsset;
-                }
-                if ($sAsset === false) {
-                    continue;
-                }
-                /**
-                 * Может быть внешний ресурс
+                /*
+                 * формируем имя ресурса
                  */
-                $iPos = strpos($sAsset, '//');
-                if ($iPos !== false and $iPos < 7) {
-                    $sFile = $sAsset;
-                } else {
-                    /**
-                     * Смотрим в каком каталоге есть файл
-                     */
-                    foreach ($aData['paths'] as $sPath) {
-                        $sFile = $sPath . '/' . $sAsset;
-                        if (file_exists($sFile)) {
-                            break;
-                        }
-                    }
+                $aParams['name'] = getNameAsset($mName, $mAsset);
+                /*
+                 * Получаем зависимости с учетом типа ресурса
+                 */
+                if(isset($aDataMeta['dependencies']) and $aDataMeta['dependencies']){
+                    $aParams['dependencies'] = $this->getAssetDependencies($aDataMeta['dependencies'], $sType);
+                }else{
+                    $aParams['dependencies'] = [];
                 }
-                $sFileName = (is_int($mName) ? md5($sAsset) : $mName);
-                $aParams['name'] = $this->getNormalName( "component_{$sName}_{$sFileName}" );
-                $aParams['dependencies'] = $aDataMeta['dependencies'];
-                var_dump($aParams);
-                $this->Viewer_PrependScript($sFile, $aParams);
+                /*
+                 * Добавляем в набор зависимости отдельного ресурса
+                 */
+                if(isset($mAsset['dependencies']) and $mAsset['dependencies']){
+                    if(!is_array($mAsset['dependencies'])){
+                        $mAsset['dependencies'] = [$mAsset['dependencies']];
+                    }
+                    $aParams['dependencies'] = array_merge($aParams['dependencies'], $mAsset['dependencies']);
+                }
+                $this->Asset_Add($sFile, $aParams, $sType);
             }
         }
     }
     
     /**
-     * Имя не должно содержать некоторых символов
+     * * Получить зависимости в удобном для модуля asset виде
      * 
-     * @param type $sName
+     * @param array $aDependencies
+     * @param string $sType
+     * @return array
+     */
+    protected function getAssetDependencies( array $aDependencies, string $sType) {
+        /*
+         * Получаем список зависимостей определенного типа
+         */
+        if(!isset($aDependencies[$sType])){
+            return [];
+        }
+        $aTypeDepends = $aDependencies[$sType];
+        
+        $aDepends = [];
+        foreach ($aTypeDepends as  $sComponentName) {
+            /*
+             * Достаем список ресурсов компонента определенного типа
+             */
+            $aData = $this->GetComponentData($sComponentName)['json'];
+            if(!isset($aData[$sType])){
+                continue;
+            }
+            /*
+             * Вставляем все зависимости
+             */
+            foreach ($aData[$sType] as $mName => $mAsset) {
+                $aDepends[] = getNameAsset($mName, $mAsset);
+            }
+        }
+        
+        return $aDepends; 
+    }
+    
+    /**
+     * Пулучить имя полное имя ресурса
+     * 
+     * @param string $sKey
+     * @param string $mAsset
      * @return string
      */
-    protected function getNormalName($sName) {
-        return preg_replace([
-            '/\./', '/-/', '/:/'
-        ], [
-            '_', '', '1'
-        ], $sName);
+    protected function getNameAsset(string $sKey, string $mAsset) {
+        $sFileName = (is_int($sKey) ? basename($mAsset) : $sKey);
+
+        if(isset($mAsset['name']) and $mAsset['name']){
+            $sFileName = $mAsset['name'];
+        }
+        
+        return "component@{$sName}.{$sFileName}";
     }
 
     /**
