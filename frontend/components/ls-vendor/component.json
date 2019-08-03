@@ -1,7 +1,7 @@
 {
     "name": "ls-vendor",
     "version": "1.0.0",
-    "scripts": {
+    "js": {
         "jquery": "jquery.js",
         "browser": "jquery.browser.js",
         "widget": "widget.js",

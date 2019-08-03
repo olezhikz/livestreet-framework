@@ -7,7 +7,7 @@
         "toolbar":"toolbar.tpl",
         "toggle":"toggle.tpl"
     },
-    "scripts":{
+    "js":{
         "button-loading":"js/button.js"
     }
 }

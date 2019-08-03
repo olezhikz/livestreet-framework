@@ -4,7 +4,7 @@
     "dependencies": [
         "ls-vendor"
     ],
-    "scripts": {
+    "js": {
         "vendor-nprogress": "vendor/nprogress/nprogress.js",
         "ajax": "ajax.js",
         "dev": "dev.js",
@@ -16,7 +16,7 @@
         "timer": "timer.js",
         "utils": "utils.js"
     },
-    "styles": {
+    "css": {
         "vendor-nprogress": "vendor/nprogress/nprogress.css"
     }
 }

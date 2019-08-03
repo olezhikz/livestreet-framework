@@ -5,7 +5,7 @@
         "ls-vendor": "*",
         "ls-core": "*"
     },
-    "scripts": {
+    "js": {
         "ls-component": "js/ls-component.js"
     }
 }

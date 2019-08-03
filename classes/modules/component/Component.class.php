@@ -198,11 +198,11 @@ class ModuleComponent extends Module
         /**
          * Подключаем скрипты
          */
-        $this->loadData($sName, $aData, self::DATA_SCRIPTS);
+        $this->loadData($sName, $aData, ModuleAsset::ASSET_TYPE_JS);
         /**
          * Подключаем стили
          */
-        $this->loadData($sName, $aData, self::DATA_STYLES);
+        $this->loadData($sName, $aData, ModuleAsset::ASSET_TYPE_CSS);
     
         
     }
@@ -214,7 +214,7 @@ class ModuleComponent extends Module
      * @param string $sType //тип ресурсов
      * @param array $aData //данные из GetComponentData
      */
-    protected function loadData(string $sName, array $aData, string $sType) {
+    protected function loadData(string $sComponentName, array $aData, string $sType) {
         
         $aDataMeta = $aData['json'];
         
@@ -241,7 +241,7 @@ class ModuleComponent extends Module
                 /*
                  * формируем имя ресурса
                  */
-                $aParams['name'] = getNameAsset($mName, $mAsset);
+                $aParams['name'] = $this->getNameAsset($sComponentName, $mName, $mAsset);
                 /*
                  * Получаем зависимости с учетом типа ресурса
                  */
@@ -259,6 +259,7 @@ class ModuleComponent extends Module
                     }
                     $aParams['dependencies'] = array_merge($aParams['dependencies'], $mAsset['dependencies']);
                 }
+//                echo $sFile, $sType, print_r($aParams, true);
                 $this->Asset_Add($sFile, $aParams, $sType);
             }
         }
@@ -293,7 +294,7 @@ class ModuleComponent extends Module
              * Вставляем все зависимости
              */
             foreach ($aData[$sType] as $mName => $mAsset) {
-                $aDepends[] = getNameAsset($mName, $mAsset);
+                $aDepends[] = getNameAsset($sComponentName, $mName, $mAsset);
             }
         }
         
@@ -301,20 +302,21 @@ class ModuleComponent extends Module
     }
     
     /**
-     * Пулучить имя полное имя ресурса
+     * * Пулучить полное имя ресурса
      * 
+     * @param string $sComponentName
      * @param string $sKey
-     * @param string $mAsset
+     * @param mixed $mAsset
      * @return string
      */
-    protected function getNameAsset(string $sKey, string $mAsset) {
+    protected function getNameAsset(string $sComponentName, string $sKey, $mAsset) {
         $sFileName = (is_int($sKey) ? basename($mAsset) : $sKey);
 
         if(isset($mAsset['name']) and $mAsset['name']){
             $sFileName = $mAsset['name'];
         }
         
-        return "component@{$sName}.{$sFileName}";
+        return "component@{$sComponentName}.{$sFileName}";
     }
 
     /**

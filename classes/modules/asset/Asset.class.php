@@ -126,7 +126,7 @@ class ModuleAsset extends Module
      *
      * @return bool
      */
-    protected function Add($sFile, $aParams, $sType, $bReaplace = false)
+    public function Add($sFile, $aParams, $sType, $bReaplace = false)
     {
         
         if (!$sType = $this->CheckAssetType($sType)) {
@@ -145,7 +145,7 @@ class ModuleAsset extends Module
             $sFileKey = $this->getAssetNameByPath($sFile);
         }
         
-        echo $sFileKey.PHP_EOL;
+//        echo $sFileKey.PHP_EOL;
         /*
          * Если файл уже добавлен пропускаем
          */
@@ -198,7 +198,7 @@ class ModuleAsset extends Module
      * @return string
      */
     protected function normalName($sName) {
-        if (ctype_alnum(str_replace('_', '', $name))) {
+        if (ctype_alnum(str_replace('_', '', $sName))) {
             return $sName;
         }
         return preg_replace([

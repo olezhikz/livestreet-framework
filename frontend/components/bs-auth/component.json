@@ -9,7 +9,7 @@
         "reset": "auth.reset.tpl",
         "modal": "modal.auth.tpl"
     },
-    "scripts": {
+    "js": {
         "auth": "js/auth.js"
     }
 }

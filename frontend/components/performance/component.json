@@ -7,7 +7,7 @@
     "templates": {
         "performance": "performance.tpl"
     },
-    "styles": {
+    "css": {
         "performance": "css/performance.css"
     }
 }

@@ -4,7 +4,7 @@
     "templates": {
         "bs-dropdown": "dropdown.tpl"
     },
-    "styles":{
+    "css":{
         "dropdown.submenu":"css/dropdown.submenu.css"
     }
 }

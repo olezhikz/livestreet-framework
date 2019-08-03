@@ -15,14 +15,14 @@
         "textarea":"field.textarea.tpl",
         "recaptcha":"field.recaptcha.tpl"
     },
-    "scripts":{
+    "js":{
         "field-validate":"js/field-validate.js",
         "form-validate":"js/form-validate.js",
         "form-ajax":"js/form-ajax.js",
        
         "recaptcha-active": "js/recaptcha.js"
     },
-    "styles":{
+    "css":{
         "loader": "css/loader.css",
         "form": "css/form.css"
     }

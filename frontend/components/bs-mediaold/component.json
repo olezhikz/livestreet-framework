@@ -18,13 +18,13 @@
         "uploader": "uploader/uploader.tpl",
         "field":"field.tpl"
     },
-    "scripts": {
+    "js": {
         "media": "js/media.js",
         "uploader": "js/uploader.js",
         "library": "js/library.js",
         "field":"js/field.js"
     },
-    "styles": {
+    "css": {
         "media": "css/media.css"
     }
 }

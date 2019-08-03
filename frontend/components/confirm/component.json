@@ -7,7 +7,7 @@
         "ls-component": "*",
         "icon": "*"
     },
-    "scripts": {
+    "js": {
         "confirm": {
             "file": "js/confirm.js",
             "merge": true

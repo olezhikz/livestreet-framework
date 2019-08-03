@@ -7,7 +7,7 @@
     "templates": {
         "blankslate": "blankslate.tpl"
     },
-    "styles": {
+    "css": {
         "blankslate": "css/blankslate.css"
     }
 }

@@ -7,7 +7,7 @@
         "stack": "stack.tpl",
         "bs-icon": "icon.tpl"
     },
-    "styles": {
+    "css": {
         "fontawesome":{
             "file":"https://use.fontawesome.com/releases/v5.6.3/css/all.css",
             "merge": false,

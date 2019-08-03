@@ -9,10 +9,10 @@
         "modal-photo": "modal-photo.tpl",
         "modal-avatar": "modal-avatar.tpl"
     },
-    "scripts": {
+    "js": {
         "photo": "js/photo.js"
     },
-    "styles": {
+    "css": {
         "photo": "css/photo.css"
     }
 }

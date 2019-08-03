@@ -6,10 +6,10 @@
         "ls-core": "*",
         "css-reset": "*"
     },
-    "styles": {
+    "css": {
         "notification": "css/notification.css"
     },
-    "scripts": {
+    "js": {
         "vendor-notifier": "vendor/notifier/jquery.notifier.js",
         "notification": "js/notification.js"
     }

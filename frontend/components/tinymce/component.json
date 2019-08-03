@@ -4,7 +4,7 @@
     "templates": {
         "tinymce": "tinymce.tpl"
     },
-    "scripts": {
+    "js": {
         "tinymce": {
             "file":"tinymce/tinymce.min.js",
             "merge": false
