@@ -43,12 +43,18 @@ class ModuleComponent extends Module
      */
     protected $aComponentsData = array();
     /**
-     * Служебный счетчик для предотвращения зацикливания
+     * Список загруженных компонентов
      *
-     * @var int
+     * @var array
      */
-    protected $iCountDependsRecursive = 0;
-    
+    protected $aComponentsLoaded = [];
+    /*
+     * Список компонентов поставленных в очередь
+     * 
+     * @var array
+     */
+    protected $aComponentsQuene = [];
+
     /**
      * Констанаты ресурсов JSON
      */
@@ -98,61 +104,11 @@ class ModuleComponent extends Module
          * Для каждого компонента считываем данные из json
          */
         $aComponentsName = array_keys($this->aComponentsList);
-        /**
-         * Используем кеширование построения дерева компонентов
-         */
-        $bCacheUse = Config::Get('module.component.cache_tree');
-        $sCacheKey = 'components-tree-' . json_encode($aComponentsName);
-
-        if (!$bCacheUse or false === ($aTree = $this->Cache_Get($sCacheKey))) {
-            /**
-             * Строим дерево компонентов с учетом зависимостей
-             */
-            $aTree = array();
-            foreach ($aComponentsName as $sName) {
-                list($sComponentPlugin, $sComponentName) = $this->ParseName($sName);
-                $aTree[$sName] = array();
-                /**
-                 * Считываем данные компонента
-                 */
-                $aData = $this->GetComponentData($sName);
-                $aData = $aData['json'];
-                /**
-                 * Проверяем зависимости
-                 */
-                if (isset($aData['dependencies']) and is_array($aData['dependencies'])) {
-                    foreach ($aData['dependencies'] as $mKey => $mValue) {
-                        if (!is_int($mKey) and $mValue === false) {
-                            /**
-                             * Пропускаем отмененную зависимость
-                             */
-                            continue;
-                        }
-                        $sNameDepend = is_int($mKey) ? $mValue : $mKey;
-                        list($sComponentDependPlugin, $sComponentDependName) = $this->ParseName($sNameDepend);
-                        if (is_null($sComponentDependPlugin) and $sComponentPlugin) {
-                            $sNameDepend = $sComponentPlugin . ':' . $sComponentDependName;
-                        }
-                        $sNameDepend = trim($sNameDepend, ':');
-                        $aTree[$sName][] = strtolower($sNameDepend);
-                    }
-                }
-            }
-            /**
-             * Сортируем компоненты с учетом зависимостей
-             */
-            $this->iCountDependsRecursive = 0;
-            $aTree = $this->GetSortedByDepends($aTree);
-
-            if ($bCacheUse) {
-                $this->Cache_Set($aTree, $sCacheKey, array(), 60 * 60 * 24);
-            }
-        }
-
+        
         /**
          * Подключаем каждый компонент
          */
-        foreach ($aTree as $sName => $aDepends) {
+        foreach ($aComponentsName as $sName) {
             $this->Load($sName);
         }
         /**
@@ -188,13 +144,48 @@ class ModuleComponent extends Module
      * Загружает/подключает компонент
      *
      * @param $sName
+     * @return type
+     * @throws Exception
      */
     public function Load($sName)
-    {
+    {     
+        /*
+         * Если компонент не существует останавливаем
+         */
+        if(!$this->GetComponentPaths($sName)){
+            throw new Exception("Component {$sName} not found");
+        }
+        /*
+         * Если компонент загружен пропускаем
+         */
+        if(in_array($sName, $this->aComponentsLoaded)){
+            return;
+        }
+        /*
+         * Определяем не зациклены ли зависимости
+         */
+        if(in_array($sName, $this->aComponentsQuene)){
+            throw new Exception("Warning: Cicle dependency component {$sName}");
+        }
+        $this->aComponentsQuene[] = $sName;
         /**
          * Json данные
          */
         $aData = $this->GetComponentData($sName);
+        
+        
+        $aDataJson = $aData['json'];
+        if(!$aDataJson){
+            return;
+        }
+        /*
+        * Загружаем компоненты от которых зависим
+        */
+        if(isset($aDataJson['dependencies']) and is_array($aDataJson['dependencies'])){
+            foreach ($aDataJson['dependencies'] as $sComponentDepend) {
+                $this->Load($sComponentDepend);
+            }
+        }
         /**
          * Подключаем скрипты
          */
@@ -203,122 +194,94 @@ class ModuleComponent extends Module
          * Подключаем стили
          */
         $this->loadData($sName, $aData, ModuleAsset::ASSET_TYPE_CSS);
-    
-        
+        /*
+         * Компонент загружен
+         */
+        $this->aComponentsLoaded[] = $sName;
+        /*
+         * Убираем загруженные из очереди
+         */
+        $this->aComponentsQuene = array_diff($this->aComponentsQuene, $this->aComponentsLoaded);
     }
     
     /**
+     * 
      * Заружает выбранный тип ресурсов компонента в Asset
      * 
      * @param string $sName //имя компонента
      * @param string $sType //тип ресурсов
-     * @param array $aData //данные из GetComponentData
+     * @return type
+     * @throws Exception
      */
-    protected function loadData(string $sComponentName, array $aData, string $sType) {
-        
-        $aDataMeta = $aData['json'];
-        
-        if (isset($aDataMeta[$sType]) and is_array($aDataMeta[$sType])) {
-            foreach ($aDataMeta[$sType] as $mName => $mAsset) {
-                $aParams = array();
-                if (is_array($mAsset)) {
-                    $sAsset = isset($mAsset['file']) ? $mAsset['file'] : 'not_found_file_param';
-                    unset($mAsset['file']);
-                    $aParams = $mAsset;
-                } else {
-                    $sAsset = $mAsset;
-                }
-                if ($sAsset === false) {
-                    continue;
-                }
-                
-                foreach ($aData['paths'] as $sPath) {
-                    $sFile = $sPath . '/' . $sAsset;
-                    if (file_exists($sFile)) {
-                        break;
-                    }
-                }
-                /*
-                 * формируем имя ресурса
-                 */
-                $aParams['name'] = $this->getNameAsset($sComponentName, $mName, $mAsset);
-                /*
-                 * Получаем зависимости с учетом типа ресурса
-                 */
-                if(isset($aDataMeta['dependencies']) and $aDataMeta['dependencies']){
-                    $aParams['dependencies'] = $this->getAssetDependencies($aDataMeta['dependencies'], $sType);
-                }else{
-                    $aParams['dependencies'] = [];
-                }
-                /*
-                 * Добавляем в набор зависимости отдельного ресурса
-                 */
-                if(isset($mAsset['dependencies']) and $mAsset['dependencies']){
-                    if(!is_array($mAsset['dependencies'])){
-                        $mAsset['dependencies'] = [$mAsset['dependencies']];
-                    }
-                    $aParams['dependencies'] = array_merge($aParams['dependencies'], $mAsset['dependencies']);
-                }
-//                echo $sFile, $sType, print_r($aParams, true);
-                $this->Asset_Add($sFile, $aParams, $sType);
-            }
+    protected function loadData(string $sName, array $aData, string $sType) {
+        $aDataJson = $aData['json'];
+        if(!$aDataJson){
+            return;
         }
-    }
-    
-    /**
-     * * Получить зависимости в удобном для модуля asset виде
-     * 
-     * @param array $aDependencies
-     * @param string $sType
-     * @return array
-     */
-    protected function getAssetDependencies( array $aDependencies, string $sType) {
         /*
-         * Получаем список зависимостей определенного типа
+         * Если ресурсов этого типа нет завершаем
          */
-        if(!isset($aDependencies[$sType])){
-            return [];
+        if(!isset($aDataJson[$sType]) or !is_array($aDataJson[$sType])){
+            return;
         }
-        $aTypeDepends = $aDependencies[$sType];
-        
-        $aDepends = [];
-        foreach ($aTypeDepends as  $sComponentName) {
+        /*
+         * Проходим по каждому
+         */
+        foreach ($aDataJson[$sType] as $mName => $mAsset) {
+
+            $aParams = array();
             /*
-             * Достаем список ресурсов компонента определенного типа
+             * Если передан массив параметров то берем путь из file
              */
-            $aData = $this->GetComponentData($sComponentName)['json'];
-            if(!isset($aData[$sType])){
-                continue;
+            if (is_array($mAsset)) {
+                $sAssetPath = isset($mAsset['file']) ? $mAsset['file'] : false;
+                $aParams = $mAsset;
+            } else {
+                $sAssetPath = $mAsset;
+            }
+            
+            if (!$sAssetPath) {
+                throw new Exception("Not found file name to {$sType} asset {$mName} in component {$sName}");
             }
             /*
-             * Вставляем все зависимости
+             * Формируем полный путь до ресурса
              */
-            foreach ($aData[$sType] as $mName => $mAsset) {
-                $aDepends[] = getNameAsset($sComponentName, $mName, $mAsset);
+            if(!isset($mAsset['remote']) or !$mAsset['remote']){
+                $sAssetPath = $this->getPathToAsset($aData['paths'], $sAssetPath);
             }
+            
+            if (!isset($sAssetPath)) {
+                throw new Exception("Not found path to {$sType} asset {$mName} in component {$sName}");
+            }
+            /*
+             * формируем имя ресурса
+             */
+            $sAssetName = (is_int($mName) ? basename($sAssetPath) : $mName);
+            $aParams['name'] = "component@{$sName}.{$sAssetName}";
+            /*
+             * Добавляем ресурс
+             */
+//            echo $sFile, $sType, print_r($aParams, true);
+            $this->Asset_Add($sAssetPath, $aParams, $sType);
         }
-        
-        return $aDepends; 
     }
-    
+   
     /**
-     * * Пулучить полное имя ресурса
+     * Получить валидный путь до ресурса
      * 
-     * @param string $sComponentName
-     * @param string $sKey
-     * @param mixed $mAsset
-     * @return string
+     * @param array $aPathsComponent Список путей до компонента
+     * @param string $sPathAsset Путь до ресурса внутри компонента
+     * @return boolean|string
      */
-    protected function getNameAsset(string $sComponentName, string $sKey, $mAsset) {
-        $sFileName = (is_int($sKey) ? basename($mAsset) : $sKey);
-
-        if(isset($mAsset['name']) and $mAsset['name']){
-            $sFileName = $mAsset['name'];
+    protected function getPathToAsset(array $aPathsComponent, string $sPathAsset) {
+        foreach ($aPathsComponent as $sPath) {
+            $sFile = $sPath . '/' . $sPathAsset;
+            if (file_exists($sFile)) {
+                return $sFile;
+            }
         }
-        
-        return "component@{$sComponentName}.{$sFileName}";
+        return false;
     }
-
     /**
      * Добавляет новый компонент в список для загрузки
      *
@@ -500,63 +463,13 @@ class ModuleComponent extends Module
             return array('', '', '');
         }
         
-        $sTemplate = isset($aMatches[5])?$aMatches[5]:'';
+        $sTemplate = isset($aMatches[5])?$aMatches[5]:null;
         
         return array($aMatches[3], $aMatches[4], $sTemplate);
         
     }
 
-    /**
-     * Вспомогательный метод для сортировки компонентов по зависимостям
-     *
-     * @param $aComp
-     * @param $aSorted
-     * @param $sName
-     * @return bool
-     */
-    protected function GetDepends($aComp, $aSorted, $sName)
-    {
-        if (isset($aComp[$sName])) {
-            foreach ($aComp[$sName] as $sItem) {
-                if (!isset($aSorted[$sItem])) {
-                    $this->iCountDependsRecursive++;
-                    if ($this->iCountDependsRecursive > 2000) {
-                        return false;
-                    } else {
-                        return $this->GetDepends($aComp, $aSorted, $sItem);
-                    }
-                }
-            }
-        }
-        return $sName;
-    }
-
-    /**
-     * Сортирует компоненты по зависимостям - зависимые подключаются ниже
-     *
-     * @param $aComp
-     * @return array|bool
-     */
-    protected function GetSortedByDepends($aComp)
-    {
-        $aSorted = array();
-        foreach ($aComp as $sName => $void) {
-            do {
-                if ($sCompDepend = $this->GetDepends($aComp, $aSorted, $sName)) {
-                    if (isset($aComp[$sCompDepend])) {
-                        $aSorted[$sCompDepend] = $aComp[$sCompDepend];
-                    } else {
-                        $aSorted[$sCompDepend] = array();
-                    }
-                } else {
-                    $aSorted = false;
-                    break;
-                }
-            } while ($sCompDepend != $sName);
-        }
-        return $aSorted;
-    }
-
+    
     /**
      * Возвращает данные компонента
      *
@@ -592,7 +505,8 @@ class ModuleComponent extends Module
      */
     protected function GetComponentPaths($sName)
     {
-        list($sPlugin, $sName) = $this->ParseName($sName);
+        list($sPlugin, $sName, $sTemplate) = $this->ParseName($sName);
+                
         $sPath = 'components/' . $sName;
         $aPaths = array();
         

@@ -1,9 +1,6 @@
 {
     "name": "blankslate",
     "version": "1.0.0",
-    "dependencies": {
-        "css-reset":"*"
-    },
     "templates": {
         "blankslate": "blankslate.tpl"
     },

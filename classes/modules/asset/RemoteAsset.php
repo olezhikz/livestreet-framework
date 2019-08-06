@@ -21,7 +21,7 @@ class RemoteAsset  extends \Assetic\Asset\BaseAsset{
     {
         $this->targetPath = $sourceUrl;
 
-        parent::__construct($filters, null, null, $vars);
+        parent::__construct($filters, null, $sourceUrl, $vars);
     }
 
     public function getLastModified() {
@@ -37,6 +37,10 @@ class RemoteAsset  extends \Assetic\Asset\BaseAsset{
     }
 
     public function load(\Assetic\Filter\FilterInterface $additionalFilter = null) {
-        
+        $this->setContent('dfsdfsdfsdf');
     }
+    
+//    public function dump(\Assetic\Filter\FilterInterface $additionalFilter = null) {
+//        parent::dump($additionalFilter);
+//    }
 }
