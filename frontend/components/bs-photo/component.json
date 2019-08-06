@@ -2,7 +2,6 @@
     "name": "bs-photo",
     "version": "1.0.0",
     "dependencies": {
-        "crop": "*"
     },
     "templates": {
         "bs-photo": "photo.tpl",

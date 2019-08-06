@@ -148,7 +148,7 @@ class ModuleComponent extends Module
      * @throws Exception
      */
     public function Load($sName)
-    {     
+    {    
         /*
          * Если компонент не существует останавливаем
          */

@@ -19,11 +19,6 @@
  *
  */
 
-require_once 'ParamsFilter.php';
-require_once 'CssHtmlFilter.php';
-require_once 'JsHtmlFilter.php';
-require_once 'RemoteAsset.php';
-
 use Assetic\Asset\FileAsset;
 use Assetic\Asset\HttpAsset;
 use Assetic\AssetWriter;
@@ -33,7 +28,11 @@ use Assetic\Asset\AssetReference;
 use Assetic\Asset\AssetInterface;
 use Assetic\FilterManager;
 use Assetic\Factory\AssetFactory;
-use Assetic\Factory\Worker\CacheBustingWorker;
+//use Assetic\Factory\Worker\CacheBustingWorker;
+use Assetic\Asset\RemoteAsset;
+use Assetic\Filter\CssHtmlFilter;
+use Assetic\Filter\JsHtmlFilter;
+use Assetic\Filter\ParamsFilter;
 
 /**
  * Модуль управления статическими файлами css стилей и js сриптов
@@ -62,20 +61,16 @@ class ModuleAsset extends Module
      */
     const ASSET_TYPE_JS = 'js';
     
+    
+    const DEPENDS_KEY = 'dependencies';
+
     /**
      * Каталог для проверки блокировки
      *
      * @var null|string
      */
     protected $sDirMergeLock = null;
-    /**
-     * Список файлов по типам
-     * @see Init
-     *
-     * @var array
-     */
-//    protected $assetCollection = array();
-
+    
     /**
      * Инициалищация модуля
      */
@@ -100,9 +95,7 @@ class ModuleAsset extends Module
      * Задает начальную структуры для хранения списка файлов по типам
      */
     protected function InitAssets()
-    {
-        $am = new AssetManager();
-        
+    {        
         $this->assets = [
             self::ASSET_TYPE_CSS => new AssetManager(),
             self::ASSET_TYPE_JS => new AssetManager(),
@@ -114,6 +107,15 @@ class ModuleAsset extends Module
         $this->filters = new FilterManager();
         $this->filters->set(self::ASSET_TYPE_JS, new JsHtmlFilter());
         $this->filters->set(self::ASSET_TYPE_CSS, new CssHtmlFilter());
+    }
+    
+    /**
+     * 
+     * @param string $sType
+     * @return AssetManager
+     */
+    public function GetAssetManager(string $sType) {
+        return $this->assets[$sType];
     }
 
     /**
@@ -170,10 +172,10 @@ class ModuleAsset extends Module
         /*
          * Определяем есть ли зависимости
          */
-//        if($assetDependencies = $this->getDependencies($assetManager,$aParams)){
-//            $assetDependencies->add($asset);
-//            $asset = $assetDependencies;
-//        }
+        if($assetDependencies = $this->getDependencies($assetManager,$aParams)){
+            $assetDependencies->add($asset);
+            $asset = $assetDependencies;
+        }
         
         $assetManager->set($sFileKey, $asset);
                 
