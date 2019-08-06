@@ -54,20 +54,29 @@ class ModuleComponent extends Module
      * @var array
      */
     protected $aComponentsQuene = [];
-
-    /**
-     * Констанаты ресурсов JSON
+    /*
+     * Коллекции ресурсов
      */
-    const DATA_SCRIPTS = "scripts";
-    const DATA_STYLES = "styles";
-    const DATA_TEMPLATES = "templates";
-    
+    protected $assets;
     /**
      * Инициализация модуля
      */
     public function Init()
     {
         $this->InitComponentsList();
+        
+        /*
+         * Создаем коллекции ресурсов для компонентов разных типов
+         */
+        foreach (ModuleAsset::$aTypes as $sType) {
+            $this->assets[$sType] = new Assetic\Asset\AssetCollection();
+            
+            $this->Asset_GetAssetManager($sType)->set(
+                'components',
+                $this->assets[$sType] 
+            );
+        }
+        
     }
 
     /**
@@ -262,7 +271,7 @@ class ModuleComponent extends Module
              * Добавляем ресурс
              */
 //            echo $sFile, $sType, print_r($aParams, true);
-            $this->Asset_Add($sAssetPath, $aParams, $sType);
+            $this->assets[$sType]->add( $this->Asset_CreateAsset( $sAssetPath, $aParams) );
         }
     }
    

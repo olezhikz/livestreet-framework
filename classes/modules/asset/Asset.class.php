@@ -61,6 +61,11 @@ class ModuleAsset extends Module
      */
     const ASSET_TYPE_JS = 'js';
     
+    public static $aTypes = array(
+        self::ASSET_TYPE_JS,
+        self::ASSET_TYPE_CSS
+    );
+    
     
     const DEPENDS_KEY = 'dependencies';
 
@@ -172,10 +177,10 @@ class ModuleAsset extends Module
         /*
          * Определяем есть ли зависимости
          */
-        if($assetDependencies = $this->getDependencies($assetManager,$aParams)){
-            $assetDependencies->add($asset);
-            $asset = $assetDependencies;
-        }
+//        if($assetDependencies = $this->getDependencies($assetManager,$aParams)){
+//            $assetDependencies->add($asset);
+//            $asset = $assetDependencies;
+//        }
         
         $assetManager->set($sFileKey, $asset);
                 
@@ -323,7 +328,7 @@ class ModuleAsset extends Module
      */
     public function CheckAssetType($sType)
     {
-        if(in_array($sType, array(self::ASSET_TYPE_CSS, self::ASSET_TYPE_JS))){
+        if(in_array($sType, self::$aTypes)){
             return $sType;
         }
         
