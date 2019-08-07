@@ -116,11 +116,10 @@ class ModuleAsset extends Module
     
     /**
      * 
-     * @param string $sType
      * @return AssetManager
      */
-    public function GetAssetManager(string $sType) {
-        return $this->assets[$sType];
+    public function GetAssets() {
+        return $this->assets;
     }
 
     /**
@@ -133,7 +132,7 @@ class ModuleAsset extends Module
      *
      * @return bool
      */
-    public function Add($sFile, $aParams, $sType, $bReaplace = false)
+    public function Add($sFile, $aParams, $sType, $bReplace = false)
     {
         if (!$sType = $this->CheckAssetType($sType)) {
             return false;
@@ -155,7 +154,7 @@ class ModuleAsset extends Module
         /*
          * Если файл уже добавлен пропускаем
          */
-        if($assetManager->has($sFileKey) and !$bReaplace){
+        if($assetManager->has($sFileKey) and !$bReplace){
             return false;
         }
         /**
@@ -421,7 +420,7 @@ class ModuleAsset extends Module
         
         $this->factory->setAssetManager($this->assets[$sType]);
 //        $factory->setDebug(true);
-//        $this->factory->addWorker(new CacheBustingWorker());
+        $this->factory->addWorker(new \Assetic\Factory\Worker\MergeWorker());
         $assets = $this->factory->createAsset($aKeys, $aFilters, [
             'output' => $sType.'/*.'.$sType
         ]);
@@ -447,7 +446,8 @@ class ModuleAsset extends Module
          * Ключ указателя кэширования с учетом скина
          */
         $sKeyCache = basename($asset->getTargetPath());
-
+        
+//echo  $asset->getTargetPath(). get_class($asset).PHP_EOL;
         try{
             /*
              * Если не кэшировали кэшируем

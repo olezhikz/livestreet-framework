@@ -54,10 +54,7 @@ class ModuleComponent extends Module
      * @var array
      */
     protected $aComponentsQuene = [];
-    /*
-     * Коллекции ресурсов
-     */
-    protected $assets;
+    
     /**
      * Инициализация модуля
      */
@@ -69,11 +66,9 @@ class ModuleComponent extends Module
          * Создаем коллекции ресурсов для компонентов разных типов
          */
         foreach (ModuleAsset::$aTypes as $sType) {
-            $this->assets[$sType] = new Assetic\Asset\AssetCollection();
-            
-            $this->Asset_GetAssetManager($sType)->set(
+            $this->Asset_GetAssets()[$sType]->set(
                 'components',
-                $this->assets[$sType] 
+                new Assetic\Asset\AssetCollection() 
             );
         }
         
@@ -271,7 +266,8 @@ class ModuleComponent extends Module
              * Добавляем ресурс
              */
 //            echo $sFile, $sType, print_r($aParams, true);
-            $this->assets[$sType]->add( $this->Asset_CreateAsset( $sAssetPath, $aParams) );
+            $this->Asset_GetAssets()[$sType]->get('components')
+                    ->add( $this->Asset_CreateAsset( $sAssetPath, $aParams) );
         }
     }
    
