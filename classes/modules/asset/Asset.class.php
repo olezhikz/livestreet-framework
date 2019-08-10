@@ -28,11 +28,11 @@ use Assetic\Asset\AssetReference;
 use Assetic\Asset\AssetInterface;
 use Assetic\FilterManager;
 use Assetic\Factory\AssetFactory;
-//use Assetic\Factory\Worker\CacheBustingWorker;
 use Assetic\Asset\RemoteAsset;
 use Assetic\Filter\CssHtmlFilter;
 use Assetic\Filter\JsHtmlFilter;
 use Assetic\Filter\ParamsFilter;
+use Assetic\Factory\Worker\PublicWorker;
 
 /**
  * Модуль управления статическими файлами css стилей и js сриптов
@@ -90,10 +90,7 @@ class ModuleAsset extends Module
          * Инициируем фабрику ресурсов
          */
         $this->factory = new AssetFactory( Config::Get('path.cache_assets.server') );
-        /*
-         * Инициируем объект записи в папку web/assets
-         */
-        $this->assetWriter = new AssetWriter(Config::Get('path.cache_assets.server'));
+        
     }
 
     /**
@@ -165,21 +162,11 @@ class ModuleAsset extends Module
          * Определяем объект ассета HTTP удаленный или FILE локальный
          */
         $asset = $this->CreateAsset($sFile, $aParams);
-        if(!$asset){
-            return false;
-        }
+        
         /*
          * Добавляем фильтры исходя из параметров
          */
         $this->ensureFilters( $asset, $sType, $aParams);
-        
-        /*
-         * Определяем есть ли зависимости
-         */
-//        if($assetDependencies = $this->getDependencies($assetManager,$aParams)){
-//            $assetDependencies->add($asset);
-//            $asset = $assetDependencies;
-//        }
         
         $assetManager->set($sFileKey, $asset);
                 
@@ -258,36 +245,7 @@ class ModuleAsset extends Module
             $asset->ensureFilter(new Assetic\Filter\JSqueezeFilter());
         }
     }
-    
-    /**
-     * Определяем все зависимости ресурса по параметрам 
-     * и отдаем коллекцию ссылок
-     * 
-     * @param AssetManager $assetManager
-     * @param array $aParams
-     * 
-     * @return AssetCollection
-     */
-    protected function getDependencies($assetManager, $aParams){
-        
-        if(!$aParams['dependencies']){
-            return false;
-        }
-        
-        $assets = new AssetCollection();
-        
-        foreach ( $aParams['dependencies'] as $sKey) {
-            $sKey = $this->normalName($sKey);
-            if(!$assetManager->has( $sKey )){
-                $this->Logger_Notice("Dependency {$sKey} not found");
-                continue;
-            }
-            $assets->add(new AssetReference($assetManager, $sKey));
-        }
-        
-        return $assets;
-    }
-
+ 
     /**
      * Добавляет файл css стиля
      *
@@ -405,7 +363,6 @@ class ModuleAsset extends Module
     public function dump(string $sType, array $aKeys = [], array $aFilters = [])
     {
         
-        
         /*
          * Если ключи не указаны выбираем все
          */
@@ -419,52 +376,37 @@ class ModuleAsset extends Module
         }
         
         $this->factory->setAssetManager($this->assets[$sType]);
-//        $factory->setDebug(true);
-        $this->factory->addWorker(new \Assetic\Factory\Worker\MergeWorker());
-        $assets = $this->factory->createAsset($aKeys, $aFilters, [
-            'output' => $sType.'/*.'.$sType
-        ]);
-        
         /*
-         * Отправляем на кэширование
+         * Создаем опции
          */
-        foreach ($assets as $asset) {
-            $this->cache($asset);
+        $aOptions = [
+            'output' => $sType.'/*{name}.'.$sType,
+            'vars' => ['name']
+        ];
+        /*
+         * Генерируем хэш набора ресурсов заранее
+         */ 
+        $sHash = 'asset'.$this->factory->generateAssetName($aKeys, $aFilters, $aOptions);
+        if(!$this->Cache_Get($sHash)){
+            /*
+            * Добавляем обработчик публикации
+            */
+            $this->factory->addWorker(new PublicWorker(Config::Get('path.cache_assets.server')));
+
+            //Указываем что записали
+            $this->Cache_Set(true, $sHash, ['assets']);
         }
+        /*
+         * Добавляем хэш в опции 
+         */
+        $aOptions['name'] = $sHash;
+        /*
+         * Создаем набор ресурсов
+         */
+        $assets = $this->factory->createAsset($aKeys, $aFilters, $aOptions);
         
         return $assets->dump($this->filters->get($sType));
         
-    }
-    
-    /**
-     * Кэшируем файлы в публичную папку
-     * 
-     * @return boolean
-     */
-    protected function cache($asset) {
-        /*
-         * Ключ указателя кэширования с учетом скина
-         */
-        $sKeyCache = basename($asset->getTargetPath());
-        
-//echo  $asset->getTargetPath(). get_class($asset).PHP_EOL;
-        try{
-            /*
-             * Если не кэшировали кэшируем
-             */
-            if(!$this->Cache_Get($sKeyCache)){
-                $this->assetWriter->writeAsset($asset);
-                
-                //Указываем что записали
-                $this->Cache_Set(true, $sKeyCache, ['assets']);
-            }
-
-        }catch (Exception $e){
-            $this->Logger_Notice( $e->getMessage());
-            return false;
-        }
-        
-        return true;
     }
     
     
@@ -543,83 +485,6 @@ class ModuleAsset extends Module
             $this->sDirMergeLock = null;
         }
     }
-
-    /**
-     * Производит объединение и сжатие файлов
-     *
-     * @param      $aAssetItems
-     * @param      $sType
-     * @param bool $bCompress
-     *
-     * @return string|bool Web путь до нового файла
-     */
-    protected function Merge($aAssetItems, $sType, $bCompress = false)
-    {
-        $sCacheDir = Config::Get('path.cache_assets.server') . "/" . Config::Get('view.skin');
-        $sCacheFile = Config::Get('path.cache_assets.web') . "/" . Config::Get('view.skin') 
-                . "/" . md5(serialize(array_keys($aAssetItems)) . '_head') . '.' . $sType;
-        /**
-         * Если файла еще нет, то создаем его
-         */
-        if (!file_exists($sCacheFile)) {
-            /**
-             * Но только в том случае, если еще другой процесс не начал его создавать - проверка на блокировку
-             */
-            if ($this->IsLockMerge()) {
-                return false;
-            }
-            /**
-             * Создаем директорию для кеша текущего скина,
-             * если таковая отсутствует
-             */
-            if (!is_dir($sCacheDir)) {
-                @mkdir($sCacheDir, 0777, true);
-            }
-            $sContent = '';
-            foreach ($aAssetItems as $sFile => $aParams) {
-                $sFile = isset($aParams['file']) ? $aParams['file'] : $aParams['file'];
-                if (strpos($sFile, '//') === 0) {
-                    /**
-                     * Добавляем текущий протокол
-                     */
-                    $sFile = (Router::GetIsSecureConnection() ? 'https' : 'http') . ':' . $sFile;
-                }
-                $sFile = $this->Fs_GetPathServerFromWeb($sFile);
-                /**
-                 * Считываем содержимое файла
-                 */
-                if ($sFileContent = @file_get_contents($sFile)) {
-                    /**
-                     * Создаем объект
-                     */
-                    if ($oType = $this->CreateObjectType($sType)) {
-                        $oType->setContent($sFileContent);
-                        $oType->setFile($sFile);
-                        unset($sFileContent);
-                        $oType->prepare();
-                        if ($bCompress and (!isset($aParams['compress']) or $aParams['compress'])) {
-                            $oType->compress();
-                        }
-                        $sContent .= $oType->getContent();
-                        unset($oType);
-                    } else {
-                        $sContent .= $sFileContent;
-                    }
-                }
-            }
-            /**
-             * Создаем файл и сливаем туда содержимое
-             */
-            @file_put_contents($sCacheFile, $sContent);
-            @chmod($sCacheFile, 0766);
-            /**
-             * Удаляем блокировку
-             */
-            $this->RemoveLockMerge();
-        }
-        return $this->Fs_GetPathWebFromServer($sCacheFile);
-    }
-
     
     /**
      * Создает и возврашает объект
@@ -632,27 +497,32 @@ class ModuleAsset extends Module
      */
     public function CreateAsset( $sPath, $aParams)
     {
-        /*
-         * Если удаленный и нужно/можно сливать
-         */
-        if($aParams['remote'] and $aParams['merge']){
-            return new HttpAsset($sPath, [] ,true);
-        }
-        /*
-         * Если удаленный и не нужно сливать
-         */
-        if($aParams['remote'] and !$aParams['merge']){
-            return new RemoteAsset($sPath);
-        }
-        /*
-         *  По умолчанию локальный
-         */
-        if (!is_file($sPath)) {
-            $this->Logger_Notice("Asset File {$sPath} not found");
-            return false;
-        }
-        return new FileAsset($sPath);
-
+        $aVars = [ 'name' ];
+        
+        if ((false !== strpos($sPath, '://') || 0 === strpos($sPath, '//')) ) {
+            /*
+            * Если удаленный и нужно/можно сливать
+            */
+            if($aParams['merge']){
+                $asset  =  new HttpAsset($sPath, [] ,true, $aVars);
+            }else{
+                $asset = new RemoteAsset($sPath, [] ,true, $aVars);
+            }
+        }else{
+            /*
+            *  По умолчанию локальный
+            */
+           if (!is_file($sPath)) {
+               throw new Exception("Asset File {$sPath} not found");
+           }
+           $asset  = new FileAsset($sPath,[] , null, null, $aVars);
+        }      
+        
+        $asset->setValues([
+            'name' => $aParams['name'] ?: 'noname'
+        ]);
+        
+        return $asset;
     }
    
 

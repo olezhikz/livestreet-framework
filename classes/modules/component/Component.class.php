@@ -65,12 +65,12 @@ class ModuleComponent extends Module
         /*
          * Создаем коллекции ресурсов для компонентов разных типов
          */
-        foreach (ModuleAsset::$aTypes as $sType) {
-            $this->Asset_GetAssets()[$sType]->set(
-                'components',
-                new Assetic\Asset\AssetCollection() 
-            );
-        }
+//        foreach (ModuleAsset::$aTypes as $sType) {
+//            $this->Asset_GetAssets()[$sType]->set(
+//                'components',
+//                new Assetic\Asset\AssetCollection() 
+//            );
+//        }
         
     }
 
@@ -261,13 +261,12 @@ class ModuleComponent extends Module
              * формируем имя ресурса
              */
             $sAssetName = (is_int($mName) ? basename($sAssetPath) : $mName);
-            $aParams['name'] = "component@{$sName}.{$sAssetName}";
+            $aParams['name'] = "component_{$sName}_{$sAssetName}";
             /*
              * Добавляем ресурс
              */
 //            echo $sFile, $sType, print_r($aParams, true);
-            $this->Asset_GetAssets()[$sType]->get('components')
-                    ->add( $this->Asset_CreateAsset( $sAssetPath, $aParams) );
+            $this->Asset_Add( $sAssetPath, $aParams, $sType);
         }
     }
    
