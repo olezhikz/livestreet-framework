@@ -347,17 +347,11 @@ class ModuleComponent extends Module
          * Получаем путь до файла из json
          */
         $aDataJson = $aData['json'];
-        if (!isset($aDataJson[$sAssetType][$sAssetName])) {
+        if (!isset($aDataJson['assets'][$sAssetType][$sAssetName])) {
             throw new Exception("Not found asset `{$sAssetName}` in component `{$sNameFull}`");
         }
          
-        foreach ($aData['paths'] as $sPath) {
-            $sFile = $sPath . '/' . $sAsset;
-            if (file_exists($sFile)) {
-                return $sFile;
-            }
-        }
-        return false;
+        return $this->getPathToAsset($aData['paths'], $aDataJson['assets'][$sAssetType][$sAssetName]);
     }
 
     /**
@@ -545,7 +539,7 @@ class ModuleComponent extends Module
                     $aNewAssets[$sType] = [];
                 }
                 
-                $aNewAssets[$sType][ $aDataComponent['name'] . '_' . $sName ] = $aAsset;
+                $aNewAssets[$sType][ $aDataComponent['name'] . '_' . $sType . '_' . $sName ] = $aAsset;
                 
             }
         }
