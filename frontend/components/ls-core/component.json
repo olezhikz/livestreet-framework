@@ -4,19 +4,21 @@
     "dependencies": [
         "ls-vendor"
     ],
-    "js": {
-        "vendor-nprogress": "vendor/nprogress/nprogress.js",
-        "ajax": "ajax.js",
-        "dev": "dev.js",
-        "hook": "hook.js",
-        "i18n": "i18n.js",
-        "main": "main.js",
-        "polyfills": "polyfills.js",
-        "registry": "registry.js",
-        "timer": "timer.js",
-        "utils": "utils.js"
-    },
-    "css": {
-        "vendor-nprogress": "vendor/nprogress/nprogress.css"
+    "assets":{
+        "js": {
+            "vendor-nprogress": "vendor/nprogress/nprogress.js",
+            "ajax": "ajax.js",
+            "dev": "dev.js",
+            "hook": "hook.js",
+            "i18n": "i18n.js",
+            "main": "main.js",
+            "polyfills": "polyfills.js",
+            "registry": "registry.js",
+            "timer": "timer.js",
+            "utils": "utils.js"
+        },
+        "css": {
+            "vendor-nprogress": "vendor/nprogress/nprogress.css"
+        }
     }
 }

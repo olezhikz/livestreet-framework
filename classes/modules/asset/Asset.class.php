@@ -173,6 +173,10 @@ class ModuleAsset extends Module
         return $asset;
     }
     
+    public function AddAssets($aAssets) {
+        
+    }
+    
     /**
      * Генерирует name из path Убирает из строки все кроме букв и цифр
      * 
@@ -380,8 +384,7 @@ class ModuleAsset extends Module
          * Создаем опции
          */
         $aOptions = [
-            'output' => $sType.'/*{name}.'.$sType,
-            'vars' => ['name']
+            'output' => $sType.'/*.'.$sType
         ];
         /*
          * Генерируем хэш набора ресурсов заранее
@@ -497,7 +500,7 @@ class ModuleAsset extends Module
      */
     public function CreateAsset( $sPath, $aParams)
     {
-        $aVars = [ 'name' ];
+        $aVars = [ ];
         
         if ((false !== strpos($sPath, '://') || 0 === strpos($sPath, '//')) ) {
             /*
@@ -518,9 +521,6 @@ class ModuleAsset extends Module
            $asset  = new FileAsset($sPath,[] , null, null, $aVars);
         }      
         
-        $asset->setValues([
-            'name' => $aParams['name'] ?: 'noname'
-        ]);
         
         return $asset;
     }
@@ -546,6 +546,43 @@ class ModuleAsset extends Module
         } else {
             return realpath($sPath);
         }
+    }
+    
+    public function Parse(array $aAssets) {
+        foreach (ModuleAsset::$aTypes as $sType) {
+            if(!isset($aAssets[$sType])){
+                continue;
+            }
+            
+            /*
+             * Перебираем ресурсы
+             */
+            foreach ($aAssets[$sType] as $sName => $mAsset) {
+                $aAssetNew = $mAsset;
+                $sNameNew = $sName;
+                
+                if(is_int($sName)){
+                    $sNameNew = preg_replace('/\..+$/i', '', basename($mAsset));
+                }
+                
+                if(is_string($mAsset)){
+                    $aAssetNew = [
+                        'file' => $mAsset
+                    ];
+                }
+                
+                if(isset($mAsset['name'])){
+                    $sNameNew = $mAsset['name'];
+                }
+                
+                unset($aAssets[$sType][$sName]);
+                
+                $aAssets[$sType][$sNameNew] = $aAssetNew;
+                
+            }
+        }
+        return $aAssets;
+        
     }
 
     public function Shutdown()

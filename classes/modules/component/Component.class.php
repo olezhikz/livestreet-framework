@@ -152,7 +152,7 @@ class ModuleComponent extends Module
      * @throws Exception
      */
     public function Load($sName)
-    {    
+    {   
         /*
          * Если компонент не существует останавливаем
          */
@@ -190,14 +190,9 @@ class ModuleComponent extends Module
                 $this->Load($sComponentDepend);
             }
         }
-        /**
-         * Подключаем скрипты
-         */
-        $this->loadData($sName, $aData, ModuleAsset::ASSET_TYPE_JS);
-        /**
-         * Подключаем стили
-         */
-        $this->loadData($sName, $aData, ModuleAsset::ASSET_TYPE_CSS);
+        if(isset($aDataJson['assets'])){
+            $this->Asset_AddAssets( $aDataJson['assets'] );
+        }
         /*
          * Компонент загружен
          */
@@ -207,85 +202,7 @@ class ModuleComponent extends Module
          */
         $this->aComponentsQuene = array_diff($this->aComponentsQuene, $this->aComponentsLoaded);
     }
-    
-    /**
-     * 
-     * Заружает выбранный тип ресурсов компонента в Asset
-     * 
-     * @param string $sName //имя компонента
-     * @param string $sType //тип ресурсов
-     * @return type
-     * @throws Exception
-     */
-    protected function loadData(string $sName, array $aData, string $sType) {
-        $aDataJson = $aData['json'];
-        if(!$aDataJson){
-            return;
-        }
-        /*
-         * Если ресурсов этого типа нет завершаем
-         */
-        if(!isset($aDataJson[$sType]) or !is_array($aDataJson[$sType])){
-            return;
-        }
-        /*
-         * Проходим по каждому
-         */
-        foreach ($aDataJson[$sType] as $mName => $mAsset) {
-
-            $aParams = array();
-            /*
-             * Если передан массив параметров то берем путь из file
-             */
-            if (is_array($mAsset)) {
-                $sAssetPath = isset($mAsset['file']) ? $mAsset['file'] : false;
-                $aParams = $mAsset;
-            } else {
-                $sAssetPath = $mAsset;
-            }
-            
-            if (!$sAssetPath) {
-                throw new Exception("Not found file name to {$sType} asset {$mName} in component {$sName}");
-            }
-            /*
-             * Формируем полный путь до ресурса
-             */
-            if(!isset($mAsset['remote']) or !$mAsset['remote']){
-                $sAssetPath = $this->getPathToAsset($aData['paths'], $sAssetPath);
-            }
-            
-            if (!isset($sAssetPath)) {
-                throw new Exception("Not found path to {$sType} asset {$mName} in component {$sName}");
-            }
-            /*
-             * формируем имя ресурса
-             */
-            $sAssetName = (is_int($mName) ? basename($sAssetPath) : $mName);
-            $aParams['name'] = "component_{$sName}_{$sAssetName}";
-            /*
-             * Добавляем ресурс
-             */
-//            echo $sFile, $sType, print_r($aParams, true);
-            $this->Asset_Add( $sAssetPath, $aParams, $sType);
-        }
-    }
-   
-    /**
-     * Получить валидный путь до ресурса
-     * 
-     * @param array $aPathsComponent Список путей до компонента
-     * @param string $sPathAsset Путь до ресурса внутри компонента
-     * @return boolean|string
-     */
-    protected function getPathToAsset(array $aPathsComponent, string $sPathAsset) {
-        foreach ($aPathsComponent as $sPath) {
-            $sFile = $sPath . '/' . $sPathAsset;
-            if (file_exists($sFile)) {
-                return $sFile;
-            }
-        }
-        return false;
-    }
+       
     /**
      * Добавляет новый компонент в список для загрузки
      *
@@ -417,34 +334,23 @@ class ModuleComponent extends Module
     /**
      * Возвращает полный серверный путь до css/js компонента
      *
-     * @param $sNameFull
-     * @param $sAssetType
-     * @param $sAssetName
+     * @param string $sNameFull
+     * @param string $sAssetType
+     * @param string $sAssetName
      * @return bool|string
      */
-    public function GetAssetPath($sNameFull, $sAssetType, $sAssetName)
+    public function GetAssetPath(string $sNameFull, string $sAssetType, string $sAssetName)
     {
         $aData = $this->GetComponentData($sNameFull);
 
-        if (in_array($sAssetType, array('scripts', 'js'))) {
-            $sAssetType = 'scripts';
-            $sAssetExt = 'js';
-        } else {
-            $sAssetType = 'styles';
-            $sAssetExt = 'css';
-        }
         /**
          * Получаем путь до файла из json
          */
         $aDataJson = $aData['json'];
-        if (isset($aDataJson[$sAssetType][$sAssetName])) {
-            $sAsset = $aDataJson[$sAssetType][$sAssetName];
-        } else {
-            $sAsset = "{$sAssetName}.{$sAssetExt}";
+        if (!isset($aDataJson[$sAssetType][$sAssetName])) {
+            throw new Exception("Not found asset `{$sAssetName}` in component `{$sNameFull}`");
         }
-        if ($sAsset === false) {
-            return false;
-        }
+         
         foreach ($aData['paths'] as $sPath) {
             $sFile = $sPath . '/' . $sAsset;
             if (file_exists($sFile)) {
@@ -596,7 +502,74 @@ class ModuleComponent extends Module
          * Подменяем пути
          */
         $aPaths = array_reverse($aPathsNew);
-        return $aJson;
+        /*
+         * Применяем пути к ресурсам и возвращаем
+         */
+        return $this->parseData($aJson, $aPaths);
+    }
+    
+    /**
+     * Применить пути к ресурсам компонента 
+     * и включить имя компонента в имена ресурсов
+     * 
+     * @param array $aDataComponent
+     * @param array $aPath
+     * @return array|null
+     */
+    protected function parseData(array $aDataComponent, array $aPaths) {
+        if(!isset($aDataComponent['assets'])){
+            return;
+        }
+        /*
+         * Приводим к единому виду
+         */
+        $aAssets = $this->Asset_Parse($aDataComponent['assets']);
+        
+        $aNewAssets = [];
+        
+        foreach (ModuleAsset::$aTypes as $sType) {
+            if(!isset($aAssets[$sType])){
+                continue;
+            }
+            /*
+             * Перебираем ресурсы
+             */
+            foreach ($aAssets[$sType] as $sName => $aAsset) {
+                if(!$sPath = $this->getPathToAsset($aPaths, $aAsset['file'])){
+                    throw new Exception("Not found file asset `{$aAsset['file']}`");
+                }
+                
+                $aAsset['file'] = $sPath;
+                
+                if(!isset($aNewAssets[$sType])){
+                    $aNewAssets[$sType] = [];
+                }
+                
+                $aNewAssets[$sType][ $aDataComponent['name'] . '_' . $sName ] = $aAsset;
+                
+            }
+        }
+        
+        $aDataComponent['assets'] = $aNewAssets;
+
+        return $aDataComponent;
+    }
+    
+    /**
+     * Получить валидный путь до ресурса
+     * 
+     * @param array $aPathsComponent Список путей до компонента
+     * @param string $sPathAsset Путь до ресурса внутри компонента
+     * @return boolean|string
+     */
+    protected function getPathToAsset(array $aPathsComponent, string $sPathAsset) {
+        foreach ($aPathsComponent as $sPath) {
+            $sFile = $sPath . '/' . $sPathAsset;
+            if (file_exists($sFile)) {
+                return $sFile;
+            }
+        }
+        return false;
     }
 
     /**
