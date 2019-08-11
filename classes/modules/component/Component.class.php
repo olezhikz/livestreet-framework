@@ -65,12 +65,12 @@ class ModuleComponent extends Module
         /*
          * Создаем коллекции ресурсов для компонентов разных типов
          */
-//        foreach (ModuleAsset::$aTypes as $sType) {
-//            $this->Asset_GetAssets()[$sType]->set(
-//                'components',
-//                new Assetic\Asset\AssetCollection() 
-//            );
-//        }
+        foreach (ModuleAsset::$aTypes as $sType) {
+            $this->Asset_GetAssets()[$sType]->set(
+                'components',
+                new Assetic\Asset\AssetCollection() 
+            );
+        }
         
     }
 
@@ -191,7 +191,7 @@ class ModuleComponent extends Module
             }
         }
         if(isset($aDataJson['assets'])){
-            $this->Asset_AddAssets( $aDataJson['assets'] );
+            $this->loadAssets( $aDataJson['assets'] );
         }
         /*
          * Компонент загружен
@@ -201,6 +201,21 @@ class ModuleComponent extends Module
          * Убираем загруженные из очереди
          */
         $this->aComponentsQuene = array_diff($this->aComponentsQuene, $this->aComponentsLoaded);
+    }
+    /**
+     * Заружает ресурсы в отдельну запись менеджера ресурсов
+     * 
+     * @param array $Assets
+     */
+    protected function loadAssets(array $Assets) {
+        foreach (self::$aTypes as $sType) {
+            if(!isset($aAssets[$sType]) or !is_array($aAssets[$sType])){
+                continue;
+            }
+            foreach ($aAssets[$sType] as $sName => $aAsset) {
+                $this->Add($sName, $aAsset, $sType, $bReplace);
+            }
+        }
     }
        
     /**

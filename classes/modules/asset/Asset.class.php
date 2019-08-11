@@ -84,33 +84,18 @@ class ModuleAsset extends Module
         /**
          * Задаем начальную структуру для хранения списка файлов по типам
          */
-        $this->InitAssets();
+        foreach (self::$aTypes as $sType) {
+            $this->assets[$sType] = new AssetManager();
+        }
         
         /*
-         * Инициируем фабрику ресурсов
-         */
-        $this->factory = new AssetFactory( Config::Get('path.cache_assets.server') );
-        
-    }
-
-    /**
-     * Задает начальную структуры для хранения списка файлов по типам
-     */
-    protected function InitAssets()
-    {        
-        $this->assets = [
-            self::ASSET_TYPE_CSS => new AssetManager(),
-            self::ASSET_TYPE_JS => new AssetManager(),
-        ];
-
-        /*
-         * Фильтры для разных ресурсов для Фабрики
+         * Фильтры для разных ресурсов
          */
         $this->filters = new FilterManager();
         $this->filters->set(self::ASSET_TYPE_JS, new JsHtmlFilter());
         $this->filters->set(self::ASSET_TYPE_CSS, new CssHtmlFilter());
     }
-    
+
     /**
      * 
      * @return AssetManager
@@ -120,16 +105,20 @@ class ModuleAsset extends Module
     }
 
     /**
-     * Добавляет новый файл
+      Добавляет новый файл
      *
-     * @param string $sFile Полный путь до файла
-     * @param array $aParams Дополнительные параметры
-     * @param string $sType Тип файла
+     * @param string $sName Имя ресурса
+     * @param array $aAsset Массив с параметрами ресурса
+     * @param string $sType Тип ресурса css|js|other
      * @param bool $bReplace Если такой файл уже добавлен, то заменяет его
-     *
-     * @return bool
+     * 
+     * @return boolean
      */
-    public function Add($sFile, $aParams, $sType, $bReplace = false)
+    public function Add(
+            string $sName, 
+            array $aAsset, 
+            string $sType, 
+            bool $bReplace = false)
     {
         if (!$sType = $this->CheckAssetType($sType)) {
             return false;
@@ -139,42 +128,99 @@ class ModuleAsset extends Module
          */
         $assetManager = $this->assets[$sType];
         /**
-         * В качестве уникального ключа использется имя или путь до файла
+         * В качестве уникального ключа использется имя
          */
-        if ( isset($aParams['name']) ) {
-            $sFileKey = $this->normalName($aParams['name']);
-        }else{
-            $sFileKey = $this->getAssetNameByPath($sFile);
-        }
-        
-        
+        $sName = $this->normalName($sName);        
         /*
          * Если файл уже добавлен пропускаем
          */
-        if($assetManager->has($sFileKey) and !$bReplace){
+        if($assetManager->has($sName) and !$bReplace){
             return false;
         }
         /**
          * Подготавливаем параметры
          */
-        $aParams = $this->PrepareParams($aParams);
+        $aAsset = $this->prepareParams($aAsset);
         /*
-         * Определяем объект ассета HTTP удаленный или FILE локальный
+         * Определяем объект ресурса
          */
-        $asset = $this->CreateAsset($sFile, $aParams);
+        $asset = $this->CreateAsset($aAsset);
         
-        /*
-         * Добавляем фильтры исходя из параметров
-         */
-        $this->ensureFilters( $asset, $sType, $aParams);
         
-        $assetManager->set($sFileKey, $asset);
+        
+        $assetManager->set($sName, $asset);        print_r($assetManager->getNames());
                 
         return $asset;
     }
     
-    public function AddAssets($aAssets) {
+    /**
+     * Добавить ресурсы из массива параметров
+     * 
+     * array(
+     *      "js|css" => 
+     *          array(
+     *              $sNameAsset => array(
+     *               "file" => "path/to/asset"
+     *                  "attr" => array(), Аттрибуты тега для вставки ресурса
+     *                  "merge" => true|false
+     *              )
+     *          )
+     * )
+     * @param array $aAssets 
+     * @param bool $bReplace Заменить все существующие
+     */
+    public function AddAssets(array $aAssets, bool $bReplace = false) {
+        foreach (self::$aTypes as $sType) {
+            if(!isset($aAssets[$sType]) or !is_array($aAssets[$sType])){
+                continue;
+            }
+            foreach ($aAssets[$sType] as $sName => $aAsset) {
+                $this->Add($sName, $aAsset, $sType, $bReplace);
+            }
+        }
+    }
+    /**
+     * Создать набор 
+     *array(
+     *      "js|css" => 
+     *          array(
+     *              $sNameAsset => array(
+     *               "file" => "path/to/asset"
+     *                  "attr" => array(), Аттрибуты тега для вставки ресурса
+     *                  "merge" => true|false
+     *              )
+     *          )
+     * )
+     * @param array $aAssets
+     * @return array
+     */
+    public function CreateAssets(array $aAssets) {
+        $asssetCollection = [
+            self::ASSET_TYPE_CSS => [],
+            self::ASSET_TYPE_JS => []
+        ];
         
+        foreach (self::$aTypes as $sType) {
+            if(!isset($aAssets[$sType]) or !is_array($aAssets[$sType])){
+                continue;
+            }
+            foreach ($aAssets[$sType] as $sName => $aAsset) {
+                /**
+                * Подготавливаем параметры
+                */
+                $aAsset = $this->prepareParams($aAsset);
+                /*
+                 * Определяем объект ресурса
+                 */
+                $asssetCollection[] = $this->CreateAsset($aAsset) ;
+                /*
+                 * Добавляем фильтры
+                 */
+                $this->ensureFilters($asset, $sType, $aAsset);
+            }
+        } 
+        
+        return $asssetCollection;
     }
     
     /**
@@ -194,9 +240,6 @@ class ModuleAsset extends Module
      * @return string
      */
     protected function normalName($sName) {
-        if (ctype_alnum(str_replace('_', '', $sName))) {
-            return $sName;
-        }
         return preg_replace([
             '/[^\w]/',
         ], [
@@ -303,12 +346,12 @@ class ModuleAsset extends Module
      *
      * @return array
      */
-    public function PrepareParams($aParams)
+    protected function prepareParams($aParams)
     {
         $aResult = array();
 
+        $aResult['file'] = (isset($aParams['file']) ) ? $aParams['file'] : null;
         $aResult['merge'] = (isset($aParams['merge']) and !$aParams['merge']) ? false : true;
-        $aResult['remote'] = (isset($aParams['remote']) and $aParams['remote']) ? true : false;
         $aResult['compress'] = (isset($aParams['compress']) and !$aParams['compress']) ? false : true;
         /*
          * Устанавливаем сжатие если в конфиге true
@@ -316,10 +359,8 @@ class ModuleAsset extends Module
         $aResult['compress'] = (Config::Get("module.asset.css.compress") and $aResult['compress']) ? true : false;
         $aResult['browser'] = (isset($aParams['browser']) and $aParams['browser']) ? $aParams['browser'] : null;
         $aResult['plugin'] = (isset($aParams['plugin']) and $aParams['plugin']) ? $aParams['plugin'] : null;
-        $aResult['name'] = (isset($aParams['name']) and $aParams['name']) ? strtolower($aParams['name']) : null;
-        $aResult['defer'] = (isset($aParams['defer']) and $aParams['defer']) ? true : false;
-        $aResult['async'] = (isset($aParams['async']) and $aParams['async']) ? true : false;
-        $aResult['dependencies'] = (isset($aParams['dependencies'])) ? $aParams['dependencies'] : [];
+        $aResult['attr'] = (isset($aParams['attr']) and is_array($aParams['attr'])) ? $aParams['attr'] : [];
+        $aResult[self::DEPENDS_KEY] = (isset($aParams[self::DEPENDS_KEY])) ? $aParams[self::DEPENDS_KEY] : [];
         
         return $aResult;
     }
@@ -493,33 +534,31 @@ class ModuleAsset extends Module
      * Создает и возврашает объект
      * Определяем тип ресурса для библиотеки Assetic 
      *
-     * @param string $sPath
-     * @param array $aParams
+     * @param array $aAsset
      * 
      * @return AssetInterface
      */
-    public function CreateAsset( $sPath, $aParams)
+    public function CreateAsset(array $aAsset)
     {
         $aVars = [ ];
         
-        if ((false !== strpos($sPath, '://') || 0 === strpos($sPath, '//')) ) {
+        if ((false !== strpos($aAsset['file'], '://') || 0 === strpos($aAsset['file'], '//')) ) {
             /*
             * Если удаленный и нужно/можно сливать
             */
-            if($aParams['merge']){
-                $asset  =  new HttpAsset($sPath, [] ,true, $aVars);
+            if($aAsset['merge']){
+                $asset  =  new HttpAsset($aAsset['file'], [] ,true, $aVars);
             }else{
-                $asset = new RemoteAsset($sPath, [] ,true, $aVars);
+                $asset = new RemoteAsset($aAsset['file'], [] ,true, $aVars);
             }
-        }else{
-            /*
-            *  По умолчанию локальный
-            */
-           if (!is_file($sPath)) {
-               throw new Exception("Asset File {$sPath} not found");
-           }
-           $asset  = new FileAsset($sPath,[] , null, null, $aVars);
-        }      
+        }
+        /*
+        *  По умолчанию локальный
+        */
+        if (!is_file($aAsset['file'])) {
+            throw new Exception("Asset File {$aAsset['file']} not found");
+        }
+        $asset  = new FileAsset($aAsset['file'],[] , null, null, $aVars);
         
         
         return $asset;
