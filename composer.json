@@ -21,7 +21,7 @@
         "ganlvtech/kcaptcha": "1.0.1",
         "aura/autoload": "2.0.4",
         "phpmailer/phpmailer": "~6.0",
-        "livestreet/assetic":"dev-master"
+        "livestreet/asset":"dev-master"
     },
     "autoload": {
         "files": [
