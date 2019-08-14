@@ -212,8 +212,9 @@ class ModuleComponent extends Module
             if(!isset($aAssets[$sType]) or !is_array($aAssets[$sType])){
                 continue;
             }
-            foreach ($aAssets[$sType] as $sName => $aAsset) {
-                $this->Add($sName, $aAsset, $sType, $bReplace);
+            foreach ($aAssets[$sType] as $sName => $aAsset) {                print_r($aAsset);
+                $asset = $this->Asset_CreateAsset($aAsset);
+                $this->Asset_CollectionSet($sType, 'components', $aAsset);
             }
         }
     }
