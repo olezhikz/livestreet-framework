@@ -315,11 +315,11 @@ $config['module']['image']['params']['default']['watermark_min_height'] = 100; /
  * Модуль Asset
  * Параметры обработки css/js-файлов
  */
-$config['module']['asset']['force_https'] = true; // При использовании https принудительно заменять http на https у путях до css/js
-$config['module']['asset']['css']['merge'] = true; // указывает на необходимость слияния css файлов
-$config['module']['asset']['css']['compress'] = false; // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
-$config['module']['asset']['js']['merge'] = true; // указывает на необходимость слияния js файлов
-$config['module']['asset']['js']['compress'] = false; // указывает на необходимость компрессии файлов. Компрессия используется только в активированном режиме слияния файлов.
+$config['module']['asset']['filters'] = [
+    'js_min' =>  new \Assetic\Filter\JSMinFilter(),
+    'css_min' => new Assetic\Filter\CssMinFilter()
+]; // Список фильтров для ресурсов
+$config['module']['asset']['merge'] = true; // указывает на необходимость слияния js файлов
 // Модель Component
 $config['module']['component']['cache_tree'] = false; // кешировать или нет построение дерева компонентов
 $config['module']['component']['cache_data'] = false; // кешировать или нет данные компонентов

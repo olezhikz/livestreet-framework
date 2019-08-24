@@ -62,16 +62,7 @@ class ModuleComponent extends Module
     {
         $this->InitComponentsList();
         
-        /*
-         * Создаем коллекции ресурсов для компонентов разных типов
-         */
-        foreach (ModuleAsset::$aTypes as $sType) {
-            $this->Asset_GetAssets()[$sType]->set(
-                'components',
-                new Assetic\Asset\AssetCollection() 
-            );
-        }
-        
+                
     }
 
     /**
@@ -191,7 +182,7 @@ class ModuleComponent extends Module
             }
         }
         if(isset($aDataJson['assets'])){
-            $this->loadAssets( $aDataJson['assets'] );
+            $this->Asset_AddFromConfig( $aDataJson['assets'] );
         }
         /*
          * Компонент загружен
@@ -202,23 +193,7 @@ class ModuleComponent extends Module
          */
         $this->aComponentsQuene = array_diff($this->aComponentsQuene, $this->aComponentsLoaded);
     }
-    /**
-     * Заружает ресурсы в отдельну запись менеджера ресурсов
-     * 
-     * @param array $Assets
-     */
-    protected function loadAssets(array $Assets) {
-        foreach (self::$aTypes as $sType) {
-            if(!isset($aAssets[$sType]) or !is_array($aAssets[$sType])){
-                continue;
-            }
-            foreach ($aAssets[$sType] as $sName => $aAsset) {                print_r($aAsset);
-                $asset = $this->Asset_CreateAsset($aAsset);
-                $this->Asset_CollectionSet($sType, 'components', $aAsset);
-            }
-        }
-    }
-       
+    
     /**
      * Добавляет новый компонент в список для загрузки
      *
