@@ -881,7 +881,7 @@ class ModuleViewer extends Module
      */
     public function AppendScript($sJs, $aParams = array(), $bReplace = false)
     {
-        return $this->Asset_AddJs($sJs, $aParams, false, $bReplace);
+//        return $this->Asset_AddJs($sJs, $aParams, false, $bReplace);
     }
 
     /**
@@ -894,7 +894,7 @@ class ModuleViewer extends Module
      */
     public function PrependScript($sJs, $aParams = array(), $bReplace = false)
     {
-        return $this->Asset_AddJs($sJs, $aParams, true, $bReplace);
+//        return $this->Asset_AddJs($sJs, $aParams, true, $bReplace);
     }
 
     /**
@@ -930,7 +930,7 @@ class ModuleViewer extends Module
      */
     protected function BuildHeadFiles()
     {
-        $this->SetHtmlHeadFiles($this->Asset_BuildHeadItems());
+//        $this->SetHtmlHeadFiles($this->Asset_BuildHeadItems());
     }
 
     /**

@@ -648,7 +648,7 @@ class Engine
                 $sModuleClass = $aName[0] . '_Module' . $aName[1];
                 $sMethod = $aName[2];
             } else {
-                throw new Exception("Undefined method module: " . $sName);
+                throw new Exception("Undefined method module: " . $sName );
             }
             /**
              * Подхватываем делегат модуля (в случае наличия такового)

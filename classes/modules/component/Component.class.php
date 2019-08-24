@@ -490,7 +490,9 @@ class ModuleComponent extends Module
         /*
          * Применяем пути к ресурсам и возвращаем
          */
-        return $this->parseData($aJson, $aPaths);
+        $this->parseData($aJson, $aPaths);
+        
+        return $aJson;
     }
     
     /**
@@ -501,43 +503,38 @@ class ModuleComponent extends Module
      * @param array $aPath
      * @return array|null
      */
-    protected function parseData(array $aDataComponent, array $aPaths) {
+    protected function parseData(array &$aDataComponent, array $aPaths) {
         if(!isset($aDataComponent['assets'])){
             return;
         }
         /*
          * Приводим к единому виду
          */
-        $aAssets = $this->Asset_Parse($aDataComponent['assets']);
+        $aAssets = $aDataComponent['assets'];
         
         $aNewAssets = [];
         
-        foreach (ModuleAsset::$aTypes as $sType) {
-            if(!isset($aAssets[$sType])){
-                continue;
-            }
-            /*
-             * Перебираем ресурсы
-             */
-            foreach ($aAssets[$sType] as $sName => $aAsset) {
-                if(!$sPath = $this->getPathToAsset($aPaths, $aAsset['file'])){
-                    throw new Exception("Not found file asset `{$aAsset['file']}`");
+        foreach ($aDataComponent['assets'] as $sType => $aAssets) {
+            $aNewAssets[$sType] = [];
+            
+            foreach ($aAssets as $sName => $mAsset) {
+                $sAssetName = 'component_'.$sName;
+                
+                if(is_string($mAsset)){
+                    $aNewAssets[$sType][$sAssetName] = $this->getPathToAsset($aPaths, $mAsset);
+                    continue;
                 }
                 
-                $aAsset['file'] = $sPath;
+                $mAsset['file'] = $this->getPathToAsset($aPaths, $mAsset['file']);
                 
-                if(!isset($aNewAssets[$sType])){
-                    $aNewAssets[$sType] = [];
-                }
-                
-                $aNewAssets[$sType][ $aDataComponent['name'] . '_' . $sType . '_' . $sName ] = $aAsset;
-                
+                $aNewAssets[$sType][$sAssetName] = $mAsset;
             }
+            
+            $aNewAssets[$sType] = $aNewAssets;
         }
         
         $aDataComponent['assets'] = $aNewAssets;
-
-        return $aDataComponent;
+        
     }
     
     /**

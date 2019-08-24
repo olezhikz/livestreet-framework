@@ -62,9 +62,7 @@ class ModuleAsset extends Module
         }
         
         $this->loadFromConfig();
-        
-        $this->Write();
-        
+                
     }
     
     
@@ -163,11 +161,11 @@ class ModuleAsset extends Module
         
         $this->factory->addWorker(new LS\Module\Asset\Worker\WorkerDepends());
         
-        $this->factory->addWorker(new LS\Module\Asset\Worker\WorkerTargetPath());
-        
         if(Config::Get('module.asset.merge')){
             $this->factory->addWorker(new LS\Module\Asset\Worker\WorkerMerge());
         } 
+        
+        $this->factory->addWorker(new LS\Module\Asset\Worker\WorkerTargetPath());
     }
     
     /**
@@ -179,7 +177,9 @@ class ModuleAsset extends Module
     public function CreateAsset(array $aInputs) {
         $this->prepareFactory();    
         
-        return $this->factory->createAsset($aInputs);
+        $assets = $this->factory->createAsset($aInputs);
+        
+        return $assets;
     }
     
     /**
@@ -191,19 +191,36 @@ class ModuleAsset extends Module
     {
         $this->prepareFactory();
         
-        return $this->factory->createAssetType($sType);
+        $assets = $this->factory->createAssetType($sType);
+        
+        return $assets;
+    }
+    
+    protected function writeAssets(LS\Module\Asset\AssetManager $assets) {
+        
+        $sKey = $this->factory->generateAssetKey($assets);
+        
+        $sDir = Config::Get('path.cache_assets.server').'/'.$sKey;
+        
+        if(file_exists($sDir)){
+            return;
+        }
+            
+        $writer = new Assetic\AssetWriter($sDir);
+
+        $writer->writeManagerAssets($assets);
+        
     }
     
     public function Write() {
-        
+                
         $this->prepareFactory();
         
-        $assets = $this->factory->createAssetSorted();
+        $aAssetSorted = $this->factory->createAssetSorted();
         
-        $aAssetSorted = new Assetic\AssetWriter(Config::Get('path.cache_assets.server'));
-        
-        foreach ($aAssetSorted as  $assets) {
-            $writer->writeManagerAssets($assets);
+        foreach ($aAssetSorted as  $assets) {  
+            
+            $this->writeAssets($assets);
         }  
         
     }
@@ -214,36 +231,6 @@ class ModuleAsset extends Module
         
     }
     
-
-    
-    /**
-     * Проверяет на блокировку
-     * Если нет блокировки, то создает ее
-     *
-     * @return bool
-     */
-    protected function IsLockMerge()
-    {
-        $this->sDirMergeLock = Config::Get('path.tmp.server') . '/asset-merge-lock';
-        if ($bResult = $this->Fs_IsLockDir($this->sDirMergeLock, 60 * 5)) {
-            $this->sDirMergeLock = null;
-        }
-        return $bResult;
-    }
-
-    /**
-     * Удаляет блокировку
-     */
-    protected function RemoveLockMerge()
-    {
-        if ($this->sDirMergeLock) {
-            $this->Fs_RemoveLockDir($this->sDirMergeLock);
-            $this->sDirMergeLock = null;
-        }
-    }
-    
-    
-
     public function Shutdown()
     {
         /**
