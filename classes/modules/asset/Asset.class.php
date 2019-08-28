@@ -39,20 +39,15 @@ class ModuleAsset extends Module
      */
     protected $factory;
 
-    /**
-     * Каталог для проверки блокировки
-     *
-     * @var null|string
-     */
-    protected $sDirMergeLock = null;
-    
+    protected $builders = [];
+
+
     /**
      * Инициалищация модуля
      */
     public function Init()
     {
-        $this->factory = new \LS\Module\Asset\AssetFactory(Config::Get('module.asset'));
-        
+       
         /*
          * Фильтры для разных ресурсов
          */
@@ -60,6 +55,9 @@ class ModuleAsset extends Module
         foreach (Config::Get('module.asset.filters') as $key => $filter) {
             $this->filters->set($key, $filter);
         }
+        
+        $this->builders['js'] = \LS\Module\Asset\Builder\BuilderJsHTML::class;
+        $this->builders['css'] = \LS\Module\Asset\Builder\BuilderCssHTML::class;
         
         $this->loadFromConfig();
                 
@@ -156,16 +154,22 @@ class ModuleAsset extends Module
     }
     
     protected function prepareFactory() {
-        $this->factory->setFilterManager($this->filters);
-        $this->factory->setAssetManager($this->assets);
+        $factory = new \LS\Module\Asset\AssetFactory(Config::Get('module.asset'));
         
-        $this->factory->addWorker(new LS\Module\Asset\Worker\WorkerDepends());
+        $factory->setFilterManager($this->filters);
+        $factory->setAssetManager($this->assets);print_r($this->assets->getNames());
+        
+        $factory->addWorker(new LS\Module\Asset\Worker\WorkerDepends());
         
         if(Config::Get('module.asset.merge')){
-            $this->factory->addWorker(new LS\Module\Asset\Worker\WorkerMerge());
+            $factory->addWorker(new LS\Module\Asset\Worker\WorkerMerge());
         } 
         
-        $this->factory->addWorker(new LS\Module\Asset\Worker\WorkerTargetPath());
+        $factory->addWorker(new LS\Module\Asset\Worker\WorkerTargetPath());
+        
+        $this->factory = $factory;
+        
+        return $factory;
     }
     
     /**
@@ -175,9 +179,9 @@ class ModuleAsset extends Module
      * @return LS\Module\Asset\AssetManager
      */
     public function CreateAsset(array $aInputs) {
-        $this->prepareFactory();    
+        $factory = $this->prepareFactory();    
         
-        $assets = $this->factory->createAsset($aInputs);
+        $assets = $factory->createAsset($aInputs);
         
         return $assets;
     }
@@ -189,13 +193,19 @@ class ModuleAsset extends Module
      */
     public function CreateAssetType(string $sType)
     {
-        $this->prepareFactory();
+        $factory = $this->prepareFactory();
         
-        $assets = $this->factory->createAssetType($sType);
+        $assets = $factory->createAssetType($sType);
         
         return $assets;
     }
-    
+    /**
+     * Записывает список ресурсов в директорию 
+     * assets/{имя шаблона}/{ключ_списка}/{тип ресурса js|css|image}/*
+     * 
+     * @param LS\Module\Asset\AssetManager $assets
+     * @return type
+     */
     protected function writeAssets(LS\Module\Asset\AssetManager $assets) {
         
         $sKey = $this->factory->generateAssetKey($assets);
@@ -211,12 +221,14 @@ class ModuleAsset extends Module
         $writer->writeManagerAssets($assets);
         
     }
-    
+    /**
+     * Публикует все доступные ресуры в web/assets
+     */
     public function Write() {
                 
-        $this->prepareFactory();
+        $factory = $this->prepareFactory();
         
-        $aAssetSorted = $this->factory->createAssetSorted();
+        $aAssetSorted = $factory->createAssetSorted();
         
         foreach ($aAssetSorted as  $assets) {  
             
@@ -226,9 +238,27 @@ class ModuleAsset extends Module
     }
     
     public function BuildHTML(string $sType) {
-        $assets = $this->CreateAssetType($sType);
+        $sHTML = '';
+        
+        $factory = $this->prepareFactory();
+        
+        $assets = $factory->createAssetType($sType);
         
         
+        
+        $sKey = $factory->generateAssetKey($assets);
+        
+        $sTargetDir = Config::Get('path.cache_assets.web').'/'.$sKey;
+        
+        $builder = new $this->builders[$sType]($sTargetDir);
+        
+        foreach ($assets->getNames() as $name) {
+            $asset = $assets->get($name);
+            
+            $builder->add($asset);
+        }
+        
+        return $builder->build();
     }
     
     public function Shutdown()

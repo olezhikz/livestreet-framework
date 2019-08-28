@@ -930,7 +930,10 @@ class ModuleViewer extends Module
      */
     protected function BuildHeadFiles()
     {
-//        $this->SetHtmlHeadFiles($this->Asset_BuildHeadItems());
+        $this->SetHtmlHeadFiles([
+            'js' => $this->Asset_BuildHTML('js'),
+            'css' => $this->Asset_BuildHTML('css')
+        ]);
     }
 
     /**
