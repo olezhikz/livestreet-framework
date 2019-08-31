@@ -1,12 +1,12 @@
 {
-    "name": "ls-core",
+    "name": "ls_core",
     "version": "1.0.0",
     "dependencies": [
-        "ls-vendor"
+        "ls_vendor"
     ],
     "assets":{
         "js": {
-            "vendor-nprogress": "vendor/nprogress/nprogress.js",
+            "nprogress": "vendor/nprogress/nprogress.js",
             "ajax": "ajax.js",
             "dev": "dev.js",
             "hook": "hook.js",
@@ -18,7 +18,7 @@
             "utils": "utils.js"
         },
         "css": {
-            "vendor-nprogress": "vendor/nprogress/nprogress.css"
+            "nprogress": "vendor/nprogress/nprogress.css"
         }
     }
 }

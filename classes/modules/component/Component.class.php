@@ -148,7 +148,7 @@ class ModuleComponent extends Module
          * Если компонент не существует останавливаем
          */
         if(!$this->GetComponentPaths($sName)){
-            throw new Exception("Component {$sName} not found");
+            throw new OutOfBoundsException("Component {$sName} not found");
         }
         /*
          * Если компонент загружен пропускаем
@@ -160,7 +160,7 @@ class ModuleComponent extends Module
          * Определяем не зациклены ли зависимости
          */
         if(in_array($sName, $this->aComponentsQuene)){
-            throw new Exception("Warning: Cicle dependency component {$sName}");
+            throw new OutOfBoundsException("Warning: Cicle dependency component {$sName}");
         }
         $this->aComponentsQuene[] = $sName;
         /**
@@ -181,7 +181,7 @@ class ModuleComponent extends Module
                 $this->Load($sComponentDepend);
             }
         }
-        if(isset($aDataJson['assets'])){
+        if(isset($aDataJson['assets'])){            print_r( $aDataJson['assets']);
             $this->Asset_AddFromConfig( $aDataJson['assets'] );
         }
         /*
@@ -339,7 +339,7 @@ class ModuleComponent extends Module
          */
         $aDataJson = $aData['json'];
         if (!isset($aDataJson['assets'][$sAssetType][$sAssetName])) {
-            throw new Exception("Not found asset `{$sAssetName}` in component `{$sNameFull}`");
+            throw new OutOfBoundsException("Not found asset `{$sAssetName}` in component `{$sNameFull}`");
         }
          
         return $this->getPathToAsset($aData['paths'], $aDataJson['assets'][$sAssetType][$sAssetName]);
@@ -402,7 +402,7 @@ class ModuleComponent extends Module
     {
         list($sPlugin, $sName, $sTemplate) = $this->ParseName($sName);
                 
-        $sPath = 'components/' . $sName;
+        $sPath = 'components/' . $sName; 
         $aPaths = array();
         
             
@@ -506,11 +506,10 @@ class ModuleComponent extends Module
     protected function parseData(array &$aDataComponent, array $aPaths) {
         if(!isset($aDataComponent['assets'])){
             return;
-        }
+        } 
         /*
          * Приводим к единому виду
          */
-        $aAssets = $aDataComponent['assets'];
         
         $aNewAssets = [];
         
@@ -518,7 +517,7 @@ class ModuleComponent extends Module
             $aNewAssets[$sType] = [];
             
             foreach ($aAssets as $sName => $mAsset) {
-                $sAssetName = 'component_'.$sName;
+                $sAssetName = $this->generateAssetName($sType, $aDataComponent['name'], $sName);
                 
                 if(is_string($mAsset)){
                     $aNewAssets[$sType][$sAssetName] = $this->getPathToAsset($aPaths, $mAsset);
@@ -530,11 +529,14 @@ class ModuleComponent extends Module
                 $aNewAssets[$sType][$sAssetName] = $mAsset;
             }
             
-            $aNewAssets[$sType] = $aNewAssets;
         }
         
         $aDataComponent['assets'] = $aNewAssets;
         
+    }
+    
+    protected function generateAssetName($sType, $sComponentName, $sNameAsset) {
+        return "component_{$sComponentName}_{$sType}_{$sNameAsset}";
     }
     
     /**

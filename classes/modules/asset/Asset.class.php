@@ -120,7 +120,7 @@ class ModuleAsset extends Module
     public function AddFromConfig(array $aAssets, bool $bReplace = false) {
         $parser = new \LS\Module\Asset\ConfigParser($this->filters);
         
-        $assetsAdd = $parser->parse($aAssets);
+        $assetsAdd = $parser->parse($aAssets);        
         
         foreach ($assetsAdd->getNames() as $name) {
             if($this->assets->has($name) and !$bReplace){
