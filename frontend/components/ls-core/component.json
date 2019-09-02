@@ -1,8 +1,8 @@
 {
-    "name": "ls_core",
+    "name": "ls-core",
     "version": "1.0.0",
     "dependencies": [
-        "ls_vendor"
+        "ls-vendor"
     ],
     "assets":{
         "js": {

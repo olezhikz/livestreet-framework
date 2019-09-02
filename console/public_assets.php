@@ -2,7 +2,11 @@
 
 require __DIR__. '/../../../autoload.php'; 
 
-Engine::getInstance()->Init();
+$LS = Engine::getInstance();
 
-Engine::getInstance()->Asset_Write();
+$LS->Init();
+
+$LS->Component_LoadAll();
+
+$LS->Asset_Write();
  

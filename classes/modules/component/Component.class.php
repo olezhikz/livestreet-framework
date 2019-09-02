@@ -181,7 +181,7 @@ class ModuleComponent extends Module
                 $this->Load($sComponentDepend);
             }
         }
-        if(isset($aDataJson['assets'])){            print_r( $aDataJson['assets']);
+        if(isset($aDataJson['assets'])){  
             $this->Asset_AddFromConfig( $aDataJson['assets'] );
         }
         /*
@@ -536,7 +536,8 @@ class ModuleComponent extends Module
     }
     
     protected function generateAssetName($sType, $sComponentName, $sNameAsset) {
-        return "component_{$sComponentName}_{$sType}_{$sNameAsset}";
+        $sComponentNameNormal = preg_replace('/[^\w]/', '_', $sComponentName);
+        return "component_{$sComponentNameNormal}_{$sType}_{$sNameAsset}";
     }
     
     /**
