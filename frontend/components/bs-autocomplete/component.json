@@ -4,8 +4,10 @@
     "templates": {
         "bs-autocomplete": "autocomplete.tpl"
     },
-    "js": {
-        "vendor-autocomplete": "js/bootstrap3-typeahead.min.js",
-        "bs-autocomplete": "js/bs-autocomplete.js"
+    "assets": {
+        "js": {
+            "vendor_autocomplete": "js/bootstrap3-typeahead.min.js",
+            "bs_autocomplete": "js/bs-autocomplete.js"
+        }
     }
 }

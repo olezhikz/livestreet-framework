@@ -8,10 +8,12 @@
         "modal-photo": "modal-photo.tpl",
         "modal-avatar": "modal-avatar.tpl"
     },
-    "js": {
-        "photo": "js/photo.js"
-    },
-    "css": {
-        "photo": "css/photo.css"
+    "assets": {
+        "js": {
+            "photo": "js/photo.js"
+        },
+        "css": {
+            "photo": "css/photo.css"
+        }
     }
 }

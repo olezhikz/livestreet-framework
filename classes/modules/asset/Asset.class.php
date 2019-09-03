@@ -53,7 +53,7 @@ class ModuleAsset extends Module
          */
         $this->filters = new \LS\Module\Asset\FilterManager();
         foreach (Config::Get('module.asset.filters') as $key => $filter) {
-            $this->filters->set($key, $filter);
+            $this->filters->set($key, new $filter());
         }
         /*
          * Построители HTML
@@ -108,7 +108,7 @@ class ModuleAsset extends Module
      *      "js|css" => 
      *          'assetName' => array(
                     'file' => __DIR__.'/Loader/test.js', 
-                    WorkerDepends::DEPENDS_KEY => [
+                    'depends' => [
                         'assetJsHTTP'
                     ],
                     'filters' => [
@@ -156,7 +156,7 @@ class ModuleAsset extends Module
     }
     
     protected function prepareFactory() {
-        $factory = new \LS\Module\Asset\AssetFactory(Config::Get('module.asset'));
+        $factory = new \LS\Module\Asset\AssetFactory();
         
         $factory->setFilterManager($this->filters);
         $factory->setAssetManager($this->assets);

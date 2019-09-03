@@ -4,11 +4,13 @@
     "templates": {
         "tinymce": "tinymce.tpl"
     },
-    "js": {
-        "tinymce": {
-            "file":"tinymce/tinymce.min.js",
-            "merge": false
-        },
-        "init": "js/init.js"
+    "assets": {
+        "js": {
+            "tinymce": {
+                "file": "tinymce/tinymce.min.js",
+                "merge": false
+            },
+            "init": "js/init.js"
+        }
     }
 }

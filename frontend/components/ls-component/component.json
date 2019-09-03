@@ -5,7 +5,9 @@
         "ls-vendor",
         "ls-core"
     ],
-    "js": {
-        "ls-component": "js/ls-component.js"
+    "assets": {
+        "js": {
+            "ls-component": "js/ls-component.js"
+        }
     }
 }

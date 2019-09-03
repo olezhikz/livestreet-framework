@@ -8,14 +8,16 @@
     ],
     "templates": {
         "bs-crop": "crop.tpl",
-        "modal":"crop-modal.tpl"
+        "modal": "crop-modal.tpl"
     },
-    "js": {
-        "vendor-cropper": "cropper/cropper.min.js",
-        "crop": "js/crop.js",
-        "crop-modal": "js/crop-modal.js"
-    },
-    "css": {
-        "vendor-cropper": "cropper/cropper.min.css"
+    "assets": {
+        "js": {
+            "vendor-cropper": "cropper/cropper.min.js",
+            "crop": "js/crop.js",
+            "crop-modal": "js/crop-modal.js"
+        },
+        "css": {
+            "vendor-cropper": "cropper/cropper.min.css"
+        }
     }
 }

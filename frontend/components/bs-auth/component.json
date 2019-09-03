@@ -9,7 +9,9 @@
         "reset": "auth.reset.tpl",
         "modal": "modal.auth.tpl"
     },
-    "js": {
-        "auth": "js/auth.js"
+    "assets": {
+        "js": {
+            "auth": "js/auth.js"
+        }
     }
 }

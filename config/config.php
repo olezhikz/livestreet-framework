@@ -315,11 +315,12 @@ $config['module']['image']['params']['default']['watermark_min_height'] = 100; /
  * Модуль Asset
  * Параметры обработки css/js-файлов
  */
+// Список фильтров которые можно использовать в параметрах ресурсов
 $config['module']['asset']['filters'] = [
-    'js_min' =>  new \Assetic\Filter\JSMinFilter(),
-    'css_min' => new Assetic\Filter\CssMinFilter()
+    'js_min' =>  \Assetic\Filter\JSMinFilter::class,
+    'css_min' => \Assetic\Filter\CssMinFilter::class
 ]; // Список фильтров для ресурсов
-$config['module']['asset']['merge'] = true; // указывает на необходимость слияния js файлов
+$config['module']['asset']['merge'] = false; // указывает на необходимость слияния  ресурсов
 // Модель Component
 $config['module']['component']['cache_tree'] = false; // кешировать или нет построение дерева компонентов
 $config['module']['component']['cache_data'] = false; // кешировать или нет данные компонентов

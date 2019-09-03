@@ -6,10 +6,11 @@
         "ls-core",
         "ls-component"
     ],
-    "js": {
-        "confirm": {
-            "file": "js/confirm.js",
-            "merge": true
+    "assets": {
+        "js": {
+            "confirm": {
+                "file": "js/confirm.js"
+            }
         }
     }
 }

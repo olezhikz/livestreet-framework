@@ -5,11 +5,13 @@
         "ls-vendor",
         "ls-core"
     ],
-    "css": {
-        "notification": "css/notification.css"
-    },
-    "js": {
-        "vendor-notifier": "vendor/notifier/jquery.notifier.js",
-        "notification": "js/notification.js"
+    "assets": {
+        "css": {
+            "notification": "css/notification.css"
+        },
+        "js": {
+            "vendor-notifier": "vendor/notifier/jquery.notifier.js",
+            "notification": "js/notification.js"
+        }
     }
 }

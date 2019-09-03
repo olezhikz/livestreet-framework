@@ -4,7 +4,9 @@
     "templates": {
         "blankslate": "blankslate.tpl"
     },
-    "css": {
-        "blankslate": "css/blankslate.css"
+    "assets":{
+        "css": {
+            "blankslate": "css/blankslate.css"
+        }
     }
 }

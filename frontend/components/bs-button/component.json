@@ -3,11 +3,13 @@
     "version": "1.0.0",
     "templates": {
         "bs-button": "button.tpl",
-        "group":"group.tpl",
-        "toolbar":"toolbar.tpl",
-        "toggle":"toggle.tpl"
+        "group": "group.tpl",
+        "toolbar": "toolbar.tpl",
+        "toggle": "toggle.tpl"
     },
-    "js":{
-        "button-loading":"js/button.js"
+    "assets": {
+        "js": {
+            "button-loading": "js/button.js"
+        }
     }
 }

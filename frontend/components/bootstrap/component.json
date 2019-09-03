@@ -3,21 +3,23 @@
     "version": "1.0.0",
     "templates": {
     },
-    "js":{
-        "popper":{
-            "file":"https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js",
-            "merge":false,
-            "remote":true
+    "assets": {
+        "js": {
+            "popper": {
+                "file": "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js",
+                "merge": false,
+                "loader": "LS\\Module\\Asset\\Loader\\RemoteLoader"
+            },
+            "bootstrap": {
+                "file": "bootstrap-4.3.1-dist/js/bootstrap.min.js",
+                "merge": false
+            }
         },
-        "bootstrap":{
-            "file":"bootstrap-4.3.1-dist/js/bootstrap.min.js",
-            "merge":false
-        }
-    },
-    "css":{
-        "bootstrap":{
-            "file":"bootstrap-4.3.1-dist/css/bootstrap.min.css",
-            "merge":false
+        "css": {
+            "bootstrap": {
+                "file": "bootstrap-4.3.1-dist/css/bootstrap.min.css",
+                "merge": false
+            }
         }
     }
 }
