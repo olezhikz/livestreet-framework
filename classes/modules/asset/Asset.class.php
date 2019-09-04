@@ -219,7 +219,7 @@ class ModuleAsset extends Module
         }
             
         $writer = new Assetic\AssetWriter($sDir);
-
+                
         $writer->writeManagerAssets($assets);
         
     }
@@ -232,8 +232,13 @@ class ModuleAsset extends Module
         
         $aAssetSorted = $factory->createAssetSorted();
         
+        
        
         foreach ($aAssetSorted as  $assets) {  
+            
+            foreach ($assets->getNames() as $name ) {
+                echo PHP_EOL.$name, '-', substr(md5(serialize($assets->get($name))), 0, 5);
+            }
             
             $this->writeAssets($assets);
         }  
@@ -254,8 +259,12 @@ class ModuleAsset extends Module
         
         $builder = new $this->builders[$sType]($sTargetDir);
         
+        print_r($assets->getNames());
+        
         foreach ($assets->getNames() as $name) {
             $asset = $assets->get($name);
+            
+            echo PHP_EOL.$name, '-', substr(md5(serialize($assets->get($name))), 0, 5);
             
             $builder->add($asset);
         }
