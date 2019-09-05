@@ -154,12 +154,17 @@ class ModuleAsset extends Module
     public function Get(string $sName) {
         return $this->assets->get($sName);
     }
-    
+    /**
+     * Создать фабрику из фильтров и ресурсов загруженных в модуль
+     * с учетом обработки зависимостей, слияния, и обработки путей публикации
+     * 
+     * @return \LS\Module\Asset\AssetFactory
+     */
     protected function prepareFactory() {
         $factory = new \LS\Module\Asset\AssetFactory();
         
-        $factory->setFilterManager($this->filters);
-        $factory->setAssetManager($this->assets);
+        $factory->setFilterManager(clone $this->filters);
+        $factory->setAssetManager(clone $this->assets);
         
         $factory->addWorker(new LS\Module\Asset\Worker\WorkerDepends());
         
@@ -208,64 +213,57 @@ class ModuleAsset extends Module
      * @param LS\Module\Asset\AssetManager $assets
      * @return type
      */
-    protected function writeAssets(LS\Module\Asset\AssetManager $assets) {
-        
-        $sKey = $this->factory->generateAssetKey($assets);
-        
-        $sDir = Config::Get('path.cache_assets.server').'/'.$sKey;
+    protected function writeAssets(array $aAssetSorted, string $sDir) {
         
         if(file_exists($sDir)){
             return;
         }
-            
+         
         $writer = new Assetic\AssetWriter($sDir);
-                
-        $writer->writeManagerAssets($assets);
-        
-    }
-    /**
-     * Публикует все доступные ресуры в web/assets
-     */
-    public function Write() {
-        
-        $factory = $this->prepareFactory();
-        
-        $aAssetSorted = $factory->createAssetSorted();
-        
-        
-       
+        /*
+         * Публикуем ресурсы если не опубликованы
+         */
         foreach ($aAssetSorted as  $assets) {  
-            
-            foreach ($assets->getNames() as $name ) {
-                echo PHP_EOL.$name, '-', substr(md5(serialize($assets->get($name))), 0, 5);
-            }
-            
-            $this->writeAssets($assets);
+            $writer->writeManagerAssets($assets);
         }  
         
     }
-    
+        
     public function BuildHTML(string $sType) {
         $sHTML = '';
-        
+        /*
+         * СОздаем фабрику 
+         */
         $factory = $this->prepareFactory();
+        /*
+         * Генерируем набор ресурсов отсортированных по типам
+         */
+        $aAssetSorted = $factory->createAssetSorted();      
+        /*
+         * Генерируем уникальный ключ для набора ресурсов
+         */
+        $sKey = $factory->generateKey();
+        /*
+         * Генерируем путь исходя из ключа
+         */
+        $sDir = Config::Get('path.cache_assets.server').'/'.$sKey;
+        /*
+         * Публикуем ресурсы если не опубликованы
+         */
+        $this->writeAssets($aAssetSorted, $sDir);
+        /*
+         * Выбираем построитель HTML по типу создаем и передаем путь
+         */
+        $builder = new $this->builders[$sType](Config::Get('path.cache_assets.web').'/'.$sKey);
         
-        $assets = $factory->createAssetType($sType);
-        
-        
-        $sKey = $factory->generateAssetKey($assets);
-        
-        $sTargetDir = Config::Get('path.cache_assets.web').'/'.$sKey;
-        
-        $builder = new $this->builders[$sType]($sTargetDir);
-        
-        print_r($assets->getNames());
-        
-        foreach ($assets->getNames() as $name) {
-            $asset = $assets->get($name);
+//        print_r($aAssetSorted);
+        /*
+         * Добавляем ресурсы в построитель
+         */print_r($aAssetSorted[$sType]->getNames());
+        foreach ($aAssetSorted[$sType]->getNames() as $name) {
             
-            echo PHP_EOL.$name, '-', substr(md5(serialize($assets->get($name))), 0, 5);
-            
+            $asset = $aAssetSorted[$sType]->get($name);
+                        
             $builder->add($asset);
         }
         

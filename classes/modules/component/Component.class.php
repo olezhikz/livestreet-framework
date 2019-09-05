@@ -537,7 +537,8 @@ class ModuleComponent extends Module
     
     protected function generateAssetName($sType, $sComponentName, $sNameAsset) {
         $sComponentNameNormal = preg_replace('/[^\w]/', '_', $sComponentName);
-        return "component_{$sComponentNameNormal}_{$sType}_{$sNameAsset}";
+        $sNameAssetNormal = preg_replace('/[^\w]/', '_', $sNameAsset);
+        return "component_{$sComponentNameNormal}_{$sType}_{$sNameAssetNormal}";
     }
     
     /**
