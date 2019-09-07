@@ -213,24 +213,27 @@ class ModuleAsset extends Module
      * @param LS\Module\Asset\AssetManager $assets
      * @return type
      */
-    protected function writeAssets(array $aAssetSorted, string $sDir) {
+    protected function writeAssets(LS\Module\Asset\AssetManager $assets, string $sDir) {
         
-        if(file_exists($sDir)){
-            return;
-        }
-         
         $writer = new Assetic\AssetWriter($sDir);
         /*
          * Публикуем ресурсы если не опубликованы
          */
-        foreach ($aAssetSorted as  $assets) {  
-            $writer->writeManagerAssets($assets);
-        }  
+        
+        foreach ($assets->getNames() as $name) {
+            $asset = $assets->get($name);
+            
+            if(file_exists($sDir.'/'.$asset->getTargetPath())){
+                return;
+            }
+            
+            $writer->writeAsset($asset);  
+            
+        }
         
     }
         
     public function BuildHTML(string $sType) {
-        $sHTML = '';
         /*
          * СОздаем фабрику 
          */
@@ -238,31 +241,22 @@ class ModuleAsset extends Module
         /*
          * Генерируем набор ресурсов отсортированных по типам
          */
-        $aAssetSorted = $factory->createAssetSorted();      
-        /*
-         * Генерируем уникальный ключ для набора ресурсов
-         */
-        $sKey = $factory->generateKey();
-        /*
-         * Генерируем путь исходя из ключа
-         */
-        $sDir = Config::Get('path.cache_assets.server').'/'.$sKey;
+        $assets = $factory->createAssetType($sType);      
         /*
          * Публикуем ресурсы если не опубликованы
          */
-        $this->writeAssets($aAssetSorted, $sDir);
+        $this->writeAssets($assets, Config::Get('path.cache_assets.server'));
         /*
          * Выбираем построитель HTML по типу создаем и передаем путь
          */
-        $builder = new $this->builders[$sType](Config::Get('path.cache_assets.web').'/'.$sKey);
+        $builder = new $this->builders[$sType](Config::Get('path.cache_assets.web'));
         
-//        print_r($aAssetSorted);
         /*
          * Добавляем ресурсы в построитель
-         */print_r($aAssetSorted[$sType]->getNames());
-        foreach ($aAssetSorted[$sType]->getNames() as $name) {
+         */
+        foreach ($assets->getNames() as $name) {
             
-            $asset = $aAssetSorted[$sType]->get($name);
+            $asset = $assets->get($name);
                         
             $builder->add($asset);
         }
