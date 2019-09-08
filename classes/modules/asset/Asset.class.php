@@ -48,6 +48,7 @@ class ModuleAsset extends Module
     public function Init()
     {
        
+        $this->assets = new LS\Module\Asset\AssetManager();
         /*
          * Фильтры
          */
@@ -60,16 +61,14 @@ class ModuleAsset extends Module
          */
         $this->builders['js'] = \LS\Module\Asset\Builder\BuilderJsHTML::class;
         $this->builders['css'] = \LS\Module\Asset\Builder\BuilderCssHTML::class;
-        
-        $this->loadFromConfig();
-                
+                        
     }
     
     
     /**
      * Загрузить все ресурсы из конфигов
      */
-    protected function loadFromConfig()
+    public function Load()
     {
         $aConfig = array_merge_recursive(
             (array)Config::Get('head.default'), //Сначала добавляем файлы из конфига
@@ -78,7 +77,11 @@ class ModuleAsset extends Module
         
         $parser = new \LS\Module\Asset\ConfigParser($this->filters);
         
-        $this->assets = $parser->parse($aConfig);
+        $assets = $parser->parse($aConfig);
+        
+        foreach ($assets->getNames() as $name) {
+            $this->assets->set($name, $assets->get($name));
+        }
    
     }
         
@@ -108,6 +111,7 @@ class ModuleAsset extends Module
      *      "js|css" => 
      *          'assetName' => array(
                     'file' => __DIR__.'/Loader/test.js', 
+     *              'loader' => '/LS/Modle/Asset/Loader/FileLoader'
                     'depends' => [
                         'assetJsHTTP'
                     ],
@@ -224,7 +228,11 @@ class ModuleAsset extends Module
             $asset = $assets->get($name);
             
             if(file_exists($sDir.'/'.$asset->getTargetPath())){
-                return;
+                continue;
+            }
+
+            if(!$asset->getParamsOne('public')){
+                continue;
             }
             
             $writer->writeAsset($asset);  

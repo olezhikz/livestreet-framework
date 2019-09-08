@@ -930,6 +930,10 @@ class ModuleViewer extends Module
      */
     protected function BuildHeadFiles()
     {
+        $this->Component_LoadAll();
+        
+        $this->Asset_Load();
+        
         $this->SetHtmlHeadFiles([
             'js' => $this->Asset_BuildHTML('js'),
             'css' => $this->Asset_BuildHTML('css')
