@@ -50,6 +50,17 @@
             {* Подключение стилей указанных в конфиге *}
             {$aHtmlHeadFiles.css}
         {/block}
+        
+        {block 'layout_head_scripts'}
+            {* Подключение скриптов указанных в конфиге *}
+            {$aHtmlHeadFiles.js}
+
+            <script defer>
+                ls.lang.load({json var = $LS->Lang_GetLangJs()});
+                ls.registry.set({json var = $LS->Viewer_GetVarsJs()});
+            </script>
+        {/block}
+        
 
         <link href="{cfg 'path.skin.assets.web'}/images/favicons/favicon.ico?v1" rel="shortcut icon" />
 
@@ -115,13 +126,7 @@
      * JS файлы подключаются в конфиге шаблона (ваш_шаблон/settings/config.php)
      *}
     {block 'layout_body_end'}
-        {* Подключение скриптов указанных в конфиге *}
-        {$aHtmlHeadFiles.js}
-
-        <script>
-            ls.lang.load({json var = $LS->Lang_GetLangJs()});
-            ls.registry.set({json var = $LS->Viewer_GetVarsJs()});
-        </script>
+        
     {/block}
 
 

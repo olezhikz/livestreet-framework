@@ -316,11 +316,27 @@ $config['module']['image']['params']['default']['watermark_min_height'] = 100; /
  * Параметры обработки css/js-файлов
  */
 // Список фильтров которые можно использовать в параметрах ресурсов
-$config['module']['asset']['filters'] = [
+ $config['module']['asset']['filters'] = [
     'js_min' =>  \Assetic\Filter\JSMinFilter::class,
     'css_min' => \Assetic\Filter\CssMinFilter::class
-]; // Список фильтров для ресурсов
-$config['module']['asset']['merge'] = false; // указывает на необходимость слияния  ресурсов
+];
+$config['module']['asset']['merge'] = true; // указывает на необходимость слияния  ресурсов
+// Параметры ресурсов по умолчанию
+$config['module']['asset']['default_params'] = [
+    'file' =>  '',
+    'filters' => [],
+    'loader' => \LS\Module\Asset\Loader\FileLoader::class,
+    'merge' => true,
+    'public' => true,
+    'attr' => [],
+    'depends' => []
+]; 
+ // Аттрибуты тегов <scripts> по умолчанию
+$config['module']['asset']['js']['default_attr'] = [
+   'defer' => true
+];
+// Аттрибуты тегов <link> по умолчанию
+$config['module']['asset']['css']['default_attr'] = []; 
 // Модель Component
 $config['module']['component']['cache_tree'] = false; // кешировать или нет построение дерева компонентов
 $config['module']['component']['cache_data'] = false; // кешировать или нет данные компонентов

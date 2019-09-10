@@ -11,7 +11,12 @@
             "dev": "dev.js",
             "hook": "hook.js",
             "i18n": "i18n.js",
-            "main": "main.js",
+            "main": {
+                "file":"main.js",
+                "attr" : {
+                    "defer":false
+                }
+            },
             "polyfills": "polyfills.js",
             "registry": "registry.js",
             "timer": "timer.js",

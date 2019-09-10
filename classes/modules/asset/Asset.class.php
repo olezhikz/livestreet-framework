@@ -230,6 +230,7 @@ class ModuleAsset extends Module
             if(file_exists($sDir.'/'.$asset->getTargetPath())){
                 continue;
             }
+            
 
             if(!$asset->getParamsOne('public')){
                 continue;
@@ -257,7 +258,10 @@ class ModuleAsset extends Module
         /*
          * Выбираем построитель HTML по типу создаем и передаем путь
          */
-        $builder = new $this->builders[$sType](Config::Get('path.cache_assets.web'));
+        $builder = new $this->builders[$sType](
+            Config::Get('path.cache_assets.web'),
+            Config::Get("module.asset.{$sType}.default_attr")
+        );
         
         /*
          * Добавляем ресурсы в построитель
