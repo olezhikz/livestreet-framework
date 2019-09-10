@@ -1,0 +1,7 @@
+{
+    "name": "card",
+    "version": "1.0.0",
+    "templates": {
+        "card": "card.tpl"
+    }
+}

@@ -12,7 +12,7 @@
 
 {$visible = $visible|default:true}
 
-{component "bs-jumbotron"
+{component "jumbotron"
     title       = $title
     content     = $text
     classes     = "{if !$visible}d-none{/if} {$classes} text-center"

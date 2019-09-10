@@ -1,0 +1,7 @@
+{
+    "name": "carousel",
+    "version": "1.0.0",
+    "templates": {
+        "carousel": "carousel.tpl"
+    }
+}

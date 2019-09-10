@@ -1,7 +1,0 @@
-{
-    "name": "bs-badge",
-    "version": "1.0.0",
-    "templates": {
-        "bs-badge": "badge.tpl"
-    }
-}

@@ -1,0 +1,31 @@
+{
+    "name": "form",
+    "version": "1.0.0",
+    "templates": {
+        "form": "form.tpl",
+        "group": "form.group.tpl",
+        "text": "field.text.tpl",
+        "email": "field.email.tpl",
+        "field": "field.tpl",
+        "range": "field.range.tpl",
+        "checkbox": "field.checkbox.tpl",
+        "select": "field.select.tpl",
+        "categories": "field.categories.tpl",
+        "file": "field.file.tpl",
+        "textarea": "field.textarea.tpl",
+        "recaptcha": "field.recaptcha.tpl"
+    },
+    "assets": {
+        "js": {
+            "field-validate": "js/field-validate.js",
+            "form-validate": "js/form-validate.js",
+            "form-ajax": "js/form-ajax.js",
+
+            "recaptcha-active": "js/recaptcha.js"
+        },
+        "css": {
+            "loader": "css/loader.css",
+            "form": "css/form.css"
+        }
+    }
+}

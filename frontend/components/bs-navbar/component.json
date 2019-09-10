@@ -1,9 +1,0 @@
-{
-    "name": "bs-navbar",
-    "version": "1.0.0",
-    "dependencies": {
-    },
-    "templates": {
-        "bs-navbar": "navbar.tpl"
-    }
-}

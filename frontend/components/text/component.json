@@ -1,0 +1,10 @@
+{
+    "name": "text",
+    "version": "1.0.0",
+    "templates": {
+        "text": "text.tpl"
+    },
+    "css": {
+        "text": "css/text.css"
+    }
+}

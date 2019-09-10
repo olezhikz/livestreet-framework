@@ -30,13 +30,13 @@
     {capture name="list"}
         {* List group *}
         {if is_array( $list )}
-            {component 'bs-list-group' params=$list}
+            {component 'list-group' params=$list}
         {elseif $list}
             {$list}
         {/if}
     {/capture}
 
-    {component 'bs-card' 
+    {component 'card' 
         bmods=$mods 
         classes="{$classes} mt-3"
         attributes=$attributes 

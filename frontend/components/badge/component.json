@@ -1,0 +1,7 @@
+{
+    "name": "badge",
+    "version": "1.0.0",
+    "templates": {
+        "badge": "badge.tpl"
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "name": "collapse",
+    "version": "1.0.0",
+    "templates": {
+        "collapse": "collapse.tpl",
+        "item" : "collapse.item.tpl",
+        "accordion" : "accordion.tpl"
+    }
+}

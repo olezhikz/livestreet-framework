@@ -1,7 +1,0 @@
-{
-    "name": "bs-list-group",
-    "version": "1.0.0",
-    "templates": {
-        "bs-list-group": "list-group.tpl"
-    }
-}

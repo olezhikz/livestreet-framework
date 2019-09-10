@@ -7,7 +7,6 @@
         "js": {
             "popper": {
                 "file": "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js",
-                "merge": false,
                 "loader": "LS\\Module\\Asset\\Loader\\RemoteLoader"
             },
             "bootstrap": {

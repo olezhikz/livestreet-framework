@@ -1,0 +1,7 @@
+{
+    "name": "breadcrumb",
+    "version": "1.0.0",
+    "templates": {
+        "breadcrumb": "breadcrumb.tpl"
+    }
+}

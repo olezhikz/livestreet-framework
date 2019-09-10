@@ -1,0 +1,7 @@
+{
+    "name": "progress",
+    "version": "1.0.0",
+    "templates": {
+        "progressbar": "progressbar.tpl"
+    }
+}

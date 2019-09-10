@@ -40,7 +40,7 @@
     
     <div class="row no-gutters">
         <div class="col-12 p-2">
-            {component "bs-alert" bmods="secondary" classes="" text=$smarty.capture.perfomance_alert}
+            {component "alert" bmods="secondary" classes="" text=$smarty.capture.perfomance_alert}
         </div>
     </div>
 

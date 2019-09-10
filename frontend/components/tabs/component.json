@@ -1,0 +1,8 @@
+{
+    "name": "tabs",
+    "version": "1.0.0",
+    "templates": {
+        "tabs": "tabs.tpl",
+        "panes":"panes.tpl"
+    }
+}

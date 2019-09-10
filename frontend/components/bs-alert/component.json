@@ -1,7 +1,0 @@
-{
-    "name": "bs-alert",
-    "version": "1.0.0",
-    "templates": {
-        "bs-alert": "alert.tpl"
-    }
-}

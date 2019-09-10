@@ -1,0 +1,7 @@
+{
+    "name": "alert",
+    "version": "1.0.0",
+    "templates": {
+        "alert": "alert.tpl"
+    }
+}

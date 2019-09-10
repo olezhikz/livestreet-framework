@@ -1,7 +1,0 @@
-{
-    "name": "bs-jumbotron",
-    "version": "1.0.0",
-    "templates": {
-        "bs-jumbotron": "jumbotron.tpl"
-    }
-}

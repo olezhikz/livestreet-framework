@@ -1,0 +1,13 @@
+{
+    "name": "autocomplete",
+    "version": "1.0.0",
+    "templates": {
+        "autocomplete": "autocomplete.tpl"
+    },
+    "assets": {
+        "js": {
+            "vendor_autocomplete": "js/bootstrap3-typeahead.min.js",
+            "bs_autocomplete": "js/autocomplete.js"
+        }
+    }
+}

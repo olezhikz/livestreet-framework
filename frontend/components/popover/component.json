@@ -1,0 +1,10 @@
+{
+    "name": "popover",
+    "version": "1.0.0",
+    "templates": {
+        "popover": "popover.tpl"
+    },
+    "css":{
+        "popover":"css/popover.css"
+    }
+}
