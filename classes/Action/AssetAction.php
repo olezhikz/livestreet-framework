@@ -19,26 +19,37 @@
  * @author Oleg Demidov <end-fin@yandex.ru>
  *
  */
-
+namespace LS\Action;
 /**
  * Description of ActionAsset
  *
  * @author oleg
  */
-class ActionAsset extends Action{
+class AssetAction extends \Action{
 
     protected function RegisterEvent() {
-        $this->SetDefaultEvent('index');
         
-        $this->RegisterEvent('index', "EventIndex");
+        $this->AddEventPreg('/^(.+)?$/', '/^(.+)?$/', '/^(.+)?$/', '/^(.+)?$/', ['EventIndex', 'index']);
     }
 
     public function Init() {
-        
+
     }
     
     protected function EventIndex() {
-        echo 'assets';
+        
+        $sNameAsset = $this->GetParam(1);
+        
+        $this->Component_LoadAll();
+        
+        $this->Asset_Load();
+        
+        $assets = $this->Asset_GetAssetManager();
+        
+        if(in_array($sNameAsset, $assets->getNames())){
+            print_r($assets->get($sNameAsset)->getParams());
+        }
+        
     }
 
 }

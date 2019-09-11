@@ -484,15 +484,7 @@ $config['router']['uri'] = array();
 // Распределение action
 $config['router']['page']['error'] = 'ActionError';
 $config['router']['page']['index'] = 'ActionIndex';
-$config['router']['page']['assets'] = function(){
-    $sUrl = Router::GetPathWebCurrent();
-    
-    $publicDir = new \LS\Module\Asset\PublicDirController($sUrl);
-    
-    $publicDir->add('dir');
-    
-    $publicDir->run();
-};
+$config['router']['page']['assets'] = LS\Action\AssetAction::class;
 // Глобальные настройки роутинга
 $config['router']['config']['default']['action'] = 'index';
 $config['router']['config']['default']['event'] = null;

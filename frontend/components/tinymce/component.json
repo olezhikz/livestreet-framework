@@ -7,8 +7,8 @@
     "assets": {
         "js": {
             "tinymce": {
-                "file": "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.2/tinymce.min.js",
-                "loader": "LS\\Module\\Asset\\Loader\\RemoteLoader"
+                "file": "tinymce/tinymce.min.js",
+                "requireDir" : "tinymce"
             },
             
             "init": "js/init.js"

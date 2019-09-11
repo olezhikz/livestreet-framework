@@ -488,7 +488,7 @@ class ModuleComponent extends Module
          */
         $aPaths = array_reverse($aPathsNew);
         /*
-         * Применяем пути к ресурсам и возвращаем
+         * Применяем пути к ресурсам
          */
         $this->parseData($aJson, $aPaths);
         
@@ -524,10 +524,16 @@ class ModuleComponent extends Module
                     continue;
                 }
 
-                if(false === strpos($mAsset['file'], '://') && 0 !== strpos($mAsset['file'], '//')){
-                    $mAsset['file'] = $this->getPathToAsset($aPaths, $mAsset['file']);
+                if(isset($mAsset['file'])){
+                    if(false === strpos($mAsset['file'], '://') && 0 !== strpos($mAsset['file'], '//')){
+                        $mAsset['file'] = $this->getPathToAsset($aPaths, $mAsset['file']);
+                    }
                 }
-
+                
+                if(isset($mAsset['requireDir'])){
+                    $mAsset['requireDir'] = $this->getPathToAsset($aPaths, $mAsset['requireDir']);
+                }
+                
                 $aNewAssets[$sType][$sAssetName] = $mAsset;
             }
             
