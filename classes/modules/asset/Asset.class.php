@@ -99,7 +99,7 @@ class ModuleAsset extends Module
      * 
      * @return AssetManager
      */
-    public function GetAssets() {
+    public function GetAssetManager() {
         return $this->assets;
     }
     
@@ -250,7 +250,7 @@ class ModuleAsset extends Module
         /*
          * Генерируем набор ресурсов отсортированных по типам
          */
-        $assets = $factory->createAssetType($sType);      
+        $assets = $factory->createAssetType($sType);       // print_r($assets->get('component_bootstrap_js_popper'));
         /*
          * Публикуем ресурсы если не опубликованы
          */

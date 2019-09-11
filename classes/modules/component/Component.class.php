@@ -523,9 +523,11 @@ class ModuleComponent extends Module
                     $aNewAssets[$sType][$sAssetName] = $this->getPathToAsset($aPaths, $mAsset);
                     continue;
                 }
-                
-                $mAsset['file'] = $this->getPathToAsset($aPaths, $mAsset['file']);
-                
+
+                if(false === strpos($mAsset['file'], '://') && 0 !== strpos($mAsset['file'], '//')){
+                    $mAsset['file'] = $this->getPathToAsset($aPaths, $mAsset['file']);
+                }
+
                 $aNewAssets[$sType][$sAssetName] = $mAsset;
             }
             

@@ -7,9 +7,10 @@
     "assets": {
         "js": {
             "tinymce": {
-                "file": "tinymce/tinymce.min.js",
-                "merge": false
+                "file": "https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.9.2/tinymce.min.js",
+                "loader": "LS\\Module\\Asset\\Loader\\RemoteLoader"
             },
+            
             "init": "js/init.js"
         }
     }

@@ -55,9 +55,12 @@
             {* Подключение скриптов указанных в конфиге *}
             {$aHtmlHeadFiles.js}
 
-            <script defer>
-                ls.lang.load({json var = $LS->Lang_GetLangJs()});
-                ls.registry.set({json var = $LS->Viewer_GetVarsJs()});
+            <script>
+                document.addEventListener('DOMContentLoaded', function (evt) {
+                    ls.lang.load({json var = $LS->Lang_GetLangJs()});
+                    ls.registry.set({json var = $LS->Viewer_GetVarsJs()});
+                }, false);
+                
             </script>
         {/block}
         
