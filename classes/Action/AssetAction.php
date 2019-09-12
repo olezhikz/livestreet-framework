@@ -38,7 +38,19 @@ class AssetAction extends \Action{
     
     protected function EventIndex() {
         
-        $sNameAsset = $this->GetParam(1);
+        $aParams = [
+            $this->sCurrentAction,
+            $this->sCurrentEvent
+        ];
+        
+        $aParams = array_merge( $aParams, $this->GetParams() );
+        
+        $aPathAsset = explode('/', \Config::Get('path.cache_assets.server'));
+        
+        $sNameAsset = array_pop($aParams);       
+        
+        print_r($aPathAsset);
+        print_r($aParams);
         
         $this->Component_LoadAll();
         
@@ -47,7 +59,7 @@ class AssetAction extends \Action{
         $assets = $this->Asset_GetAssetManager();
         
         if(in_array($sNameAsset, $assets->getNames())){
-            print_r($assets->get($sNameAsset)->getParams());
+            print_r($assets->get($sNameAsset));
         }
         
     }

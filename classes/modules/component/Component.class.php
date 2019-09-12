@@ -530,8 +530,8 @@ class ModuleComponent extends Module
                     }
                 }
                 
-                if(isset($mAsset['requireDir'])){
-                    $mAsset['requireDir'] = $this->getPathToAsset($aPaths, $mAsset['requireDir']);
+                if(isset($mAsset['publicDir'])){
+                    $mAsset['publicDir'] = $this->getPathToAsset($aPaths, $mAsset['publicDir']);
                 }
                 
                 $aNewAssets[$sType][$sAssetName] = $mAsset;
