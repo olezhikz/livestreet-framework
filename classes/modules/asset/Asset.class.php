@@ -71,8 +71,8 @@ class ModuleAsset extends Module
     public function Load()
     {
         $aConfig = array_merge_recursive(
-            (array)Config::Get('head.default'), //Сначала добавляем файлы из конфига
-            (array)Config::Get('head.template') //Формируем файлы из шаблона
+            (array)Config::Get('assets.default'), //Сначала добавляем файлы из конфига
+            (array)Config::Get('assets.template') //Формируем файлы из шаблона
         );
         
         $parser = new \LS\Module\Asset\ConfigParser($this->filters);
@@ -156,7 +156,22 @@ class ModuleAsset extends Module
     }
     
     public function Get(string $sName) {
-        return $this->assets->get($sName);
+        $assets = $this->CreateAsset([$sName]);
+        
+        if(!$assets->has($sName)){
+            throw new OutOfBoundsException("Not exists {$sName} in assets");
+        }
+        
+        return $assets->get($sName);
+    }
+    
+    public function GetWebPath(string $sName) {
+        $asset = $this->Get($sName);
+                
+        return $asset->loader->getResultPath(
+                Config::Get('path.cache_assets.web'), 
+                $asset->getTargetPath()
+            );
     }
     /**
      * Создать фабрику из фильтров и ресурсов загруженных в модуль
@@ -194,6 +209,11 @@ class ModuleAsset extends Module
         
         $assets = $factory->createAsset($aInputs);
         
+        /*
+         * Публикуем ресурсы если не опубликованы
+         */
+        $this->writeAssets($assets, Config::Get('path.cache_assets.server'));
+        
         return $assets;
     }
     
@@ -230,7 +250,13 @@ class ModuleAsset extends Module
             if(file_exists($sDir.'/'.$asset->getTargetPath())){
                 continue;
             }
-            
+            /*
+             * Копируем все содержимео папки рядом с ресурсом
+             */
+            if($sPublicDir = $asset->getParamsOne('publicDir')){
+                $sToPublicDir = dirname($sDir.'/'.$asset->getTargetPath());
+                func_xcopy($sPublicDir, $sToPublicDir);
+            }
 
             if(!$asset->getParamsOne('public')){
                 continue;
@@ -250,7 +276,7 @@ class ModuleAsset extends Module
         /*
          * Генерируем набор ресурсов отсортированных по типам
          */
-        $assets = $factory->createAssetType($sType);       // print_r($assets->get('component_bootstrap_js_popper'));
+        $assets = $factory->createAssetType($sType);
         /*
          * Публикуем ресурсы если не опубликованы
          */
@@ -278,10 +304,7 @@ class ModuleAsset extends Module
     
     public function Shutdown()
     {
-        /**
-         * Удаляем блокировку
-         */
-        $this->RemoveLockMerge();
+        
     }
 
 

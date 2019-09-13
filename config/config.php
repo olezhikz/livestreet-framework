@@ -484,7 +484,7 @@ $config['router']['uri'] = array();
 // Распределение action
 $config['router']['page']['error'] = 'ActionError';
 $config['router']['page']['index'] = 'ActionIndex';
-$config['router']['page']['assets'] = LS\Action\AssetAction::class;
+//$config['router']['page']['assets'] = LS\Action\AssetAction::class;
 // Глобальные настройки роутинга
 $config['router']['config']['default']['action'] = 'index';
 $config['router']['config']['default']['event'] = null;
