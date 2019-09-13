@@ -177,7 +177,7 @@ class ModuleComponent extends Module
         * Загружаем компоненты от которых зависим
         */
         if(isset($aDataJson['dependencies']) and is_array($aDataJson['dependencies'])){
-            foreach ($aDataJson['dependencies'] as $sComponentDepend) {
+            foreach ($aDataJson['dependencies'] as $sComponentDepend => $sVersion) {
                 $this->Load($sComponentDepend);
             }
         }

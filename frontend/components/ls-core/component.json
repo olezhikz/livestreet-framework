@@ -1,9 +1,9 @@
 {
     "name": "ls-core",
     "version": "1.0.0",
-    "dependencies": [
-        "ls-vendor"
-    ],
+    "dependencies": {
+        "ls-vendor":"*"
+    },
     "assets":{
         "js": {
             "nprogress": "vendor/nprogress/nprogress.js",

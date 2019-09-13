@@ -1,8 +1,7 @@
 {
     "name": "photo",
     "version": "1.0.0",
-    "dependencies": {
-    },
+    
     "templates": {
         "photo": "photo.tpl",
         "modal-photo": "modal-photo.tpl",

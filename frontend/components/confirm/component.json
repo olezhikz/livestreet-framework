@@ -1,11 +1,11 @@
 {
     "name": "confirm",
     "version": "1.0.0",
-    "dependencies": [
-        "ls-vendor",
-        "ls-core",
-        "ls-component"
-    ],
+    "dependencies": {
+        "ls-vendor":"*",
+        "ls-core":"*",
+        "ls-component":"*"
+    },
     "assets": {
         "js": {
             "confirm": {

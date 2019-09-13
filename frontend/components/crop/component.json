@@ -1,11 +1,11 @@
 {
     "name": "crop",
     "version": "1.0.0",
-    "dependencies": [
-        "ls-vendor",
-        "ls-core",
-        "ls-component"
-    ],
+    "dependencies": {
+        "ls-vendor":"*",
+        "ls-core":"*",
+        "ls-component":"*"
+    },
     "templates": {
         "crop": "crop.tpl",
         "modal": "crop-modal.tpl"

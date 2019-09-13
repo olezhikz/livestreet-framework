@@ -1,9 +1,9 @@
 {
     "name": "layout",
     "version": "1.0.0",
-    "dependencies": [
-        "ls-core"
-    ],
+    "dependencies": {
+        "ls-core":"*"
+    },
     "templates": {
         "layout": "layout.tpl"
     }
