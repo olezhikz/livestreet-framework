@@ -103,6 +103,7 @@ $config['smarty']['force_compile'] = false; // Принудительно ком
  * Настройки плагинов
  */
 $config['sys']['plugins']['activation_file'] = 'plugins.dat'; // файл со списком активных плагинов в каталоге /plugins/
+$config['sys']['plugins']['namespace'] = 'LS\\Plugin\\'; // Пространство имен плагинов. Движок будет искать плагины в нем
 /**
  * Системные настройки модулей
  */

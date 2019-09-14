@@ -302,11 +302,11 @@ abstract class Plugin extends LsObject
     static public function GetPath($sName)
     {
         // Пробуем получить путь основного класса плагина из vendor PSR-4
-        if(class_exists('LS\\Plugin\\' . $sName)){
-            $reflector = new ReflectionClass('LS\\Plugin\\' . $sName);
+        if(class_exists('LS\\Plugin\\' . ucfirst($sName))){
+            $reflector = new ReflectionClass('LS\\Plugin\\' . ucfirst($sName) );
             return dirname($reflector->getFileName());                
         }else{
-            return Config::Get('path.application.plugins.server') . '/' . self::GetPluginCode($sName) . '/';
+            return Config::Get('path.application.plugins.server') . '/' . self::GetPluginCode($sName) ;
         }
 
         
@@ -336,13 +336,12 @@ abstract class Plugin extends LsObject
     {
         $sName = self::GetPluginCode($sName);
         if (!isset(self::$aTemplatePath[$sName])) {
-            $aPaths = glob(Config::Get('path.application.plugins.server') . '/' . $sName . '/frontend/skin/*',
-                GLOB_ONLYDIR);
+            $aPaths = glob(self::GetPath($sName) . '/frontend/skin/*',GLOB_ONLYDIR);
             $sTemplateName = ($aPaths and in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
                 ? Config::Get('view.skin')
                 : 'default';
 
-            $sDir = Config::Get('path.application.plugins.server') . "/{$sName}/frontend/skin/{$sTemplateName}/";
+            $sDir = self::GetPath($sName) . "/frontend/skin/{$sTemplateName}/";
             self::$aTemplatePath[$sName] = is_dir($sDir) ? $sDir : null;
         }
         return self::$aTemplatePath[$sName];

@@ -383,7 +383,7 @@ class ModulePluginManager extends ModuleORM
         /**
          * Считываем данные из XML файла описания
          */
-        $sPluginXML = $this->sPluginsDir . $sPlugin . '/plugin.xml';
+        $sPluginXML = Plugin::GetPath( $sPlugin ) . '/plugin.xml';
         if ($oXml = @simplexml_load_file($sPluginXML)) {
             /**
              * Обрабатываем данные, считанные из XML-описания

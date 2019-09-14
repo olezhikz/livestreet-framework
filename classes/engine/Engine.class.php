@@ -527,9 +527,9 @@ class Engine
     protected function LoadPlugins()
     {   
         if ($aPluginList = func_list_plugins()) {  
-            foreach ($aPluginList as $sPluginName) {                
-                $sClassName = 'LS\\Plugin\\Plugin' . func_camelize($sPluginName);
-                $oPlugin = new $sClassName;
+            foreach ($aPluginList as $sPluginName) {   
+                $sClassName = Config::Get('sys.plugins.namespace') . ucfirst($sPluginName);
+                $oPlugin = new $sClassName();
                 $oPlugin->Delegate();
                 $this->aPlugins[$sPluginName] = $oPlugin;
             }
@@ -1268,8 +1268,8 @@ class Engine
                 $sClassName,
                 self::CI_OBJECT
             );
-            $sPath = Config::get('path.application.server') . '/';
-            $sPathFramework = Config::get('path.framework.server') . '/';
+            $sPath = Config::get('path.application.server') ;
+            $sPathFramework = Config::get('path.framework.server') ;
             
             if ($aInfo[self::CI_PLUGIN]) {
                 // плагин
@@ -1284,42 +1284,42 @@ class Engine
             
             if ($aInfo[self::CI_ENTITY]) {
                 // Сущность
-                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                $sFile = '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
                     . '/entity/' . $aInfo[self::CI_ENTITY] . '.entity.class.php';
                
             }elseif ($aInfo[self::CI_BEHAVIOR]) {
                 // Поведение
-                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                $sFile = '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
                         . '/behavior/' . $aInfo[self::CI_BEHAVIOR] . '.behavior.class.php';
                 
             }elseif ($aInfo[self::CI_MAPPER]) {
                 // Маппер
-                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                $sFile = '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
                     . '/mapper/' . $aInfo[self::CI_MAPPER] . '.mapper.class.php';
                 
             }elseif ($aInfo[self::CI_EVENT]) {
                 // Евент
-                $sFile = 'classes/actions/' . lcfirst($aInfo[self::CI_ACTION]) . '/Event'
+                $sFile = '/classes/actions/' . lcfirst($aInfo[self::CI_ACTION]) . '/Event'
                         . $aInfo[self::CI_EVENT] . '.class.php';
             }elseif ($aInfo[self::CI_ACTION]) {
                 // Экшн
-                $sFile = 'classes/actions/Action'
+                $sFile = '/classes/actions/Action'
                         . $aInfo[self::CI_ACTION] . '.class.php';
             }elseif ($aInfo[self::CI_MODULE]) {
                 // Модуль
-                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                $sFile = '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
                         . '/' . $aInfo[self::CI_MODULE] . '.class.php';
             }elseif ($aInfo[self::CI_HOOK]) {
                 // Хук
-                $sFile = 'classes/hooks/Hook' . $aInfo[self::CI_HOOK] . '.class.php';
+                $sFile = '/classes/hooks/Hook' . $aInfo[self::CI_HOOK] . '.class.php';
             }elseif ($aInfo[self::CI_BLOCK]) {
                 // Блок
-                $sFile = 'classes/blocks/Block' . $aInfo[self::CI_BLOCK] . '.class.php';
+                $sFile = '/classes/blocks/Block' . $aInfo[self::CI_BLOCK] . '.class.php';
             }elseif ($aInfo[self::CI_PLUGIN]) {
                 // Плагин
                 $sFile = '/Plugin' . $aInfo[self::CI_PLUGIN] . '.class.php';
             } else {
-                $sFile = 'classes/engine/' . $sClassName . '.class.php';
+                $sFile = '/classes/engine/' . $sClassName . '.class.php';
             }
             
             $sPath .= $sFile;
