@@ -1270,122 +1270,69 @@ class Engine
             );
             $sPath = Config::get('path.application.server') . '/';
             $sPathFramework = Config::get('path.framework.server') . '/';
+            
+            if ($aInfo[self::CI_PLUGIN]) {
+                // плагин
+                
+                $sNamePlugin = $aInfo[self::CI_PLUGIN];
+                // Пробуем получить путь основного класса плагина из vendor PSR-4
+                if(class_exists('\\LS\\Plugin\\' . $sNamePlugin)){
+                    $reflector = new ReflectionClass('\\LS\\Plugin\\' . $sNamePlugin);
+                    $sPath = dirname($reflector->getFileName());
+                }else{
+                    $sPath .= 'plugins/' . func_underscore($sNamePlugin) . '/';
+                }                
+                
+            }
+            
+            $sFile = '';
+            
             if ($aInfo[self::CI_ENTITY]) {
                 // Сущность
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Сущность модуля плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
-                        . '/entity/' . $aInfo[self::CI_ENTITY] . '.entity.class.php';
-                } else {
-                    // Сущность модуля ядра
-                    $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
-                        . '/entity/' . $aInfo[self::CI_ENTITY] . '.entity.class.php';
-                    $sPath .= $sFile;
-                    if (!is_file($sPath)) {
-                        $sPath = $sPathFramework . $sFile;
-                    }
-                }
-            } elseif ($aInfo[self::CI_BEHAVIOR]) {
+                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                    . '/entity/' . $aInfo[self::CI_ENTITY] . '.entity.class.php';
+               
+            }elseif ($aInfo[self::CI_BEHAVIOR]) {
                 // Поведение
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Поведение модуля плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
                         . '/behavior/' . $aInfo[self::CI_BEHAVIOR] . '.behavior.class.php';
-                } else {
-                    // Поведение модуля ядра
-                    $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
-                        . '/behavior/' . $aInfo[self::CI_BEHAVIOR] . '.behavior.class.php';
-                    $sPath .= $sFile;
-                    if (!is_file($sPath)) {
-                        $sPath = $sPathFramework . $sFile;
-                    }
-                }
-            } elseif ($aInfo[self::CI_MAPPER]) {
+                
+            }elseif ($aInfo[self::CI_MAPPER]) {
                 // Маппер
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Маппер модуля плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
-                        . '/mapper/' . $aInfo[self::CI_MAPPER] . '.mapper.class.php';
-                } else {
-                    // Маппер модуля ядра
-                    $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
-                        . '/mapper/' . $aInfo[self::CI_MAPPER] . '.mapper.class.php';
-                    $sPath .= $sFile;
-                    if (!is_file($sPath)) {
-                        $sPath = $sPathFramework . $sFile;
-                    }
-                }
-            } elseif ($aInfo[self::CI_EVENT]) {
+                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                    . '/mapper/' . $aInfo[self::CI_MAPPER] . '.mapper.class.php';
+                
+            }elseif ($aInfo[self::CI_EVENT]) {
                 // Евент
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Евент плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/actions/' . lcfirst($aInfo[self::CI_ACTION]) . '/Event' . $aInfo[self::CI_EVENT] . '.class.php';
-                } else {
-                    // Евент ядра
-                    $sPath .= 'classes/actions/' . lcfirst($aInfo[self::CI_ACTION]) . '/Event'
+                $sFile = 'classes/actions/' . lcfirst($aInfo[self::CI_ACTION]) . '/Event'
                         . $aInfo[self::CI_EVENT] . '.class.php';
-                }
-            } elseif ($aInfo[self::CI_ACTION]) {
+            }elseif ($aInfo[self::CI_ACTION]) {
                 // Экшн
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Экшн плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/actions/Action' . $aInfo[self::CI_ACTION] . '.class.php';
-                } else {
-                    // Экшн ядра
-                    $sPath .= 'classes/actions/Action'
+                $sFile = 'classes/actions/Action'
                         . $aInfo[self::CI_ACTION] . '.class.php';
-                }
-            } elseif ($aInfo[self::CI_MODULE]) {
+            }elseif ($aInfo[self::CI_MODULE]) {
                 // Модуль
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Модуль плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
+                $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
                         . '/' . $aInfo[self::CI_MODULE] . '.class.php';
-                } else {
-                    // Модуль ядра
-                    $sFile = 'classes/modules/' . func_underscore($aInfo[self::CI_MODULE])
-                        . '/' . $aInfo[self::CI_MODULE] . '.class.php';
-                    $sPath .= $sFile;
-                    if (!is_file($sPath)) {
-                        $sPath = $sPathFramework . $sFile;
-                    }
-                }
-            } elseif ($aInfo[self::CI_HOOK]) {
+            }elseif ($aInfo[self::CI_HOOK]) {
                 // Хук
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Хук плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/hooks/Hook' . $aInfo[self::CI_HOOK]
-                        . '.class.php';
-                } else {
-                    // Хук ядра
-                    $sPath .= 'classes/hooks/Hook' . $aInfo[self::CI_HOOK] . '.class.php';
-                }
-            } elseif ($aInfo[self::CI_BLOCK]) {
+                $sFile = 'classes/hooks/Hook' . $aInfo[self::CI_HOOK] . '.class.php';
+            }elseif ($aInfo[self::CI_BLOCK]) {
                 // Блок
-                if ($aInfo[self::CI_PLUGIN]) {
-                    // Блок плагина
-                    $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                        . '/classes/blocks/Block' . $aInfo[self::CI_BLOCK]
-                        . '.class.php';
-                } else {
-                    // Блок ядра
-                    $sPath .= 'classes/blocks/Block' . $aInfo[self::CI_BLOCK] . '.class.php';
-                }
-            } elseif ($aInfo[self::CI_PLUGIN]) {
+                $sFile = 'classes/blocks/Block' . $aInfo[self::CI_BLOCK] . '.class.php';
+            }elseif ($aInfo[self::CI_PLUGIN]) {
                 // Плагин
-                $sPath .= 'plugins/' . func_underscore($aInfo[self::CI_PLUGIN])
-                    . '/Plugin' . $aInfo[self::CI_PLUGIN]
-                    . '.class.php';
+                $sFile = '/Plugin' . $aInfo[self::CI_PLUGIN] . '.class.php';
             } else {
-                $sPath = $sPathFramework . 'classes/engine/' . $sClassName . '.class.php';
+                $sFile = 'classes/engine/' . $sClassName . '.class.php';
             }
+            
+            $sPath .= $sFile;
+            if (!is_file($sPath)) {
+                $sPath = $sPathFramework . $sFile;
+            }
+            
+            
             $aCache[$sCacheKey] = is_file($sPath) ? $sPath : null;
         }
         return $aCache[$sCacheKey];
