@@ -525,10 +525,10 @@ class Engine
      *
      */
     protected function LoadPlugins()
-    {
-        if ($aPluginList = func_list_plugins()) {
-            foreach ($aPluginList as $sPluginName) {
-                $sClassName = 'Plugin' . func_camelize($sPluginName);
+    {   
+        if ($aPluginList = func_list_plugins()) {  
+            foreach ($aPluginList as $sPluginName) {                
+                $sClassName = 'LS\\Plugin\\Plugin' . func_camelize($sPluginName);
                 $oPlugin = new $sClassName;
                 $oPlugin->Delegate();
                 $this->aPlugins[$sPluginName] = $oPlugin;
@@ -1261,7 +1261,7 @@ class Engine
         static $aCache;
 
         $sClassName = is_string($oObject) ? $oObject : get_class($oObject);
-        $sCacheKey = $sClassName;
+        $sCacheKey = $sClassName; 
 
         if (!isset($aCache[$sCacheKey])) {
             $aInfo = self::ParserClassInfo(
@@ -1275,13 +1275,8 @@ class Engine
                 // плагин
                 
                 $sNamePlugin = $aInfo[self::CI_PLUGIN];
-                // Пробуем получить путь основного класса плагина из vendor PSR-4
-                if(class_exists('\\LS\\Plugin\\' . $sNamePlugin)){
-                    $reflector = new ReflectionClass('\\LS\\Plugin\\' . $sNamePlugin);
-                    $sPath = dirname($reflector->getFileName());
-                }else{
-                    $sPath .= 'plugins/' . func_underscore($sNamePlugin) . '/';
-                }                
+                
+                $sPath = Plugin::GetPath($aInfo[self::CI_PLUGIN]);                
                 
             }
             
@@ -1331,7 +1326,6 @@ class Engine
             if (!is_file($sPath)) {
                 $sPath = $sPathFramework . $sFile;
             }
-            
             
             $aCache[$sCacheKey] = is_file($sPath) ? $sPath : null;
         }

@@ -301,9 +301,15 @@ abstract class Plugin extends LsObject
      */
     static public function GetPath($sName)
     {
-        $sName = self::GetPluginCode($sName);
+        // Пробуем получить путь основного класса плагина из vendor PSR-4
+        if(class_exists('LS\\Plugin\\' . $sName)){
+            $reflector = new ReflectionClass('LS\\Plugin\\' . $sName);
+            return dirname($reflector->getFileName());                
+        }else{
+            return Config::Get('path.application.plugins.server') . '/' . self::GetPluginCode($sName) . '/';
+        }
 
-        return Config::Get('path.application.plugins.server') . '/' . $sName . '/';
+        
     }
 
     /**

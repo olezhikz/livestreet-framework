@@ -519,6 +519,8 @@ function func_list_plugins($bAll = false)
 {
     $sPluginsDir = Config::Get('path.application.plugins.server');
     $sPluginsListFile = $sPluginsDir . '/' . Config::Get('sys.plugins.activation_file');
+    
+    return @file($sPluginsListFile);
     $aPlugin = array();
     if ($bAll) {
         $aPluginRaw = array();
