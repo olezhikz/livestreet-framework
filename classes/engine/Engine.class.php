@@ -504,7 +504,7 @@ class Engine
             $sDirHooks = Config::Get('path.application.plugins.server') . '/';
 
             foreach ($aPluginList as $sPluginName) {
-                $aFiles = glob($sDirHooks . $sPluginName . '/classes/hooks/Hook*.class.php');
+                $aFiles = glob(Plugin::GetPath( $sPluginName ). '/classes/hooks/Hook*.class.php');
                 if ($aFiles and count($aFiles)) {
                     foreach ($aFiles as $sFile) {
                         if (preg_match("/Hook([^_]+)\.class\.php$/i", basename($sFile), $aMatch)) {
@@ -528,7 +528,7 @@ class Engine
     {   
         if ($aPluginList = func_list_plugins()) {  
             foreach ($aPluginList as $sPluginName) {   
-                $sClassName = Config::Get('sys.plugins.namespace') . 'Plugin' . ucfirst($sPluginName);
+                $sClassName =  'Plugin' . ucfirst($sPluginName);
                 $oPlugin = new $sClassName();
                 $oPlugin->Delegate();
                 $this->aPlugins[$sPluginName] = $oPlugin;
@@ -1281,7 +1281,8 @@ class Engine
             }
             
             $sFile = '';
-            
+            $aMatches = [];
+                    
             if ($aInfo[self::CI_ENTITY]) {
                 // Сущность
                 $sFile = '/classes/modules/' . func_underscore($aInfo[self::CI_MODULE])

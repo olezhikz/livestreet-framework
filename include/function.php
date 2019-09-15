@@ -523,30 +523,30 @@ function func_list_plugins($bAll = false)
     $aPluginRaw =  @file($sPluginsListFile);
     
     return $aPluginRaw = array_map('trim', $aPluginRaw);
-    $aPlugin = array();
-    if ($bAll) {
-        $aPluginRaw = array();
-        $aPaths = glob("$sPluginsDir/*", GLOB_ONLYDIR);
-        if ($aPaths) {
-            foreach ($aPaths as $sPath) {
-                $aPluginRaw[] = basename($sPath);
-            }
-        }
-    } else {
-        if ($aPluginRaw = @file($sPluginsListFile)) {
-            $aPluginRaw = array_map('trim', $aPluginRaw);
-            $aPluginRaw = array_unique($aPluginRaw);
-        }
-    }
-    if ($aPluginRaw) {
-        foreach ($aPluginRaw as $sPlugin) {
-            $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
-            if (is_file($sPluginXML)) {
-                $aPlugin[] = $sPlugin;
-            }
-        }
-    }
-    return $aPlugin;
+//    $aPlugin = array();
+//    if ($bAll) {
+//        $aPluginRaw = array();
+//        $aPaths = glob("$sPluginsDir/*", GLOB_ONLYDIR);
+//        if ($aPaths) {
+//            foreach ($aPaths as $sPath) {
+//                $aPluginRaw[] = basename($sPath);
+//            }
+//        }
+//    } else {
+//        if ($aPluginRaw = @file($sPluginsListFile)) {
+//            $aPluginRaw = array_map('trim', $aPluginRaw);
+//            $aPluginRaw = array_unique($aPluginRaw);
+//        }
+//    }
+//    if ($aPluginRaw) {
+//        foreach ($aPluginRaw as $sPlugin) {
+//            $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
+//            if (is_file($sPluginXML)) {
+//                $aPlugin[] = $sPlugin;
+//            }
+//        }
+//    }
+//    return $aPlugin;
 }
 
 function func_convert_entity_to_array(Entity $oEntity, $aMethods = null, $sPrefix = '')
