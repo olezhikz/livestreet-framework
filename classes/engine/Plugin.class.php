@@ -66,7 +66,40 @@ abstract class Plugin extends LsObject
      */
     public function BeforeInitEngine()
     {
-
+        $rc = new ReflectionClass(get_class($this));
+        $sDir =  dirname($rc->getFileName());
+        
+        $sPlugin = strtolower(str_replace('Plugin', '', $rc->getShortName()));
+                
+        $this->LoadConfig($sPlugin, $sDir . '/config/config.php' );
+        
+        $this->LoadConfig($sPlugin, $sDir . '/config/config.'. Engine::GetEnvironment().'.php' );        
+        
+    }
+    
+    public function LoadConfig($sPlugin, $sFile) {
+        
+        
+        if(!file_exists($sFile)){
+            return;
+        }
+        
+        $aConfig = include($sFile);
+        
+        if (!empty($aConfig) && is_array($aConfig)) {
+            // Если конфиг этого плагина пуст, то загружаем массив целиком
+            $sKey = "plugin.$sPlugin";
+            if (!Config::isExist($sKey)) {
+                Config::Set($sKey, $aConfig);
+            } else {
+                // Если уже существую привязанные к плагину ключи,
+                // то сливаем старые и новое значения ассоциативно
+                Config::Set(
+                    $sKey,
+                    func_array_merge_assoc(Config::Get($sKey), $aConfig)
+                );
+            }
+        }
     }
 
     /**
@@ -301,9 +334,9 @@ abstract class Plugin extends LsObject
      */
     static public function GetPath($sName)
     {
-        // Пробуем получить путь основного класса плагина из vendor PSR-4
-        if(class_exists( ucfirst($sName))){
-            $reflector = new ReflectionClass( ucfirst($sName) );
+        // Пробуем получить путь основного класса плагина из vendor
+        if(class_exists( 'Plugin' . ucfirst($sName))){
+            $reflector = new ReflectionClass( 'Plugin' . ucfirst($sName) );
             return dirname($reflector->getFileName());                
         }else{
             return Config::Get('path.application.plugins.server') . '/' . self::GetPluginCode($sName) ;

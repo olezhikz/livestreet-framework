@@ -188,10 +188,9 @@ class ModuleLang extends Module
          */
         if ($aPluginList = Engine::getInstance()->GetPlugins()) {
             $aPluginList = array_keys($aPluginList);
-            $sDir = Config::Get('path.application.plugins.server') . '/';
 
             foreach ($aPluginList as $sPluginName) {
-                $aFiles = glob($sDir . $sPluginName . '/frontend/' . Config::Get('lang.dir') . '/' . $sLangName . '.php');
+                $aFiles = glob(Plugin::GetPath( $sPluginName ) . '/frontend/' . Config::Get('lang.dir') . '/' . $sLangName . '.php');
                 if ($aFiles and count($aFiles)) {
                     foreach ($aFiles as $sFile) {
                         if (file_exists($sFile)) {
