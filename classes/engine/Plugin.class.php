@@ -303,7 +303,7 @@ abstract class Plugin extends LsObject
     {
         // Пробуем получить путь основного класса плагина из vendor PSR-4
         if(class_exists('LS\\Plugin\\' . ucfirst($sName))){
-            $reflector = new ReflectionClass('LS\\Plugin\\' . ucfirst($sName) );
+            $reflector = new ReflectionClass('LS\\Plugin\\Plugin' . ucfirst($sName) );
             return dirname($reflector->getFileName());                
         }else{
             return Config::Get('path.application.plugins.server') . '/' . self::GetPluginCode($sName) ;

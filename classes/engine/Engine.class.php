@@ -528,7 +528,7 @@ class Engine
     {   
         if ($aPluginList = func_list_plugins()) {  
             foreach ($aPluginList as $sPluginName) {   
-                $sClassName = Config::Get('sys.plugins.namespace') . ucfirst($sPluginName);
+                $sClassName = Config::Get('sys.plugins.namespace') . 'Plugin' . ucfirst($sPluginName);
                 $oPlugin = new $sClassName();
                 $oPlugin->Delegate();
                 $this->aPlugins[$sPluginName] = $oPlugin;
