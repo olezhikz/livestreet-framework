@@ -91,6 +91,11 @@ abstract class Action extends LsObject
      * @var null|string
      */
     protected $sCurrentAction = null;
+    /**
+     *
+     * @var type 
+     */
+    protected $request;
 
     /**
      * Конструктор
@@ -99,7 +104,7 @@ abstract class Action extends LsObject
      */
     public function __construct($sAction)
     {
-        parent::__construct();
+        parent::__construct(); 
         $this->RegisterEvent();
         $this->sCurrentAction = $sAction;
         $this->aParams = Router::GetParams();
