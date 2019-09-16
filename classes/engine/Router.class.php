@@ -141,6 +141,15 @@ class Router extends LsObject
      * @var Router|null
      */
     static protected $oInstance = null;
+    /**
+     * @var type \Psr7\ServerRequest
+     */
+    public static $request;
+    /**
+     *
+     * @var type \Psr7\Response
+     */
+    public static $response;
 
     /**
      * Делает возможным только один экземпляр этого класса
@@ -163,6 +172,11 @@ class Router extends LsObject
     public function __construct()
     {
         parent::__construct();
+        
+        self::$request =  \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
+        
+        self::$response =  new \GuzzleHttp\Psr7\Response;
+        
         $this->LoadConfig(); // TODO: Из за этого нельзя использовать обьект Router в конфиге плагинов;
     }
 
@@ -204,7 +218,14 @@ class Router extends LsObject
         if (is_callable(self::$fActionCallback)) {
             echo call_user_func(self::$fActionCallback);
         } else {
-            $this->Viewer_Display($this->oAction->GetTemplate());
+            self::$response->getBody()->write(
+                $this->Viewer_Fetch($this->oAction->GetTemplate())
+            );
+            
+            $emitter = new \Narrowspark\HttpEmitter\SapiEmitter();
+            
+            $emitter->emit(self::$response);
+                    
         }
         if ($bExit) {
             exit();
