@@ -222,6 +222,8 @@ class Router extends LsObject
                 $this->Viewer_Fetch($this->oAction->GetTemplate())
             );
             
+            self::$response = self::$response->withHeader('Content-Type', 'text/html; charset=utf-8');
+            
             $emitter = new \Narrowspark\HttpEmitter\SapiEmitter();
             
             $emitter->emit(self::$response);
