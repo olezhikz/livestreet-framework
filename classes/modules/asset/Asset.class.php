@@ -74,7 +74,7 @@ class ModuleAsset extends Module
             (array)Config::Get('assets.default'), //Сначала добавляем файлы из конфига
             (array)Config::Get('assets.template') //Формируем файлы из шаблона
         );
-        
+//        print_r($aConfig);
         $parser = new \LS\Module\Asset\ConfigParser($this->filters);
         
         $assets = $parser->parse($aConfig);
@@ -155,9 +155,9 @@ class ModuleAsset extends Module
         return true;
     }
     
-    public function Get(string $sName) {
-        $assets = $this->CreateAsset([$sName]);
-        
+    public function Get(string $sName) {        
+        $assets = $this->CreateAsset([$sName], false);  
+
         if(!$assets->has($sName)){
             throw new OutOfBoundsException("Not exists {$sName} in assets");
         }
@@ -179,7 +179,7 @@ class ModuleAsset extends Module
      * 
      * @return \LS\Module\Asset\AssetFactory
      */
-    protected function prepareFactory() {
+    protected function prepareFactory(bool $bMerge = true) {
         $factory = new \LS\Module\Asset\AssetFactory();
         
         $factory->setFilterManager(clone $this->filters);
@@ -187,7 +187,7 @@ class ModuleAsset extends Module
         
         $factory->addWorker(new LS\Module\Asset\Worker\WorkerDepends());
         
-        if(Config::Get('module.asset.merge')){
+        if(Config::Get('module.asset.merge') and $bMerge){
             $factory->addWorker(new LS\Module\Asset\Worker\WorkerMerge());
         } 
         
@@ -204,8 +204,8 @@ class ModuleAsset extends Module
      * @param array $aInputs
      * @return LS\Module\Asset\AssetManager
      */
-    public function CreateAsset(array $aInputs) {
-        $factory = $this->prepareFactory();    
+    public function CreateAsset(array $aInputs, bool $bMerge = true) {
+        $factory = $this->prepareFactory($bMerge);    
         
         $assets = $factory->createAsset($aInputs);
         

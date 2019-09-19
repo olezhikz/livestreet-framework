@@ -29,6 +29,9 @@
         "psr-4" : {
             "LS\\": "classes/"
         },
+        "classmap":[
+            "classes/engine/"
+        ],
         "files": [
             "bootstrap/start.php"
         ]
