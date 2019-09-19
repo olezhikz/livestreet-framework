@@ -18,7 +18,6 @@
  * @author Maxim Mzhelskiy <rus.engine@gmail.com>
  *
  */
-
 require_once("Event.class.php");
 
 /**
@@ -92,22 +91,32 @@ abstract class Action extends LsObject
      */
     protected $sCurrentAction = null;
     /**
-     *
-     * @var type 
+     * @var Psr\Http\Message\ServerRequestInterface 
      */
     protected $request;
-
+    /**
+     * @var Psr\Http\Message\ResponseInterface
+     */
+    protected $response;
     /**
      * Конструктор
-     *
-     * @param string $sAction Название экшена
+     * 
+     * @param Psr\Http\Message\ServerRequestInterface $request
+     * @param Psr\Http\Message\ResponseInterface $response
      */
-    public function __construct($sAction)
+    public function __construct(
+        Psr\Http\Message\ServerRequestInterface $request, 
+        Psr\Http\Message\ResponseInterface $response
+    )
     {
         parent::__construct(); 
+        
+        $this->request = $request;
+        $this->response = $response;
+        
         $this->RegisterEvent();
-        $this->sCurrentAction = $sAction;
-        $this->aParams = Router::GetParams();
+        $this->sCurrentAction = $request->getAttribute('action');
+        $this->aParams = $request->getAttribute('params');
     }
 
     /**
@@ -236,10 +245,10 @@ abstract class Action extends LsObject
      */
     public function ExecEvent()
     {
-        $this->sCurrentEvent = Router::GetActionEvent();
+        $this->sCurrentEvent = $this->request->getAttribute('event');
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
-            Router::SetActionEvent($this->sCurrentEvent);
+            $this->request = $this->request->withAttribute('event', $this->sCurrentEvent);
         }
         foreach ($this->aRegisterEvent as $aEvent) {
             if (preg_match($aEvent['preg'], $this->sCurrentEvent, $aMatch)) {
@@ -279,7 +288,18 @@ abstract class Action extends LsObject
                 }
                 $this->Hook_Run("action_event_" . strtolower($this->sCurrentAction) . "_after",
                     array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
-                return $result;
+                
+                if($result !== null){
+                    $this->response->getBody()->write( $result );
+                }elseif ($sType = $this->Viewer_GetResponseAjax()) {
+                    $this->response = $this->response->withHeader('Content-type: application/json');
+                    $this->response->getBody()->write( $this->Viewer_FetchAjax($sType) );
+                }else{
+                    $this->response->getBody()->write( $this->Viewer_Fetch($this->sActionTemplate) );
+                }
+                
+                return $this->response;
+                
             }
         }
         return $this->EventNotFound();
@@ -381,7 +401,10 @@ abstract class Action extends LsObject
     public function SetParam($iOffset, $value)
     {
         Router::SetParam($iOffset, $value);
+        
         $this->aParams = Router::GetParams();
+        
+        $this->request = $this->request->withParams($this->aParams);
     }
 
     /**

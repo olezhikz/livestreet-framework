@@ -150,6 +150,7 @@ class Router extends LsObject
      * @var type \Psr7\Response
      */
     public static $response;
+    
 
     /**
      * Делает возможным только один экземпляр этого класса
@@ -172,10 +173,6 @@ class Router extends LsObject
     public function __construct()
     {
         parent::__construct();
-        
-        self::$request =  \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
-        
-        self::$response =  new \GuzzleHttp\Psr7\Response;
         
         $this->LoadConfig(); // TODO: Из за этого нельзя использовать обьект Router в конфиге плагинов;
     }
@@ -218,16 +215,10 @@ class Router extends LsObject
         if (is_callable(self::$fActionCallback)) {
             echo call_user_func(self::$fActionCallback);
         } else {
-            self::$response->getBody()->write(
-                $this->Viewer_Fetch($this->oAction->GetTemplate())
-            );
-            
-            self::$response = self::$response->withHeader('Content-Type', 'text/html; charset=utf-8');
             
             $emitter = new \Narrowspark\HttpEmitter\SapiEmitter();
-            
             $emitter->emit(self::$response);
-                    
+            
         }
         if ($bExit) {
             exit();
@@ -379,7 +370,11 @@ class Router extends LsObject
         self::$sActionClass = $sActionClass;
 
         $sClassName = $sActionClass;
-        $this->oAction = new $sClassName(self::$sAction);
+
+        $this->oAction = new $sClassName(
+            $this->createRequest(),
+            $this->createResponse()
+        );
         /**
          * Инициализируем экшен
          */
@@ -390,17 +385,47 @@ class Router extends LsObject
         if ($sInitResult === 'next') {
             $this->ExecAction();
         } else {
-            $mRes = $this->oAction->ExecEvent();
+            self::$response = $this->oAction->ExecEvent();
             self::$sActionEventName = $this->oAction->GetCurrentEventName();
 
             $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_before");
             $this->oAction->EventShutdown();
             $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_after");
 
-            if ($mRes === 'next') {
+            if (self::$response->hasHeader('next')) {
+                self::$response = self::$response->withoutHeader('next');
                 $this->ExecAction();
             }
         }
+    }
+    
+    /**
+     * 
+     * @return Psr7\ServerRequest
+     */
+    protected function createRequest() {
+        $request =  \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
+        
+        $request->withAttribute('action', self::GetAction())
+                ->withAttribute('event', self::GetActionEvent())
+                ->withAttribute('params', self::GetParams());
+        
+        return $request;
+    }
+    
+    /**
+     * 
+     * @return Psr7\ServerRequest
+     */
+    protected function createResponse() {
+        $response =  new \GuzzleHttp\Psr7\Response(
+            200,
+            [
+                'Content-Type' => 'text/html; charset=utf-8'
+            ]
+        );
+        
+        return $response;
     }
 
     /**
@@ -460,7 +485,8 @@ class Router extends LsObject
         if (is_array($aParams)) {
             self::$aParams = $aParams;
         }
-        return 'next';
+        
+        return Router::$response->withHeader('next', $sAction);
     }
 
     /**
