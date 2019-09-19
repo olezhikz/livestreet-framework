@@ -520,6 +520,10 @@ function func_list_plugins($bAll = false)
     $sPluginsDir = Config::Get('path.application.plugins.server');
     $sPluginsListFile = $sPluginsDir . '/' . Config::Get('sys.plugins.activation_file');
     
+    if(!file_exists($sPluginsListFile)){
+        return [];
+    }
+    
     $aPluginRaw =  @file($sPluginsListFile);
     
     return $aPluginRaw = array_map('trim', $aPluginRaw);

@@ -12,7 +12,7 @@
         "livestreet/smarty": "dev-master",
         "livestreet/dbsimple": "dev-master",
         "maximebf/consolekit": ">=1.0.0",
-        "web-monster/dklabcache": ">=1.0.0",
+        "livestreet/dklabcache": ">=1.0.1",
         "imagine/imagine": "^1.2",
         "monolog/monolog": "1.24.0",
         "patchwork/jsqueeze": "~2.0",
