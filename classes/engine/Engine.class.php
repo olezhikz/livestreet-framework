@@ -19,28 +19,6 @@
  *
  */
 
-//set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__));
-//
-//require_once("Config.class.php");
-//require_once("LsObject.class.php");
-//require_once("Plugin.class.php");
-//require_once("Block.class.php");
-//require_once("Hook.class.php");
-//require_once("Module.class.php");
-//require_once("Cron.class.php");
-//require_once("Router.class.php");
-//
-//require_once("Entity.class.php");
-//require_once("Behavior.class.php");
-//require_once("Mapper.class.php");
-//
-//require_once("ModuleORM.class.php");
-//require_once("EntityORM.class.php");
-//require_once("MapperORM.class.php");
-//
-//require_once("ORMRelationManyToMany.class.php");
-
-
 /**
  * Основной класс движка. Ядро.
  *

@@ -214,7 +214,7 @@ class Router extends LsObject
         $this->oEngine->Shutdown();
         if (is_callable(self::$fActionCallback)) {
             echo call_user_func(self::$fActionCallback);
-        } else {
+        } else { 
             
             $emitter = new \Narrowspark\HttpEmitter\SapiEmitter();
             $emitter->emit(self::$response);

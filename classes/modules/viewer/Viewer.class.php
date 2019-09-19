@@ -323,7 +323,7 @@ class ModuleViewer extends Module
         
     }
     
-    public function Fetch($sTemplate) { echo __METHOD__;
+    public function Fetch($sTemplate) {
         
         $this->load();
         /**
