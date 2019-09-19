@@ -144,7 +144,7 @@ class ModuleViewer extends Module
      *
      */
     public function Init($bLocal = false)
-    {
+    { 
         $this->Hook_Run('viewer_init_start', compact('bLocal'));
         /**
          * Load template config
@@ -305,9 +305,7 @@ class ModuleViewer extends Module
      */
     public function Display($sTemplate)
     {
-        if ($this->sResponseAjax) {
-            $this->DisplayAjax($this->sResponseAjax);
-        }
+        $this->load();
         /**
          * Если шаблон найден то выводим, иначе ошибка
          * Предварительно проверяем наличие делегата
@@ -315,11 +313,34 @@ class ModuleViewer extends Module
         if ($sTemplate) {
             $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
             if ($this->TemplateExists($sTemplate)) {
-                $this->oSmarty->display($sTemplate);           
+                
+                return $this->oSmarty->display($sTemplate);
+                                
             } else {
                 throw new Exception('Can not find the template: ' . $sTemplate);
             }
-        }
+        } 
+        
+    }
+    
+    public function Fetch($sTemplate) { echo __METHOD__;
+        
+        $this->load();
+        /**
+         * Если шаблон найден то выводим, иначе ошибка
+         * Предварительно проверяем наличие делегата
+         */ 
+        if ($sTemplate) {
+            $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
+            if ($this->TemplateExists($sTemplate)) {
+                
+                return $this->oSmarty->fetch($sTemplate);
+                                
+            } else {
+                throw new Exception('Can not find the template: ' . $sTemplate);
+            }
+        } 
+        
     }
 
     /**
@@ -355,8 +376,9 @@ class ModuleViewer extends Module
      *
      * @param string $sType Варианты: json, jsonIframe, jsonp
      */
-    public function DisplayAjax($sType = 'json')
+    public function FetchAjax( $sType = 'json')
     {
+        $this->load();
         /**
          * Загружаем статус ответа и сообщение
          */
@@ -377,31 +399,31 @@ class ModuleViewer extends Module
         $this->AssignAjax('sMsg', $sMsg);
         $this->AssignAjax('bStateError', $bStateError);
         if ($sType == 'json') {
-            if ($this->bResponseSpecificHeader and !headers_sent()) {
-                header('Content-type: application/json');
-            }
-            echo json_encode($this->aVarsAjax);
+//            if ($this->bResponseSpecificHeader and !headers_sent()) {
+//                header('Content-type: application/json');
+//            }
+            return json_encode($this->aVarsAjax);
         } elseif ($sType == 'jsonIframe') {
             // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
-            if ($this->bResponseSpecificHeader and !headers_sent()) {
-                header('Content-type: application/json');
-            }
+//            if ($this->bResponseSpecificHeader and !headers_sent()) {
+//                header('Content-type: application/json');
+//            }
             /**
              * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
              */
-            echo '<textarea>' . htmlspecialchars(json_encode($this->aVarsAjax)) . '</textarea>';
+            return '<textarea>' . htmlspecialchars(json_encode($this->aVarsAjax)) . '</textarea>';
         } elseif ($sType == 'jsonp') {
-            if ($this->bResponseSpecificHeader and !headers_sent()) {
-                header('Content-type: application/json');
-            }
+//            if ($this->bResponseSpecificHeader and !headers_sent()) {
+//                header('Content-type: application/json');
+//            }
             $sCallbackName = getRequestStr('jsonpCallbackName') ? getRequestStr('jsonpCallbackName') : 'jsonpCallback';
             $sCallback = getRequestStr($sCallbackName);
             if (!preg_match('#^[a-z0-9\-\_]+$#i', $sCallback)) {
                 $sCallback = 'callback';
             }
-            echo $sCallback . '(' . json_encode($this->aVarsAjax) . ');';
+            return $sCallback . '(' . json_encode($this->aVarsAjax) . ');';
         }
-        exit();
+        
     }
 
     /**
@@ -505,21 +527,7 @@ class ModuleViewer extends Module
         return $this->aVarsJs;
     }
 
-    /**
-     * Возвращает обработанный шаблон
-     *
-     * @param string $sTemplate Шаблон для рендеринга
-     * @return string
-     */
-    public function Fetch($sTemplate)
-    {
-        /**
-         * Проверяем наличие делегата
-         */
-        $sTemplate = $this->Plugin_GetDelegate('template', $sTemplate);
-        return $this->oSmarty->fetch($sTemplate);
-    }
-
+    
     /**
      * Проверяет существование шаблона
      *
@@ -1534,14 +1542,9 @@ class ModuleViewer extends Module
         $sFormat = preg_replace("~(?<!\\\\)F~U", preg_replace('~(\w{1})~u', '\\\${1}', $sMonth), $sFormat);
         return date($sFormat, $iDate);
     }
-
-    /**
-     * Загружаем переменные в шаблон при завершении модуля
-     *
-     */
-    public function Shutdown()
-    {
-        $this->Hook_Run('viewer_shutdown');
+    
+    protected function load() {
+        $this->Hook_Run('viewer_load');
         /**
          * Получаем настройки блоков из конфигов
          */
@@ -1573,5 +1576,14 @@ class ModuleViewer extends Module
         $this->Hook_AddExecFunction('template_html_head_end', function () use ($_this) {
             return $_this->GetOpenGraph()->render();
         }, 10000);
+    }
+
+    /**
+     * Загружаем переменные в шаблон при завершении модуля
+     *
+     */
+    public function Shutdown()
+    {
+        $this->Hook_Run('viewer_shutdown');
     }
 }
