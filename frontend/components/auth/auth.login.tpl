@@ -2,42 +2,30 @@
  * Форма входа
  *
  * @param string $redirectUrl
- * @param boolean $showExtra
  *}
 
-{component_define_params params=[ 'redirectUrl', 'showExtra' ]}
-
-{$redirectUrl = $redirectUrl|default:$PATH_WEB_CURRENT}
 
 {hook run='login_begin'}
+<form data-url="{router page='auth/ajax-login'}" method="post" name="register_user" data-form-ajax class=" mt-3" novalidate>
 
-<form action="{router page='auth/login'}" method="post" class="js-form-validate js-auth-login-form">
-    {hook run='form_login_begin'}
-
-    {* Логин *}
-    {component 'field' template='text'
-        name   = 'login'
-        rules  = [ 'required' => true, 'minlength' => '3' ]
-        label  = $aLang.auth.login.form.fields.login.label}
+    {* Логин или Email*}
+    {component 'form' 
+        template    = 'text' 
+        name        = "mail_login"
+        placeholder = $aLang.auth.login.form.fields.login_or_email.placeholder
+        type        = "text"
+        }
 
     {* Пароль *}
-    {component 'field' template='text'
-        name   = 'password'
-        type   = 'password'
-        rules  = [ 'required' => true, 'minlength' => '2' ]
-        label  = $aLang.auth.labels.password}
-
-    {* Каптча *}
-    {if Config::Get('general.login.captcha')}
-        {component 'field' template='captcha'
-            captchaType = Config::Get('sys.captcha.type')
-            captchaName = 'user_auth'
-            name        = 'captcha'
-            label       = $aLang.auth.labels.captcha}
-    {/if}
+    {component 'form' template='text' 
+        type        = "password"
+        name        = "password"
+        placeholder = $aLang.auth.login.form.fields.password.placeholder
+        }
 
     {* Запомнить *}
-    {component 'field' template='checkbox'
+    {component 'form' template='checkbox'
+        classes = "is-valid"
         name    = 'remember'
         label   = $aLang.auth.login.form.fields.remember.label
         checked = true}
@@ -45,17 +33,18 @@
     {hook run='form_login_end'}
 
     {if $redirectUrl}
-        {component 'field' template='hidden' name='return-path' value=$redirectUrl}
+        <input type="hidden"  class="ls-field-input is-valid" value="{$redirectUrl}" name="return-path" >      
     {/if}
 
-    {component 'button' name='submit_login' mods='primary' text=$aLang.auth.login.form.fields.submit.text}
-</form>
-
-{if $showExtra}
-    <div class="ls-pt-20">
-        <a href="{router page='auth/register'}">{$aLang.auth.registration.title}</a><br />
-        <a href="{router page='auth/password-reset'}">{$aLang.auth.reset.title}</a>
+    <div class="d-flex justify-content-center">
+        {component 'button' 
+            classes = ""
+            name='submit_login' 
+            type="submit" 
+            bmods='primary' 
+            text=$aLang.auth.login.form.fields.submit.text}
     </div>
-{/if}
-
+</form>
 {hook run='login_end'}
+
+{component "auth.social"}

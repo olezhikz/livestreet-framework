@@ -11,13 +11,15 @@
             },
             "bootstrap": {
                 "file": "bootstrap-4.3.1-dist/js/bootstrap.min.js",
-                "merge": false
+                "merge": false,
+                "publicDir" : "bootstrap-4.3.1-dist/js"
             }
         },
         "css": {
             "bootstrap": {
                 "file": "bootstrap-4.3.1-dist/css/bootstrap.min.css",
-                "merge": false
+                "merge": false,
+                "publicDir" : "bootstrap-4.3.1-dist/css"
             }
         }
     }

@@ -4,55 +4,85 @@
  * @param string $redirectUrl
  *}
 
-{component_define_params params=[ 'redirectUrl' ]}
-
-{$redirectUrl = $redirectUrl|default:$PATH_WEB_CURRENT}
-
-{hook run='registration_begin'}
-
-<form action="{router page='auth/register'}" method="post" class="js-form-validate js-auth-registration-form">
+ <form data-url="{router page='auth/ajax-register'}" method="post" name="register_user"  
+      autocomplete="off" class=" justify-content-center mx-1"
+      action="{router page='auth/register'}" data-form-ajax data-form-validate novalidate>
+    
+    <input type="password" style="display:none;">
+    
+    {$oUserProfile = Engine::GetEntity('User_User')}
+    {$oUserProfile->_setValidateScenario('registration')}
+    
     {hook run='form_registration_begin'}
+    {* E-mail *}
+    {component 'form' 
+        template    = 'text' 
+        name        = "mail"
+        placeholder = $aLang.auth.registration.form.fields.email.placeholder
+        type        = "email"
+        validate    = [ 
+            entity  => $oUserProfile,
+            remote  => true
+        ]}
+
+    {* Имя Фамилия *}
+    {component 'form' 
+        template    = 'text' 
+        name        = "name"
+        placeholder = $aLang.auth.registration.form.fields.name.placeholder
+        type        = "text"
+        validate    = [ 
+            entity  => $oUserProfile
+        ]
+    }
 
     {* Логин *}
-    {component 'field' template='text'
-        name   = 'login'
-        rules  = [ 'required' => true, 'minlength' => '3', 'remote' => "{router page='auth'}ajax-validate-login" ]
-        label  = $aLang.auth.labels.login}
-
-    {* E-mail *}
-    {component 'field' template='email' rules=[ 'remote' => "{router page='auth'}ajax-validate-email" ]}
+    {component 'form' 
+        template    = 'text' 
+        name        = "login"
+        placeholder = $aLang.auth.registration.form.fields.login.placeholder
+        type        = "text"
+        desc        = $aLang.auth.registration.form.fields.login.desc  
+        validate    = [ 
+            entity  => $oUserProfile,
+            remote  => true
+        ]
+    }
 
     {* Пароль *}
-    {component 'field' template='text'
-        name         = 'password'
-        type         = 'password'
-        rules        = [ 'required' => true, 'minlength' => '5', 'trigger' => 'input' ]
-        label        = $aLang.auth.labels.password
-        inputClasses = 'js-input-password-reg'}
+    {component 'form' template='text' 
+        type        = "password"
+        name        = "password"
+        attributes  = [autocomplete => "off"]
+        placeholder = $aLang.auth.registration.form.fields.password.placeholder
+        validate    = [ 
+            entity  => $oUserProfile
+        ]
+    }
 
-    {* Повторите пароль *}
-    {component 'field' template='text'
-        name   = 'password_confirm'
-        type   = 'password'
-        rules  = [ 'required' => true, 'minlength' => '5', 'trigger' => 'input', 'equalto' => '.js-input-password-reg', 'equalto-message' => {lang 'auth.registration.notices.error_password_equal'} ]
-        label  = $aLang.auth.registration.form.fields.password_confirm.label}
-
-    {* Каптча *}
     {if Config::Get('module.user.captcha_use_registration')}
-        {component 'field' template='captcha'
-            captchaType = Config::Get('sys.captcha.type')
-            captchaName = 'user_signup'
-            name        = 'captcha'
-            label       = $aLang.auth.labels.captcha}
+        {component "form.recaptcha" 
+            validate    = [ 
+                entity  => $oUserProfile
+            ]
+            name        = "recaptcha"}
     {/if}
-
+        
     {hook run='form_registration_end'}
 
     {if $redirectUrl}
-        {component 'field' template='hidden' name='return-path' value=$redirectUrl}
+        <input type="hidden"  class="ls-field-input is-valid" value="{$redirectUrl}" name="return-path" >        
     {/if}
 
-    {component 'button' name='submit_register' mods='primary' text=$aLang.auth.registration.form.fields.submit.text}
-</form>
+    <input type="hidden"  class="ls-field-input is-valid" value="user" name="role" >
 
-{hook run='registration_end'}
+    <div class="d-flex justify-content-center">
+        {component 'button' 
+            classes = ""
+            name='submit_register' 
+            type="submit" 
+            bmods='primary' 
+            text=$aLang.auth.registration.form.fields.submit.text}
+    </div>
+</form>
+    

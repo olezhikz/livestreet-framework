@@ -209,7 +209,7 @@ class Router extends LsObject
      * @param bool $bExit Принудительно завершить выполнение скрипта
      */
     public function Shutdown($bExit = true)
-    {
+    { 
         $this->AssignVars();
         $this->oEngine->Shutdown();
         if (is_callable(self::$fActionCallback)) {

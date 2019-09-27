@@ -1,0 +1,12 @@
+.g-recaptcha {
+    width: 200px; height: 40px;
+}
+.g-recaptcha iframe{
+    -ms-zoom: 0.54;
+    -moz-transform: scale(0.54);
+    -moz-transform-origin: 0 0;
+    -o-transform: scale(0.54);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.54);
+    -webkit-transform-origin: 0 0;
+}
