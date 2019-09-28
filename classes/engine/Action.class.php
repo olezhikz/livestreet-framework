@@ -18,7 +18,6 @@
  * @author Maxim Mzhelskiy <rus.engine@gmail.com>
  *
  */
-require_once("Event.class.php");
 
 /**
  * Абстрактный класс экшена.
@@ -31,6 +30,12 @@ require_once("Event.class.php");
  */
 abstract class Action extends LsObject
 {
+    
+    const RESPONSE_TYPE_HTML = 'html';
+    const RESPONSE_TYPE_JSON = 'json';
+    const RESPONSE_TYPE_JSON_IFRAME = 'json_iframe';
+    const RESPONSE_TYPE_JSONP = 'jsonp';
+
     /**
      * Список зарегистрированных евентов
      *
@@ -64,6 +69,11 @@ abstract class Action extends LsObject
      * @var string|null
      */
     protected $sActionTemplate = null;
+    /**
+     * Переменные
+     * @var type array
+     */
+    protected $aVars = [];
     /**
      * Дефолтный евент
      * @see SetDefaultEvent
@@ -289,20 +299,114 @@ abstract class Action extends LsObject
                 $this->Hook_Run("action_event_" . strtolower($this->sCurrentAction) . "_after",
                     array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
                 
-                if($result !== null){
+                if($result){
                     $this->response->getBody()->write( $result );
-                }elseif ($sType = $this->Viewer_GetResponseAjax()) {
-                    $this->response = $this->response->withHeader('Content-type: application/json');
-                    $this->response->getBody()->write( $this->Viewer_FetchAjax($sType) );
-                }else{
-                    $this->response->getBody()->write( $this->Viewer_Fetch($this->sActionTemplate) );
+                    return $this->response;
+                }
+        
+                switch ($this->response->getHeader('type')) {
+                    case self::RESPONSE_TYPE_HTML:
+                            $result = $this->fetchHTML();
+                        break;
+                    case self::RESPONSE_TYPE_JSON:
+                            $result = $this->fetchJSON();
+                        break;
+                    case self::RESPONSE_TYPE_JSONP:
+                            $result = $this->fetchJSONP();
+                        break;
+                    case self::RESPONSE_TYPE_JSON_IFRAME:
+                            $result = $this->fetchJSONIframe();
+                        break;
+                    default:
+                            $result = $this->fetchHTML();
+                        break;
                 }
                 
-                return $this->response;
+                $this->response->getBody()->write( $result );
+                               
+                
                 
             }
         }
         return $this->EventNotFound();
+    }
+    /**
+     * Обрабатывает данные в шаблон
+     * @param type $result
+     * @return type
+     */
+    protected function fetchHTML($result = null) {
+        if($result){
+            return $result;
+        }
+        
+        foreach ($this->aVars as $key => $value) {
+            $this->Viewer_Assign($key, $value);
+        }
+        return $this->Viewer_Fetch($this->sActionTemplate);
+    }
+    
+    protected function fetchAjax($param) {
+        $this->response = $this->response->withHeader('Content-type: application/json');
+        
+        $this->Load();
+        /**
+         * Загружаем статус ответа и сообщение
+         */
+        $bStateError = false;
+        $sMsgTitle = '';
+        $sMsg = '';
+        $aMsgError = $this->Message_GetError();
+        $aMsgNotice = $this->Message_GetNotice();
+        if (count($aMsgError) > 0) {
+            $bStateError = true;
+            $sMsgTitle = $aMsgError[0]['title'];
+            $sMsg = $aMsgError[0]['msg'];
+        } elseif (count($aMsgNotice) > 0) {
+            $sMsgTitle = $aMsgNotice[0]['title'];
+            $sMsg = $aMsgNotice[0]['msg'];
+        }
+        $this->assign('sMsgTitle', $sMsgTitle);
+        $this->assign('sMsg', $sMsg);
+        $this->assign('bStateError', $bStateError);
+    }
+    
+    protected function fetchJSON($param) {
+        if($result){
+            return json_encode($result);
+        }
+        
+        $this->fetchAjax();
+        
+        return json_encode($this->aVars);
+    }
+    
+    protected function fetchJSONP($param) {
+        if($result){
+            return json_encode($result);
+        }
+        
+        $this->fetchAjax();
+        
+        $aParams = $this->request->getQueryParams();
+        
+        $sCallbackName = isset($aParams['jsonpCallbackName']) ? $aParams['jsonpCallbackName'] : 'jsonpCallback';
+            $sCallback = $aParams[$sCallbackName];
+            if (!preg_match('#^[a-z0-9\-\_]+$#i', $sCallback)) {
+                $sCallback = 'callback';
+            }
+        return $sCallback . '(' . json_encode($this->aVars) . ');';
+    }
+    
+    protected function fetchJSONIframe($param) {
+        if($result){
+            return json_encode($result);
+        }
+        
+        $this->fetchAjax();
+        
+        return '<textarea>' . htmlspecialchars(json_encode($this->aVars)) . '</textarea>';
+       
     }
 
     /**
@@ -442,6 +546,22 @@ abstract class Action extends LsObject
             }
         }
         $this->sActionTemplate = $sActionTemplatePath;
+    }
+    /**
+     *  Тип ответа json/html/jsonp
+     * @param ыекштп $sType
+     */
+    protected function setResponseType(string $sType = self::RESPONSE_TYPE_HTML) {
+        $this->response = $this->response->withHeader('type', $sType);
+    }
+    
+    /**
+     *  Добавить переменную в шаблон или ответ ajax
+     * @param string $name
+     * @param type $value
+     */
+    protected function assign(string $name, $value) {
+        $this->aVars[$name] = $value;
     }
 
     /**

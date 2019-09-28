@@ -108,18 +108,7 @@ class ModuleViewer extends Module
      * @var array
      */
     protected $aVarsJs = array();
-    /**
-     * Определяет тип ответа при ajax запросе
-     *
-     * @var string
-     */
-    protected $sResponseAjax = null;
-    /**
-     * Отправляет специфичный для ответа header
-     *
-     * @var bool
-     */
-    protected $bResponseSpecificHeader = true;
+    
     /**
      * Список меню для рендеринга
      *
@@ -305,7 +294,7 @@ class ModuleViewer extends Module
      */
     public function Display($sTemplate)
     {
-        $this->load();
+        $this->Load();
         /**
          * Если шаблон найден то выводим, иначе ошибка
          * Предварительно проверяем наличие делегата
@@ -325,7 +314,7 @@ class ModuleViewer extends Module
     
     public function Fetch($sTemplate) {
         
-        $this->load();
+        $this->Load();
         /**
          * Если шаблон найден то выводим, иначе ошибка
          * Предварительно проверяем наличие делегата
@@ -371,88 +360,9 @@ class ModuleViewer extends Module
         $this->oSmarty->clearCompiledTemplate();
     }
 
-    /**
-     * Ответ на ajax запрос
-     *
-     * @param string $sType Варианты: json, jsonIframe, jsonp
-     */
-    public function FetchAjax( $sType = 'json')
-    {
-        $this->load();
-        /**
-         * Загружаем статус ответа и сообщение
-         */
-        $bStateError = false;
-        $sMsgTitle = '';
-        $sMsg = '';
-        $aMsgError = $this->Message_GetError();
-        $aMsgNotice = $this->Message_GetNotice();
-        if (count($aMsgError) > 0) {
-            $bStateError = true;
-            $sMsgTitle = $aMsgError[0]['title'];
-            $sMsg = $aMsgError[0]['msg'];
-        } elseif (count($aMsgNotice) > 0) {
-            $sMsgTitle = $aMsgNotice[0]['title'];
-            $sMsg = $aMsgNotice[0]['msg'];
-        }
-        $this->AssignAjax('sMsgTitle', $sMsgTitle);
-        $this->AssignAjax('sMsg', $sMsg);
-        $this->AssignAjax('bStateError', $bStateError);
-        if ($sType == 'json') {
-//            if ($this->bResponseSpecificHeader and !headers_sent()) {
-//                header('Content-type: application/json');
-//            }
-            return json_encode($this->aVarsAjax);
-        } elseif ($sType == 'jsonIframe') {
-            // Оборачивает json в тег <textarea>, это не дает браузеру выполнить HTML, который вернул iframe
-//            if ($this->bResponseSpecificHeader and !headers_sent()) {
-//                header('Content-type: application/json');
-//            }
-            /**
-             * Избавляемся от бага, когда в возвращаемом тексте есть &quot;
-             */
-            return '<textarea>' . htmlspecialchars(json_encode($this->aVarsAjax)) . '</textarea>';
-        } elseif ($sType == 'jsonp') {
-//            if ($this->bResponseSpecificHeader and !headers_sent()) {
-//                header('Content-type: application/json');
-//            }
-            $sCallbackName = getRequestStr('jsonpCallbackName') ? getRequestStr('jsonpCallbackName') : 'jsonpCallback';
-            $sCallback = getRequestStr($sCallbackName);
-            if (!preg_match('#^[a-z0-9\-\_]+$#i', $sCallback)) {
-                $sCallback = 'callback';
-            }
-            return $sCallback . '(' . json_encode($this->aVarsAjax) . ');';
-        }
-        
-    }
+    
 
-    /**
-     * Возвращает тип отдачи контекта
-     *
-     * @return string
-     */
-    public function GetResponseAjax()
-    {
-        return $this->sResponseAjax;
-    }
-
-    /**
-     * Устанавливает тип отдачи при ajax запросе, если null то выполняется обычный вывод шаблона в браузер
-     *
-     * @param string $sResponseAjax Тип ответа
-     * @param bool $bResponseSpecificHeader Установливать специфичные тиру заголовки через header()
-     * @param bool $bValidate Производить или нет валидацию формы через {@link Security::ValidateSendForm}
-     */
-    public function SetResponseAjax($sResponseAjax = 'json', $bResponseSpecificHeader = true, $bValidate = true)
-    {
-        // Для возможности кросс-доменных запросов
-        if ($sResponseAjax != 'jsonp' && $bValidate) {
-            $this->Security_ValidateSendForm();
-        }
-        $this->sResponseAjax = $sResponseAjax;
-        $this->bResponseSpecificHeader = $bResponseSpecificHeader;
-    }
-
+    
     /**
      * Загружает переменную в шаблон
      *
@@ -1543,7 +1453,7 @@ class ModuleViewer extends Module
         return date($sFormat, $iDate);
     }
     
-    protected function load() {
+    public function Load() {
         $this->Hook_Run('viewer_load');
         /**
          * Получаем настройки блоков из конфигов

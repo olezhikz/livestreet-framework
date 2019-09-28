@@ -382,21 +382,31 @@ class Router extends LsObject
         $sInitResult = $this->oAction->Init();
         $this->Hook_Run("action_init_" . strtolower($sActionClass) . "_after");
 
+        /**
+         * Если из Init передана строка next Запускаем процесс заново
+         */
         if ($sInitResult === 'next') {
             $this->ExecAction();
-        } else {
-            self::$response = $this->oAction->ExecEvent();
-            self::$sActionEventName = $this->oAction->GetCurrentEventName();
-
-            $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_before");
-            $this->oAction->EventShutdown();
-            $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_after");
-
-            if (self::$response->hasHeader('next')) {
-                self::$response = self::$response->withoutHeader('next');
-                $this->ExecAction();
-            }
+            return;
         }
+        /**
+         * Подменяем Response пришедшим из ExecEvent
+         */
+        self::$response = $this->oAction->ExecEvent();
+        
+        /**
+         * Если из ExecEvent пришел Response c аргументом next Запускаем процесс заново
+         */
+        if (self::$response->hasHeader('next')) {
+            self::$response = self::$response->withoutHeader('next');
+            $this->ExecAction();
+        }
+        
+        self::$sActionEventName = $this->oAction->GetCurrentEventName();
+        
+        $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_before");
+        $this->oAction->EventShutdown();
+        $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_after");
     }
     
     /**
@@ -418,14 +428,14 @@ class Router extends LsObject
      * @return Psr7\ServerRequest
      */
     protected function createResponse() {
-        $response =  new \GuzzleHttp\Psr7\Response(
+        self::$response =  new \GuzzleHttp\Psr7\Response(
             200,
             [
                 'Content-Type' => 'text/html; charset=utf-8'
             ]
         );
         
-        return $response;
+        return self::$response;
     }
 
     /**
@@ -486,7 +496,7 @@ class Router extends LsObject
             self::$aParams = $aParams;
         }
         
-        return Router::$response->withHeader('next', $sAction);
+        return self::$response->withHeader('next', $sAction);
     }
 
     /**
