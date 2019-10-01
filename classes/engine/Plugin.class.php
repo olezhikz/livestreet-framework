@@ -320,7 +320,7 @@ abstract class Plugin extends LsObject
      */
     public function GetVersion()
     {
-        if ($oXml = $this->PluginManager_GetPluginXmlInfo(self::GetPluginCode($this))) {
+        if ($oXml = $this->PluginManager_GetPluginJsonInfo(self::GetPluginCode($this))) {
             return (string)$oXml->version;
         }
         return null;

@@ -33,6 +33,8 @@ class ModulePluginManager extends ModuleORM
      * @var string
      */
     protected $sPluginsDir;
+    
+    protected $packages;
 
     /**
      * Инициализация модуля
@@ -62,7 +64,7 @@ class ModulePluginManager extends ModuleORM
         /**
          * Получаем xml информацию
          */
-        if (!$oXml = $this->GetPluginXmlInfo($sPlugin)) {
+        if (!$oXml = $this->GetPluginJsonInfo($sPlugin)) {
             return false;
         }
         $sClassPlugin = 'Plugin' . func_camelize($sPlugin);
@@ -217,7 +219,7 @@ class ModulePluginManager extends ModuleORM
         /**
          * Получаем xml информацию
          */
-        if (!$oXml = $this->GetPluginXmlInfo($sPlugin)) {
+        if (!$oXml = $this-($sPlugin)) {
             return false;
         }
         $sClassPlugin = 'Plugin' . func_camelize($sPlugin);
@@ -313,8 +315,28 @@ class ModulePluginManager extends ModuleORM
         return false;
     }
     
-    public function GetPackage($param) {
+    /**
+     * Выбрать плагины из пакетов composer vendor
+     * @return array
+     */
+    public function AllCodes() {
+        $aPackages = $this->All();
         
+        $aPluginCodes = [];
+        foreach ($aPackages as $package) {
+            $aExtra = $package->get('extra');
+            if(isset($aExtra['code'])){
+                $aPluginCodes[] = $aExtra['code'];
+            }
+            
+        }
+        
+        return $aPluginCodes;
+    }
+    
+    public function All() {
+        $this->packages = new Packages\Packages(Config::Get('path.root.server') . '/vendor/composer/installed.json');
+        return $this->packages->query()->where(['type' => 'livestreet-plugin']);
     }
 
     /**
@@ -327,7 +349,9 @@ class ModulePluginManager extends ModuleORM
     public function GetPluginsItems($aFilter = array())
     {
         $aPluginItemsReturn = array();
-        $aPluginCodes = func_list_plugins(true);
+        
+        $aPluginCodes = $this->AllCodes();
+        
         $aPluginItemsActive = $this->GetPluginsActive();
 
         /**
@@ -343,7 +367,7 @@ class ModulePluginManager extends ModuleORM
             /**
              * Получаем из XML файла описания
              */
-            if ($oXml = $this->GetPluginXmlInfo($sPluginCode)) {
+            if ($oXml = $this->GetPluginJsonInfo($sPluginCode)) {
                 if (isset($aVersionItems[$sPluginCode])) {
                     $sVersionDb = $aVersionItems[$sPluginCode]->getVersion();
                 } else {
@@ -382,11 +406,13 @@ class ModulePluginManager extends ModuleORM
      *
      * @return null|SimpleXMLElement
      */
-    public function GetPluginXmlInfo($sPlugin)
+    public function GetPluginJsonInfo($sPlugin)
     {
         /**
-         * Считываем данные из XML файла описания
+         * Считываем данные из Json файла описания
          */
+        $this->packages->query()->where(['']);
+        
         $sPluginXML = Plugin::GetPath( $sPlugin ) . '/plugin.xml';
         if ($oXml = @simplexml_load_file($sPluginXML)) {
             /**
@@ -537,7 +563,7 @@ class ModulePluginManager extends ModuleORM
         /**
          * Получаем текущую версию плагина из XML описания
          */
-        if (!$oXml = $this->GetPluginXmlInfo($sPlugin)) {
+        if (!$oXml = $this->GetPluginJsonInfo($sPlugin)) {
             return;
         }
         $sVersionByFile = (string)$oXml->version;
