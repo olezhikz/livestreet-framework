@@ -65,7 +65,7 @@
         {/block}
         
 
-        <link href="{cfg 'path.skin.assets.web'}/images/favicons/favicon.ico?v1" rel="shortcut icon" />
+        <link href="{$LS->Asset_GetWebPath('favicon')}" rel="shortcut icon" />
 
         <script>
             {strip}

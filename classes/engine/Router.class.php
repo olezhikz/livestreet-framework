@@ -369,7 +369,7 @@ class Router extends LsObject
         }
         self::$sActionClass = $sActionClass;
 
-        $sClassName = $sActionClass;
+        $sClassName = $sActionClass; 
 
         $this->oAction = new $sClassName(
             $this->createRequest(),
@@ -379,15 +379,17 @@ class Router extends LsObject
          * Инициализируем экшен
          */
         $this->Hook_Run("action_init_" . strtolower($sActionClass) . "_before");
-        $sInitResult = $this->oAction->Init();
+        if(($response = $this->oAction->Init()) instanceof Psr\Http\Message\ResponseInterface){
+            self::$response = $this->oAction->Init();
+        }        
         $this->Hook_Run("action_init_" . strtolower($sActionClass) . "_after");
 
         /**
-         * Если из Init передана строка next Запускаем процесс заново
+         * Если из Init пришел Response cо статусом 307 Запускаем процесс заново 
          */
-        if ($sInitResult === 'next') {
+        if (self::$response->getStatusCode() == 307) {
+            self::$response = self::$response->withStatus(200);
             $this->ExecAction();
-            return;
         }
         /**
          * Подменяем Response пришедшим из ExecEvent
@@ -395,10 +397,10 @@ class Router extends LsObject
         self::$response = $this->oAction->ExecEvent();
         
         /**
-         * Если из ExecEvent пришел Response c аргументом next Запускаем процесс заново
+         * Если из ExecEvent пришел Response cо статусом 307 Запускаем процесс заново 
          */
-        if (self::$response->hasHeader('next')) {
-            self::$response = self::$response->withoutHeader('next');
+        if (self::$response->getStatusCode() == 307) {
+            self::$response = self::$response->withStatus(200);
             $this->ExecAction();
         }
         
@@ -416,9 +418,9 @@ class Router extends LsObject
     protected function createRequest() {
         $request =  \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
         
-        $request->withAttribute('action', self::GetAction())
-                ->withAttribute('event', self::GetActionEvent())
-                ->withAttribute('params', self::GetParams());
+        $request = $request->withAttribute('action', self::GetAction());
+        $request = $request->withAttribute('event', self::GetActionEvent());
+        $request = $request->withAttribute('params', self::GetParams());
         
         return $request;
     }
@@ -429,10 +431,7 @@ class Router extends LsObject
      */
     protected function createResponse() {
         self::$response =  new \GuzzleHttp\Psr7\Response(
-            200,
-            [
-                'Content-Type' => 'text/html; charset=utf-8'
-            ]
+            200
         );
         
         return self::$response;
@@ -496,7 +495,7 @@ class Router extends LsObject
             self::$aParams = $aParams;
         }
         
-        return self::$response->withHeader('next', $sAction);
+        return self::$response->withStatus(307, 'Redirect runtime application');
     }
 
     /**

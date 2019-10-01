@@ -312,6 +312,10 @@ class ModulePluginManager extends ModuleORM
         }
         return false;
     }
+    
+    public function GetPackage($param) {
+        
+    }
 
     /**
      * Возвращает список плагинов с XML описанием

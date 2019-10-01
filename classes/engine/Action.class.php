@@ -109,6 +109,10 @@ abstract class Action extends LsObject
      */
     protected $response;
     /**
+     * @var string тип ответа 
+     */
+    protected $sResponseType = self::RESPONSE_TYPE_HTML;
+    /**
      * Конструктор
      * 
      * @param Psr\Http\Message\ServerRequestInterface $request
@@ -256,10 +260,12 @@ abstract class Action extends LsObject
     public function ExecEvent()
     {
         $this->sCurrentEvent = $this->request->getAttribute('event');
+        
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
             $this->request = $this->request->withAttribute('event', $this->sCurrentEvent);
         }
+        
         foreach ($this->aRegisterEvent as $aEvent) {
             if (preg_match($aEvent['preg'], $this->sCurrentEvent, $aMatch)) {
                 $this->aParamsEventMatch['event'] = $aMatch;
@@ -299,17 +305,16 @@ abstract class Action extends LsObject
                 $this->Hook_Run("action_event_" . strtolower($this->sCurrentAction) . "_after",
                     array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
                 
-                if($result){
-                    $this->response->getBody()->write( $result );
-                    return $this->response;
-                }
-        
-                switch ($this->response->getHeader('type')) {
+                if($result instanceof Psr\Http\Message\ResponseInterface){
+                    return $result;
+                }   
+                               
+                switch ($this->sResponseType) {
                     case self::RESPONSE_TYPE_HTML:
                             $result = $this->fetchHTML();
                         break;
                     case self::RESPONSE_TYPE_JSON:
-                            $result = $this->fetchJSON();
+                            $result = $this->fetchJSON($result);
                         break;
                     case self::RESPONSE_TYPE_JSONP:
                             $result = $this->fetchJSONP();
@@ -318,14 +323,13 @@ abstract class Action extends LsObject
                             $result = $this->fetchJSONIframe();
                         break;
                     default:
-                            $result = $this->fetchHTML();
+                            $result = $this->fetchHTML($result);
                         break;
                 }
                 
                 $this->response->getBody()->write( $result );
                                
-                
-                
+                return $this->response;                
             }
         }
         return $this->EventNotFound();
@@ -336,6 +340,7 @@ abstract class Action extends LsObject
      * @return type
      */
     protected function fetchHTML($result = null) {
+        $this->response = $this->response->withHeader('Content-type', 'text/html; charset=utf-8');
         if($result){
             return $result;
         }
@@ -346,10 +351,9 @@ abstract class Action extends LsObject
         return $this->Viewer_Fetch($this->sActionTemplate);
     }
     
-    protected function fetchAjax($param) {
-        $this->response = $this->response->withHeader('Content-type: application/json');
+    protected function fetchAjax() {
+        $this->response = $this->response->withHeader('Content-type', 'application/json');
         
-        $this->Load();
         /**
          * Загружаем статус ответа и сообщение
          */
@@ -371,7 +375,7 @@ abstract class Action extends LsObject
         $this->assign('bStateError', $bStateError);
     }
     
-    protected function fetchJSON($param) {
+    protected function fetchJSON($result) {
         if($result){
             return json_encode($result);
         }
@@ -381,7 +385,7 @@ abstract class Action extends LsObject
         return json_encode($this->aVars);
     }
     
-    protected function fetchJSONP($param) {
+    protected function fetchJSONP() {
         if($result){
             return json_encode($result);
         }
@@ -398,7 +402,7 @@ abstract class Action extends LsObject
         return $sCallback . '(' . json_encode($this->aVars) . ');';
     }
     
-    protected function fetchJSONIframe($param) {
+    protected function fetchJSONIframe() {
         if($result){
             return json_encode($result);
         }
@@ -549,10 +553,10 @@ abstract class Action extends LsObject
     }
     /**
      *  Тип ответа json/html/jsonp
-     * @param ыекштп $sType
+     * @param string $sType
      */
     protected function setResponseType(string $sType = self::RESPONSE_TYPE_HTML) {
-        $this->response = $this->response->withHeader('type', $sType);
+        $this->sResponseType = $sType;
     }
     
     /**
