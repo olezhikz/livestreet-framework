@@ -1,0 +1,17 @@
+{
+    "name": "admin",
+    "version": "1.0.0",
+    "dependencies": {
+        "button": "*"
+    },
+    "templates": {
+        "plugins": "plugins.tpl",
+        "toolbar.admin": "toolbar.admin.tpl"
+    },
+    "assets": {
+        "css": {
+            "admin": "css/admin.css"
+        } 
+    }
+   
+}

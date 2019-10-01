@@ -346,6 +346,7 @@ class Router extends LsObject
     public function ExecAction()
     {
         $this->DefineActionClass();
+        
         /**
          * Сначала запускаем инициализирующий евент
          */
@@ -367,7 +368,7 @@ class Router extends LsObject
                 $sActionClass = $aChain[0];
             }
         }
-        self::$sActionClass = $sActionClass;
+        self::$sActionClass = $sActionClass; 
 
         $sClassName = $sActionClass; 
 
@@ -390,11 +391,13 @@ class Router extends LsObject
         if (self::$response->getStatusCode() == 307) {
             self::$response = self::$response->withStatus(200);
             $this->ExecAction();
+            return;
         }
         /**
          * Подменяем Response пришедшим из ExecEvent
          */
         self::$response = $this->oAction->ExecEvent();
+        
         
         /**
          * Если из ExecEvent пришел Response cо статусом 307 Запускаем процесс заново 
@@ -402,6 +405,7 @@ class Router extends LsObject
         if (self::$response->getStatusCode() == 307) {
             self::$response = self::$response->withStatus(200);
             $this->ExecAction();
+            return;
         }
         
         self::$sActionEventName = $this->oAction->GetCurrentEventName();

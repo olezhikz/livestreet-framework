@@ -293,7 +293,13 @@ abstract class Action extends LsObject
                         $this->aRegisterEventExternal[$aEvent['external']]);
                     $oEvent = new $sEventClass;
                     $oEvent->SetActionObject($this);
-                    $oEvent->Init();
+                    
+                    $result = $oEvent->Init();
+                    
+                    if($result instanceof Psr\Http\Message\ResponseInterface){
+                        return $result;
+                    }
+                
                     if (!$aEvent['method']) {
                         $result = $oEvent->Exec();
                     } else {
@@ -307,11 +313,11 @@ abstract class Action extends LsObject
                 
                 if($result instanceof Psr\Http\Message\ResponseInterface){
                     return $result;
-                }   
+                }
                                
                 switch ($this->sResponseType) {
                     case self::RESPONSE_TYPE_HTML:
-                            $result = $this->fetchHTML();
+                            $result = $this->fetchHTML($result);
                         break;
                     case self::RESPONSE_TYPE_JSON:
                             $result = $this->fetchJSON($result);
@@ -328,10 +334,11 @@ abstract class Action extends LsObject
                 }
                 
                 $this->response->getBody()->write( $result );
-                               
+
                 return $this->response;                
             }
         }
+
         return $this->EventNotFound();
     }
     /**
