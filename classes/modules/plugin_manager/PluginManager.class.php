@@ -64,7 +64,7 @@ class ModulePluginManager extends ModuleORM
         /**
          * Получаем xml информацию
          */
-        if (!$oXml = $this->GetPluginJsonInfo($sPlugin)) {
+        if (!$package = $this->GetPluginJsonInfo($sPlugin)) {
             return false;
         }
         $sClassPlugin = 'Plugin' . func_camelize($sPlugin);
@@ -83,11 +83,11 @@ class ModulePluginManager extends ModuleORM
          * Проверяем совместимость с версией LS
          */
         if (defined('LS_VERSION')
-            and version_compare(LS_VERSION, (string)$oXml->requires->livestreet, '<')
+            and version_compare(LS_VERSION, (string)$package->get('require')['livestreet/framework'], '<')
         ) {
             $this->Message_AddError(
                 $this->Lang_Get('admin.plugins.notices.activation_version_error',
-                    array('version' => $oXml->requires->livestreet)),
+                    array('version' => $package->get('require')['livestreet/framework'])),
                 $this->Lang_Get('common.error.error'), true
             );
             return false;
@@ -365,9 +365,9 @@ class ModulePluginManager extends ModuleORM
 
         foreach ($aPluginCodes as $sPluginCode) {
             /**
-             * Получаем из XML файла описания
+             * Получаем из JSON файла описания
              */
-            if ($oXml = $this->GetPluginJsonInfo($sPluginCode)) {
+            if ($package = $this->GetPluginJsonInfo($sPluginCode)) {
                 if (isset($aVersionItems[$sPluginCode])) {
                     $sVersionDb = $aVersionItems[$sPluginCode]->getVersion();
                 } else {
@@ -411,23 +411,13 @@ class ModulePluginManager extends ModuleORM
         /**
          * Считываем данные из Json файла описания
          */
-        $this->packages->query()->where(['']);
-        
-        $sPluginXML = Plugin::GetPath( $sPlugin ) . '/plugin.xml';
-        if ($oXml = @simplexml_load_file($sPluginXML)) {
-            /**
-             * Обрабатываем данные, считанные из XML-описания
-             */
-            $sLang = $this->Lang_GetLang();
-
-            $this->Xlang($oXml, 'name', $sLang);
-            $this->Xlang($oXml, 'author', $sLang);
-            $this->Xlang($oXml, 'description', $sLang);
-            $oXml->homepage = $this->Text_Parser((string)$oXml->homepage);
-            $oXml->settings = preg_replace('/{([^}]+)}/', Router::GetPath('$1'), $oXml->settings);
-            return $oXml;
+        $aPackages = $this->packages->query()->where(['extra.code' => $sPlugin]);
+            
+        if(!$aPackages){
+            return null;
         }
-        return null;
+        
+        return current($aPackages);
     }
 
     /**
@@ -563,10 +553,10 @@ class ModulePluginManager extends ModuleORM
         /**
          * Получаем текущую версию плагина из XML описания
          */
-        if (!$oXml = $this->GetPluginJsonInfo($sPlugin)) {
+        if (!$package = $this->GetPluginJsonInfo($sPlugin)) {
             return;
         }
-        $sVersionByFile = (string)$oXml->version;
+        $sVersionByFile = (string)$package->get('version');
         /**
          * Получаем текущую версию плагина из БД
          */
