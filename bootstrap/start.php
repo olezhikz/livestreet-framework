@@ -25,6 +25,8 @@
 if (isset($bUseEnvironmentTesting)) {
     Engine::SetEnvironment($sEnv = 'testing');
 }
+
+Ls::$app = Engine::getInstance();
 /*
  * Загружаем конфиги фреймворка
  */

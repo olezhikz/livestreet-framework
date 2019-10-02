@@ -281,6 +281,12 @@ class ModuleAsset extends Module
          * Публикуем ресурсы если не опубликованы
          */
         $this->writeAssets($assets, Config::Get('path.cache_assets.server'));
+        
+        return $this->Build($sType, $assets);
+        
+    }
+    
+    public function Build(string $sType, $assets) {
         /*
          * Выбираем построитель HTML по типу создаем и передаем путь
          */
