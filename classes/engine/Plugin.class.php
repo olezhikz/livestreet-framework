@@ -52,6 +52,11 @@ abstract class Plugin extends LsObject
      * @var array
      */
     protected $aInherits = array();
+    /**
+     * Объект с данными пакета composer.json
+     * @var \Packages\Package 
+     */
+    protected $package = null;
 
     /**
      * Метод инициализации плагина
@@ -60,7 +65,37 @@ abstract class Plugin extends LsObject
     public function Init()
     {
     }
+    /**
+     * 
+     * @param \Packages\Package $package
+     */
+    public function setPackageInfo(\Packages\Package $package) {
+        $this->package = $package;
+    }
+    /**
+     * 
+     * @param string $name
+     * @return mixed|null
+     */
+    public function getPackageInfo(string $name) {
+        if(!$this->package){
+            return null;
+        }
+        return $this->package->get($name);
+    }
+    
+    public function isActive() {
+        return in_array($this->GetPluginCode($this), array_keys(Engine::getInstance()->GetPlugins()));
+    }
 
+    public function isOutdate() {
+        if(!$version = $this->PluginManager_GetVersionByCode(self::GetPluginCode($this))){
+            return false;
+        }
+        
+        return (is_null($version->getVersion()) or version_compare($version->getVersion(), (string) $this->GetVersion(),
+                            '<')) ? true : false;
+    }
     /**
      * Метод, который вызывается перед самой инициализацией ядра
      */
@@ -320,10 +355,10 @@ abstract class Plugin extends LsObject
      */
     public function GetVersion()
     {
-        if ($oXml = $this->PluginManager_GetPluginJsonInfo(self::GetPluginCode($this))) {
-            return (string)$oXml->version;
+        if (!$this->package) {
+            return null;
         }
-        return null;
+        return $this->package->get('version');
     }
 
     /**
@@ -334,15 +369,8 @@ abstract class Plugin extends LsObject
      */
     static public function GetPath($sName)
     {
-        // Пробуем получить путь основного класса плагина из vendor
-        if(class_exists( 'Plugin' . ucfirst($sName))){
-            $reflector = new ReflectionClass( 'Plugin' . ucfirst($sName) );
-            return dirname($reflector->getFileName());                
-        }else{
-            return Config::Get('path.application.plugins.server') . '/' . self::GetPluginCode($sName) ;
-        }
-
-        
+        $reflector = new ReflectionClass( 'Plugin' . ucfirst($sName) );
+        return dirname($reflector->getFileName());
     }
 
     /**
@@ -353,9 +381,8 @@ abstract class Plugin extends LsObject
      */
     static public function GetWebPath($sName)
     {
-        $sName = self::GetPluginCode($sName);
-
-        return Router::GetPathRootWeb() . '/application/plugins/' . $sName . '/';
+        $sPath = self::GetPath($sName);
+        return Engine::getInstance()->Fs_GetPathWebFromServer($sPath); 
     }
 
     /**
@@ -378,28 +405,6 @@ abstract class Plugin extends LsObject
             self::$aTemplatePath[$sName] = is_dir($sDir) ? $sDir : null;
         }
         return self::$aTemplatePath[$sName];
-    }
-
-    /**
-     * Возвращает правильный web-адрес директории шаблонов
-     * Если пользователь использует шаблон которого нет в плагине, то возвращает путь до шабона плагина 'default'
-     *
-     * @param string $sName Название плагина или его класс
-     * @return string
-     */
-    static public function GetTemplateWebPath($sName)
-    {
-        $sName = self::GetPluginCode($sName);
-        if (!isset(self::$aTemplateWebPath[$sName])) {
-            $aPaths = glob(Config::Get('path.application.plugins.server') . '/' . $sName . '/frontend/skin/*',
-                GLOB_ONLYDIR);
-            $sTemplateName = ($aPaths and in_array(Config::Get('view.skin'), array_map('basename', $aPaths)))
-                ? Config::Get('view.skin')
-                : 'default';
-
-            self::$aTemplateWebPath[$sName] = Router::GetFixPathWeb(Config::Get('path.application.plugins.web')) . "/{$sName}/frontend/skin/{$sTemplateName}/";
-        }
-        return self::$aTemplateWebPath[$sName];
     }
 
     /**

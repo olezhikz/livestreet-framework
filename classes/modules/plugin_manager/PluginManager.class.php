@@ -28,13 +28,15 @@
 class ModulePluginManager extends ModuleORM
 {
     /**
-     * Путь к директории с плагинами
      *
-     * @var string
-     */
-    protected $sPluginsDir;
-    
+     * @var Packages\Packages
+     */    
     protected $packages;
+    /**
+     *
+     * @var Plugin[] 
+     */
+    protected $aPlugins = [];
 
     /**
      * Инициализация модуля
@@ -43,7 +45,42 @@ class ModulePluginManager extends ModuleORM
     public function Init()
     {
         parent::Init();
-        $this->sPluginsDir = Config::Get('path.application.plugins.server') . '/';
+        
+        $this->packages = new Packages\Packages(Config::Get('path.root.server') . '/vendor/composer/installed.json');
+        $this->load();
+    }
+    
+    public function Get(string $sPluginName) {
+        $this->aPlugins[$sPluginName];
+    }
+    
+    protected function create(string $sPluginName) {
+        $sClassName =  'Plugin' . ucfirst($sPluginName);
+        if(!class_exists($sClassName)){
+            throw new RuntimeException("Plugin {$sPluginName} not exist");
+        }
+        return new $sClassName();
+    }
+    
+    protected function load() {
+        if(!$this->aPlugins){
+            $aPackages = $this->packages->query()->where(['type' => 'livestreet-plugin']);
+            foreach ($aPackages as $package) {
+                $sPluginName = $package->get('extra.code');
+                
+                if(!$sPluginName){
+                    continue;
+                }
+                    
+                $oPlugin = $this->create($sPluginName);
+                $oPlugin->setPackageInfo($package);
+                $this->aPlugins[$sPluginName] = $oPlugin;
+            }
+        }
+    }
+    
+    public function All() {
+        return $this->aPlugins;
     }
 
     /**
@@ -334,10 +371,6 @@ class ModulePluginManager extends ModuleORM
         return $aPluginCodes;
     }
     
-    public function All() {
-        $this->packages = new Packages\Packages(Config::Get('path.root.server') . '/vendor/composer/installed.json');
-        return $this->packages->query()->where(['type' => 'livestreet-plugin']);
-    }
 
     /**
      * Возвращает список плагинов с XML описанием
@@ -348,76 +381,22 @@ class ModulePluginManager extends ModuleORM
      */
     public function GetPluginsItems($aFilter = array())
     {
-        $aPluginItemsReturn = array();
-        
-        $aPluginCodes = $this->AllCodes();
-        
-        $aPluginItemsActive = $this->GetPluginsActive();
-
-        /**
-         * Получаем версии из БД для всех плагинов
-         */
-        if ($aPluginCodes) {
-            $aVersionItems = $this->GetVersionItemsByFilter(array('code in' => $aPluginCodes, '#index-from' => 'code'));
-        } else {
-            $aVersionItems = array();
-        }
-
-        foreach ($aPluginCodes as $sPluginCode) {
-            /**
-             * Получаем из JSON файла описания
-             */
-            if ($package = $this->GetPluginJsonInfo($sPluginCode)) {
-                if (isset($aVersionItems[$sPluginCode])) {
-                    $sVersionDb = $aVersionItems[$sPluginCode]->getVersion();
-                } else {
-                    $sVersionDb = null;
-                }
-                $aInfo = array(
-                    'code'         => $sPluginCode,
-                    'is_active'    => in_array($sPluginCode, $aPluginItemsActive),
-                    'property'     => $oXml,
-                    'apply_update' => (is_null($sVersionDb) or version_compare($sVersionDb, (string)$oXml->version,
-                            '<')) ? true : false,
-                );
-                $aPluginItemsReturn[$sPluginCode] = $aInfo;
-            }
-        }
+        $aPluginItemsReturn = $this->aPlugins;
         /**
          * Если нужно сортировать плагины
          */
         if (isset($aFilter['order'])) {
-            if ($aFilter['order'] == 'name') {
-                uasort($aPluginItemsReturn, function ($a, $b) {
-                    if ((string)$a['property']->name->data == (string)$b['property']->name->data) {
-                        return 0;
-                    }
-                    return ((string)$a['property']->name->data < (string)$b['property']->name->data) ? -1 : 1;
-                });
-            }
+            uasort($aPluginItemsReturn, function($a, $b) use ($aFilter){
+                $packageA = $a->getPackageInfo($aFilter['order']);
+                $packageB = $b->getPackageInfo($aFilter['order']);
+                
+                if ((string)$packageA == (string)$packageB) {
+                    return 0;
+                }
+                return ((string)$packageA < (string)$packageB) ? -1 : 1;
+            });
         }
         return $aPluginItemsReturn;
-    }
-
-    /**
-     * Возвращает XML объект описания плагина
-     *
-     * @param $sPlugin
-     *
-     * @return null|SimpleXMLElement
-     */
-    public function GetPluginJsonInfo($sPlugin)
-    {
-        /**
-         * Считываем данные из Json файла описания
-         */
-        $aPackages = $this->packages->query()->where(['extra.code' => $sPlugin]);
-            
-        if(!$aPackages){
-            return null;
-        }
-        
-        return current($aPackages);
     }
 
     /**

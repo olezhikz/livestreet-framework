@@ -1145,9 +1145,13 @@ class Engine
         if (!isset($aCache[$sCacheKey])) {
             $aResult = array();
             if ($iFlag & self::CI_PLUGIN) {
-                $aResult[self::CI_PLUGIN] = preg_match('/^Plugin([^_]+)/', $sClassName, $aMatches)
-                    ? $aMatches[1]
-                    : null;
+                if(preg_match('/^PluginManager/', $sClassName)){
+                    $aResult[self::CI_PLUGIN] = null;
+                }else{
+                    $aResult[self::CI_PLUGIN] = preg_match('/^Plugin([^_]+)/', $sClassName, $aMatches)
+                        ? $aMatches[1]
+                        : null;
+                }
             }
             if ($iFlag & self::CI_ACTION) {
                 $aResult[self::CI_ACTION] = preg_match('/^(?:Plugin[^_]+_|)Action([^_]+)/', $sClassName, $aMatches)

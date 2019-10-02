@@ -6,71 +6,59 @@
 
 {component_define_params params=[ 'plugins' ]}
 
-<table class="ls-table admin-plugins">
-    <tbody>
-        {foreach $plugins as $plugin}
-            
-            {capture name="plugin"}
-                <h3>{$plugin.property->name->data}</h3>
-                <p>{$plugin.property->description->data}</p>
-            {/capture}
+<div class="d-flex flex-column">
+    {foreach $plugins as $plugin}
 
+        {capture name="plugin"}
+            <div class="media">
+                <img class="mr-3" src=".../64x64" alt="Plugin image">
+                <div class="media-body">
+                  <h5 class="mt-0">{$plugin->getPackageInfo('name')}</h5>
+                    {$plugin->getPackageInfo('description')}  
+                    {* Активировать/деактивировать *}
+                    {if $plugin->isActive()}
+                        {component 'button'
+                            bmods = "secondary"
+                            url  = "{router page='admin'}plugins/?plugin={$plugin->getPackageInfo('code')}&action=deactivate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            text = {lang 'admin.plugins.plugin.deactivate'}}
+                    {else}
+                        {component 'button'
+                            bmods = "success"
+                            url  = "{router page='admin'}plugins/?plugin={$plugin->getPackageInfo('code')}&action=activate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            mods = 'primary'
+                            text = {lang 'admin.plugins.plugin.activate'}}
+                    {/if}
+
+                    {* Применить обновление *}
+                    {if $plugin->isOutdate() && $plugin->isActive()}
+                        {component 'button'
+                            bmods = "success"
+                            url  = "{router page='admin'}plugins/?plugin={$plugin->getPackageInfo('code')}&action=apply_update&security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            text = {lang 'admin.plugins.plugin.apply_update'}}
+                    {/if}
+
+                    {* Удалить *}
+                        {component 'button'
+                            bmods = "danger"
+                            url        = "{router page='admin'}plugins/?plugin={$plugin->getPackageInfo('code')}&action=remove&security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            attributes = [ 'onclick' => "return confirm('{lang 'common.remove_confirm'}');" ]
+                            text       = {lang 'admin.plugins.plugin.remove'}}              
+                </div>
+            </div>
+           
             
-            {component "card" content = [
+        {/capture}
+
+
+        {component "card" 
+            classes = "mt-2"
+            content = [
                 [
                     type => 'body',
                     content => $smarty.capture.plugin
                 ]
             ]}
-            <tr {if $plugin.is_active}class="active"{/if}>
-                {* Название и описание плагина *}
-                <td>
-                    <h3>{$plugin.property->name->data}</h3>
-                    <p>{$plugin.property->description->data}</p>
 
-                    {component 'list-group' items=[
-                        [ 'label' => {lang 'admin.plugins.plugin.version'}, 'content' => $plugin.property->version|escape ],
-                        [ 'label' => {lang 'admin.plugins.plugin.author'},  'content' => $plugin.property->author->data ],
-                        [ 'label' => {lang 'admin.plugins.plugin.url'},     'content' => $plugin.property->homepage ]
-                    ]}
-                </td>
-
-                {* Действия *}
-                <div class="d-flex flex-collumn admin-plugins-actions">
-                        {* Активировать/деактивировать *}
-                            {if $plugin.is_active}
-                                {component 'button'
-                                    url  = "{router page='admin'}plugins/?plugin={$plugin.code}&action=deactivate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
-                                    text = {lang 'admin.plugins.plugin.deactivate'}}
-                            {else}
-                                {component 'button'
-                                    url  = "{router page='admin'}plugins/?plugin={$plugin.code}&action=activate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
-                                    mods = 'primary'
-                                    text = {lang 'admin.plugins.plugin.activate'}}
-                            {/if}
-
-                        {* Применить обновление *}
-                        {if $plugin.apply_update && $plugin.is_active}
-                                {component 'button'
-                                    url  = "{router page='admin'}plugins/?plugin={$plugin.code}&action=apply_update&security_ls_key={$LIVESTREET_SECURITY_KEY}"
-                                    text = {lang 'admin.plugins.plugin.apply_update'}}
-                        {/if}
-
-                        {* Ссылка на страницу настроек *}
-                        {if $plugin.property->settings != "" && $plugin.is_active}
-                                {component 'button'
-                                    url  = $plugin.property->settings
-                                    text = {lang 'admin.plugins.plugin.settings'}}
-                        {/if}
-
-                        {* Удалить *}
-                            {component 'button'
-                                url        = "{router page='admin'}plugins/?plugin={$plugin.code}&action=remove&security_ls_key={$LIVESTREET_SECURITY_KEY}"
-                                attributes = [ 'onclick' => "return confirm('{lang 'common.remove_confirm'}');" ]
-                                text       = {lang 'admin.plugins.plugin.remove'}}
-                </div>
-                
-            </tr>
-        {/foreach}
-    </tbody>
-</table>
+    {/foreach}
+        
+</div>
