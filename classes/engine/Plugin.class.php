@@ -106,37 +106,20 @@ abstract class Plugin extends LsObject
         
         $sPlugin = strtolower(str_replace('Plugin', '', $rc->getShortName()));
                 
-        $this->LoadConfig($sPlugin, $sDir . '/config/config.php' );
-        
-        $this->LoadConfig($sPlugin, $sDir . '/config/config.'. Engine::GetEnvironment().'.php' );        
+        func_load_config($sDir . '/config/config.php', "plugin.$sPlugin");
+        func_load_config($sDir . '/config/config.'. Engine::GetEnvironment().'.php', "plugin.$sPlugin");
+        /*
+         * Подключаем include
+         */
+        $aIncludeFiles = glob($sDir . '/include/*.php');       
+        if ($aIncludeFiles and count($aIncludeFiles)) {
+            foreach ($aIncludeFiles as $sPath) {
+                require_once($sPath);
+            }
+        }
         
     }
     
-    public function LoadConfig($sPlugin, $sFile) {
-        
-        
-        if(!file_exists($sFile)){
-            return;
-        }
-        
-        $aConfig = include($sFile);
-        
-        if (!empty($aConfig) && is_array($aConfig)) {
-            // Если конфиг этого плагина пуст, то загружаем массив целиком
-            $sKey = "plugin.$sPlugin";
-            if (!Config::isExist($sKey)) {
-                Config::Set($sKey, $aConfig);
-            } else {
-                // Если уже существую привязанные к плагину ключи,
-                // то сливаем старые и новое значения ассоциативно
-                Config::Set(
-                    $sKey,
-                    func_array_merge_assoc(Config::Get($sKey), $aConfig)
-                );
-            }
-        }
-    }
-
     /**
      * Передает информацию о делегатах в модуль ModulePlugin
      * Вызывается Engine перед инициализацией плагина
@@ -369,7 +352,7 @@ abstract class Plugin extends LsObject
      */
     static public function GetPath($sName)
     {
-        $reflector = new ReflectionClass( 'Plugin' . ucfirst($sName) );
+        $reflector = new ReflectionClass( 'Plugin' . ucfirst(self::GetPluginCode($sName)) );
         return dirname($reflector->getFileName());
     }
 
@@ -449,5 +432,9 @@ abstract class Plugin extends LsObject
         return preg_match('/^Plugin([\w]+)(_[\w]+)?$/Ui', $mPlugin, $aMatches)
             ? func_underscore($aMatches[1])
             : func_underscore($mPlugin);
+    }
+    
+    public function getCode() {
+        return self::GetPluginCode($this);
     }
 }

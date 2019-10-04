@@ -19,12 +19,12 @@
                     {if $plugin->isActive()}
                         {component 'button'
                             bmods = "secondary"
-                            url  = "{router page='admin'}plugins/?plugin={$plugin->getPackageInfo('code')}&action=deactivate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            url  = "{router page='admin'}plugins/?plugin={$plugin->getCode()}&action=deactivate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
                             text = {lang 'admin.plugins.plugin.deactivate'}}
                     {else}
                         {component 'button'
                             bmods = "success"
-                            url  = "{router page='admin'}plugins/?plugin={$plugin->getPackageInfo('code')}&action=activate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            url  = "{router page='admin'}plugins/?plugin={$plugin->getCode()}&action=activate&security_ls_key={$LIVESTREET_SECURITY_KEY}"
                             mods = 'primary'
                             text = {lang 'admin.plugins.plugin.activate'}}
                     {/if}
@@ -33,7 +33,7 @@
                     {if $plugin->isOutdate() && $plugin->isActive()}
                         {component 'button'
                             bmods = "success"
-                            url  = "{router page='admin'}plugins/?plugin={$plugin->getPackageInfo('code')}&action=apply_update&security_ls_key={$LIVESTREET_SECURITY_KEY}"
+                            url  = "{router page='admin'}plugins/?plugin={$plugin->getCode()}&action=apply_update&security_ls_key={$LIVESTREET_SECURITY_KEY}"
                             text = {lang 'admin.plugins.plugin.apply_update'}}
                     {/if}
 

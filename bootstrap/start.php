@@ -19,6 +19,18 @@
  *
  */
 
+
+/**
+ * Определяем окружение
+ * В зависимости от окружения будет дополнительно подгружаться необходимый конфиг.
+ * array('{окружение}' => array('{хост1}', '{хост2}')) если хост совпадет выставится окружение
+ * Например, для окружения "production" будет загружен конфиг /application/config/config.production.php
+ * По дефолту работает окружение "local"
+ */
+$sEnv = Engine::DetectEnvironment(array(
+    'production' => array('your-machine-name'),
+));
+
 /**
  * Проверяем на необходимость выставить тестовое окружение
  */
@@ -26,9 +38,8 @@ if (isset($bUseEnvironmentTesting)) {
     Engine::SetEnvironment($sEnv = 'testing');
 }
 
-Ls::$app = Engine::getInstance();
 /*
- * Загружаем конфиги фреймворка
+ * Загружаем конфиги
  */
 require_once dirname(__DIR__).'/config/loader.php';
 

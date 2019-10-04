@@ -205,6 +205,12 @@ class Engine
      * @var bool
      */
     protected $bUseAutoHooks = false;
+    /**
+     * Инициализировано ли ядро
+     * 
+     * @var bool 
+     */
+    static private $bIsInit = false;
 
 
     /**
@@ -248,18 +254,16 @@ class Engine
 
     /**
      * Инициализация ядра движка
-     * todo: запретить выполнять повторную инициализацию
      */
     public function Init()
     {
-        /**
-         * Загружаем плагины
+        /*
+         * Если инициализировано не выполняем дальше
          */
-        $this->LoadPlugins();
-        /**
-         * Выполняет специальный метод BeforeInitEngine плагинов на самой ранней стадии инициализации ядра
-         */
-        $this->PreInitPlugins();
+        if(self::$bIsInit){
+            return;
+        }
+        
         /**
          * Инициализируем хуки
          */
@@ -280,6 +284,14 @@ class Engine
          * Запускаем хуки для события завершения инициализации Engine
          */
         $this->Hook_Run('engine_init_complete');
+        /*
+         * Показываем что ядро инициализировано
+         */
+        self::$bIsInit = true;
+    }
+    
+    static public function isInit() {
+        return self::$bIsInit;
     }
 
     public function SetUseAutoHooks($bUse)
@@ -534,6 +546,20 @@ class Engine
         foreach ($this->aPlugins as $oPlugin) {
             $oPlugin->BeforeInitEngine();
         }
+    }
+    
+    /**
+     * Загружает конфиги плагинов без инициализации ядра
+     */
+    public function LoadConfigPlugins() {
+        /**
+         * Загружаем плагины
+         */
+        $this->LoadPlugins();
+        /**
+         * Выполняет специальный метод BeforeInitEngine плагинов 
+         */
+        $this->PreInitPlugins();
     }
 
     /**

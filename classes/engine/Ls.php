@@ -34,3 +34,5 @@ class Ls {
      */
      static public  $app = null;
 }
+
+Ls::$app = Engine::getInstance();

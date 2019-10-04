@@ -345,14 +345,13 @@ class Router extends LsObject
      */
     public function ExecAction()
     {
-        $this->DefineActionClass();
         
         /**
          * Сначала запускаем инициализирующий евент
          */
+        $sActionClass = $this->DefineActionClass();$this->Logger_Notice($sActionClass);
+        
         $this->Hook_Run('init_action');
-
-        $sActionClass = $this->DefineActionClass();
         /**
          * Если коллбэк, то сразу возвращаем результат
          */

@@ -37,6 +37,11 @@ class ModulePluginManager extends ModuleORM
      * @var Plugin[] 
      */
     protected $aPlugins = [];
+    /**
+     *
+     * @var string Путь до папки с плагинами 
+     */
+    protected $sPluginsDir = '';
 
     /**
      * Инициализация модуля
@@ -45,6 +50,8 @@ class ModulePluginManager extends ModuleORM
     public function Init()
     {
         parent::Init();
+        
+        $this->sPluginsDir = Config::Get('path.application.server') . '/plugins/';
         
         $this->packages = new Packages\Packages(Config::Get('path.root.server') . '/vendor/composer/installed.json');
         $this->load();
@@ -101,53 +108,19 @@ class ModulePluginManager extends ModuleORM
         /**
          * Получаем xml информацию
          */
-        if (!$package = $this->GetPluginJsonInfo($sPlugin)) {
+        if (!$oPlugin = $this->aPlugins[$sPlugin]) {
             return false;
         }
-        $sClassPlugin = 'Plugin' . func_camelize($sPlugin);
-        if (!class_exists($sClassPlugin)) {
-            return false;
-        }
-        $aPluginItemsActive = $this->GetPluginsActive();
-        $oPlugin = new $sClassPlugin;
+        
+        $aPluginItemsActive = $this->GetPluginsActive(); 
 
         if (in_array($sPlugin, $aPluginItemsActive)) {
             $this->Message_AddError($this->Lang_Get('admin.plugins.notices.activation_already_error'),
                 $this->Lang_Get('common.error.error'), true);
             return false;
         }
-        /**
-         * Проверяем совместимость с версией LS
-         */
-        if (defined('LS_VERSION')
-            and version_compare(LS_VERSION, (string)$package->get('require')['livestreet/framework'], '<')
-        ) {
-            $this->Message_AddError(
-                $this->Lang_Get('admin.plugins.notices.activation_version_error',
-                    array('version' => $package->get('require')['livestreet/framework'])),
-                $this->Lang_Get('common.error.error'), true
-            );
-            return false;
-        }
-        /**
-         * Проверяем наличие require-плагинов
-         */
-        if ($oXml->requires->plugins) {
-            $iConflict = 0;
-            foreach ($oXml->requires->plugins->children() as $sReqPlugin) {
-                if (!in_array($sReqPlugin, $aPluginItemsActive)) {
-                    $iConflict++;
-                    $this->Message_AddError(
-                        $this->Lang_Get('admin.plugins.notices.activation_requires_error',
-                            array('plugin' => func_camelize($sReqPlugin))),
-                        $this->Lang_Get('common.error.error'), true
-                    );
-                }
-            }
-            if ($iConflict) {
-                return false;
-            }
-        }
+        
+        
         /**
          * Проверяем на конфликт делегатов
          */
@@ -230,8 +203,8 @@ class ModulePluginManager extends ModuleORM
             /**
              * Записываем в файл
              */
-            $aPluginItemsActive[] = $sPlugin;
-            if (!$this->WriteActivePlugins($aPluginItemsActive)) {
+            $aPluginItemsActive[] = $sPlugin;            $this->Logger_Notice(__METHOD__.print_r($aPluginItemsActive,true));
+            if (!$this->WriteActivePlugins($aPluginItemsActive)) {$this->Logger_Notice('no WriteActivePlugins');
                 return false;
             }
         }
@@ -445,6 +418,8 @@ class ModulePluginManager extends ModuleORM
         /**
          * Записываем данные в файл PLUGINS.DAT
          */
+        
+        $this->Logger_Notice($this->sPluginsDir . Config::Get('sys.plugins.activation_file'));
         if (@file_put_contents($this->sPluginsDir . Config::Get('sys.plugins.activation_file'),
                 implode(PHP_EOL, $aPlugins)) !== false
         ) {
@@ -532,10 +507,10 @@ class ModulePluginManager extends ModuleORM
         /**
          * Получаем текущую версию плагина из XML описания
          */
-        if (!$package = $this->GetPluginJsonInfo($sPlugin)) {
+        if (!$oPlugin = $this->aPlugins[$sPlugin]) {
             return;
         }
-        $sVersionByFile = (string)$package->get('version');
+        $sVersionByFile = (string)$oPlugin->getPackageInfo('version');
         /**
          * Получаем текущую версию плагина из БД
          */

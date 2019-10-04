@@ -276,7 +276,12 @@ class ModuleAsset extends Module
         /*
          * Генерируем набор ресурсов отсортированных по типам
          */
-        $assets = $factory->createAssetType($sType);
+        try{
+            $assets = $factory->createAssetType($sType);
+        }catch(OutOfRangeException $e){
+            $this->Logger_Debug($e->getMessage());
+            return '';
+        }
         /*
          * Публикуем ресурсы если не опубликованы
          */

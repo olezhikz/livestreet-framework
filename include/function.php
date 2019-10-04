@@ -446,6 +446,33 @@ function func_array_merge_assoc($aArr1, $aArr2)
     }
     return $aRes;
 }
+/**
+ * Загружает конфиг из файла используя ключ
+ * 
+ * @param string $sFileConfig 
+ * @param string $sKey plugin.name
+ */
+function func_load_config($sFileConfig, $sKey){
+    if (!file_exists($sFileConfig)) {
+        return;
+    }
+    
+    $config = array();
+    $aConfig = include($sFileConfig);
+    if (!empty($aConfig) && is_array($aConfig)) {
+        // Если конфиг этого модуля|плагина пуст, то загружаем массив целиком
+        if (!Config::isExist($sKey)) {
+            Config::Set($sKey, $aConfig);
+        } else {
+            // Если уже существую привязанные к модулю|плагину ключи,
+            // то сливаем старые и новое значения ассоциативно
+            Config::Set(
+                $sKey,
+                func_array_merge_assoc(Config::Get($sKey), $aConfig)
+            );
+        }
+    }
+}
 
 if (!function_exists('array_fill_keys')) {
     function array_fill_keys($aArr, $values)
