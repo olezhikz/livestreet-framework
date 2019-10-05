@@ -70,9 +70,10 @@ class ModuleAsset extends Module
      */
     public function Load()
     {
-        $aConfig = array_merge_recursive(
-            (array)Config::Get('assets.default'), //Сначала добавляем файлы из конфига
-            (array)Config::Get('assets.template') //Формируем файлы из шаблона
+        $aConfig = array_merge_recursive(   
+            (array)Config::Get('assets.default'),   //Сначала добавляем файлы по умолчанию
+            (array)Config::Get('assets'),           //Загружаем основные
+            (array)Config::Get('assets.template')   //Формируем файлы из шаблона
         );
 //        print_r($aConfig);
         $parser = new \LS\Module\Asset\ConfigParser($this->filters);

@@ -203,8 +203,8 @@ class ModulePluginManager extends ModuleORM
             /**
              * Записываем в файл
              */
-            $aPluginItemsActive[] = $sPlugin;            $this->Logger_Notice(__METHOD__.print_r($aPluginItemsActive,true));
-            if (!$this->WriteActivePlugins($aPluginItemsActive)) {$this->Logger_Notice('no WriteActivePlugins');
+            $aPluginItemsActive[] = $sPlugin;
+            if (!$this->WriteActivePlugins($aPluginItemsActive)) {
                 return false;
             }
         }

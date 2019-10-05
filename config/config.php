@@ -25,7 +25,7 @@
 /**
  * Настройки HTML вида
  */
-$config['view']['skin'] = 'developer';              // шаблон(скин)
+$config['view']['skin'] = 'default';              // шаблон(скин)
 $config['view']['theme'] = 'default';                // тема оформления шаблона (шаблон должен поддерживать темы)
 $config['view']['name'] = 'Your Site';              // название сайта
 $config['view']['title_separator'] = ' / ';                     // Разделитель HTML заголовков страниц

@@ -127,8 +127,6 @@ class ModuleNotify extends Module
         $oNotifyTask->setDateCreated(date("Y-m-d H:i:s"));
         $oNotifyTask->setNotifyTaskStatus(self::NOTIFY_TASK_STATUS_NULL);
         
-        $this->Logger_Notice('mail to '.$sTemplate);
-
         if (Config::Get('module.notify.delayed') and !$bForceSend) {
             if (Config::Get('module.notify.insert_single')) {
                 $this->aTask[] = $oNotifyTask;
