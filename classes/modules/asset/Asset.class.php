@@ -75,7 +75,7 @@ class ModuleAsset extends Module
             (array)Config::Get('assets'),           //Загружаем основные
             (array)Config::Get('assets.template')   //Формируем файлы из шаблона
         );
-//        print_r($aConfig);
+
         $parser = new \LS\Module\Asset\ConfigParser($this->filters);
         
         $assets = $parser->parse($aConfig);

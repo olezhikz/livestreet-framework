@@ -105,8 +105,10 @@ abstract class Plugin extends LsObject
         $sDir =  dirname($rc->getFileName());
         
         $sPlugin = strtolower(str_replace('Plugin', '', $rc->getShortName()));
-        
-        Config::Set("plugin.$sPlugin.dir", $sDir);
+        /*
+         * Добавляем путь до плаина в конфиг
+         */
+        Config::Set("path.plugin.$sPlugin.server", $sDir);
                 
         func_load_config($sDir . '/config/config.php', "plugin.$sPlugin");
         func_load_config($sDir . '/config/config.'. Engine::GetEnvironment().'.php', "plugin.$sPlugin");
