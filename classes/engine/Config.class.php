@@ -371,7 +371,7 @@ class Config
      */
     protected function ArrayEmerge($aArr1, $aArr2)
     {
-        return $this->func_array_merge_assoc($aArr1, $aArr2);
+        return array_replace_recursive($aArr1, $aArr2);
     }
 
     /**
