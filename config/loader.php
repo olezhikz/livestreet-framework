@@ -71,7 +71,7 @@ if (is_dir($sDirConfig) and $hDirConfig = opendir($sDirConfig)) {
         if ($sDirModule != '.' and $sDirModule != '..' and is_dir($sDirConfig . $sDirModule)) {
             $sFileConfig = $sDirConfig . $sDirModule . '/config.php';
             
-            func_load_config($sFileConfig, "module.$sDirModule");
+            Config::setFromFile( "module.$sDirModule", $sFileConfig);
             
         }
     }
@@ -103,11 +103,11 @@ foreach (Engine::getInstance()->GetPlugins() as $sPlugin => $oPlugin) {
     * Смотрим конфиг плагина в /application/config/plugins/[plugin_name]/config.php
     */
     $sFileUserConfig = Config::get('path.application.server') . "/config/plugins/{$sPlugin}/config.php";
-    func_load_config($sFileUserConfig, "plugin.$sPlugin");
+    Config::setFromFile("plugin.$sPlugin", $sFileUserConfig);
     /**
      * Смотрим конфиг плагина текущего окружения в /application/config/plugins/[plugin_name]/config.[environment].php
      */
     $sFileUserConfig = Config::get('path.application.server') . "/config/plugins/{$sPlugin}/config.{$sEnvironmentCurrent}.php";
-    func_load_config($sFileUserConfig, "plugin.$sPlugin");
+    Config::setFromFile("plugin.$sPlugin", $sFileUserConfig);
 }
 

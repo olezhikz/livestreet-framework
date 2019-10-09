@@ -314,6 +314,10 @@ abstract class Action extends LsObject
                 if($result instanceof Psr\Http\Message\ResponseInterface){
                     return $result;
                 }
+                
+                $this->Hook_Run("action_shutdown_" . $this->sCurrentAction . "_before");
+                $this->EventShutdown();
+                $this->Hook_Run("action_shutdown_" . $this->sCurrentAction . "_after");
                                
                 switch ($this->sResponseType) {
                     case self::RESPONSE_TYPE_HTML:
@@ -542,13 +546,22 @@ abstract class Action extends LsObject
         $aDelegates = $this->Plugin_GetDelegationChain('action', $this->GetActionClass());
         $sActionTemplatePath = $sTemplate . '.tpl';
         foreach ($aDelegates as $sAction) {
+            
             if (preg_match('/^(Plugin([\w]+)_)?Action([\w]+)$/i', $sAction, $aMatches)) {
                 $sTemplatePath = $this->Plugin_GetDelegate('template',
                     'actions/Action' . ucfirst($aMatches[3]) . '/' . $sTemplate . '.tpl');
                 if (empty($aMatches[1])) {
                     $sActionTemplatePath = $sTemplatePath;
                 } else {
-                    $sTemplatePath = Plugin::GetTemplatePath($sAction) . $sTemplatePath;
+                    $sTemplatePluginPath = Plugin::GetTemplatePath($sAction);
+                    $sTemplatePath = $sTemplatePluginPath . $sTemplatePath;
+                    /*
+                     * Загружаем конфиг шаблона плагина
+                     */
+                    if (file_exists($sFile = $sTemplatePluginPath . '/settings/config/config.php')) {
+                        Config::LoadFromFile($sFile, false);
+                    }
+                    
                     if (is_file($sTemplatePath)) {
                         $sActionTemplatePath = $sTemplatePath;
                         break;
@@ -635,6 +648,8 @@ abstract class Action extends LsObject
 
     /**
      * Выполняется при завершение экшена, после вызова основного евента
+     * todo:Если в основном Event вызвать шаблонизатор Viewer_Fetch 
+     * то загрузка переменных в шаблон не произойдет в этом методе
      *
      */
     public function EventShutdown()

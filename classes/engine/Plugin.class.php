@@ -109,9 +109,10 @@ abstract class Plugin extends LsObject
          * Добавляем путь до плаина в конфиг
          */
         Config::Set("path.plugin.$sPlugin.server", $sDir);
+        Config::Set("path.plugin.$sPlugin.template", self::GetTemplatePath($sPlugin));
                 
-        func_load_config($sDir . '/config/config.php', "plugin.$sPlugin");
-        func_load_config($sDir . '/config/config.'. Engine::GetEnvironment().'.php', "plugin.$sPlugin");
+        Config::setFromFile("plugin.$sPlugin", $sDir . '/config/config.php');
+        Config::setFromFile("plugin.$sPlugin", $sDir . '/config/config.'. Engine::GetEnvironment().'.php');
         
         /*
          * Подключаем include

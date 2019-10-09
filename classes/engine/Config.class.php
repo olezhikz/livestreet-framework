@@ -96,6 +96,34 @@ class Config
         $aConfig = include($sFile);
         return self::Load($aConfig, $bRewrite, $sInstance);
     }
+    
+    /**
+    * Загружает конфиг из файла используя ключ
+    * 
+    * @param string $sFileConfig 
+    * @param string $sKey plugin.name
+    */
+    static public function setFromFile($sKey, $sFileConfig){
+        if (!file_exists($sFileConfig)) {
+            return;
+        }
+
+        $config = array();
+        $aConfig = include($sFileConfig);
+        if (!empty($aConfig) && is_array($aConfig)) {
+            // Если конфиг этого модуля|плагина пуст, то загружаем массив целиком
+            if (!self::isExist($sKey)) {
+                self::Set($sKey, $aConfig);
+            } else {
+                // Если уже существую привязанные к модулю|плагину ключи,
+                // то сливаем старые и новое значения ассоциативно
+                self::Set(
+                    $sKey,
+                    func_array_merge_assoc(self::Get($sKey), $aConfig)
+                );
+            }
+        }
+    }
 
     /**
      * Load configuration array from given array

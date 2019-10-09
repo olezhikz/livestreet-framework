@@ -409,9 +409,6 @@ class Router extends LsObject
         
         self::$sActionEventName = $this->oAction->GetCurrentEventName();
         
-        $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_before");
-        $this->oAction->EventShutdown();
-        $this->Hook_Run("action_shutdown_" . strtolower($sActionClass) . "_after");
     }
     
     /**

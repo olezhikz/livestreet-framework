@@ -417,7 +417,7 @@ class ModuleComponent extends Module
             /**
              * Проверяем наличие компонента в общем каталоге плагина
              */
-            $sPathTemplate = Config::Get('path.application.plugins.server') . "/{$sPlugin}/frontend";
+            $sPathTemplate = Plugin::GetPath($sPlugin)."/frontend";
             if (file_exists($sPathTemplate . '/' . $sPath)) {
                 $aPaths[] = $sPathTemplate . '/' . $sPath;
             }
