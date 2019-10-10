@@ -64,7 +64,6 @@ $config['path']['framework']['web'] = '___path.root.web___/' . trim(str_replace(
  * Производные
  */
 $config['path']['application']['plugins']['server'] = '___path.application.server___/plugins';
-$config['path']['application']['plugins']['web'] = '___path.application.web___/plugins';
 
 $config['path']['framework']['frontend']['web'] = '___path.framework.web___/frontend/framework';
 $config['path']['skin']['web'] = '___path.application.web___/frontend/skin/___view.skin___';
@@ -103,7 +102,6 @@ $config['smarty']['force_compile'] = false; // Принудительно ком
  * Настройки плагинов
  */
 $config['sys']['plugins']['activation_file'] = 'plugins.dat'; // файл со списком активных плагинов в каталоге /plugins/
-$config['sys']['plugins']['namespace'] = 'LS\\Plugin\\'; // Пространство имен плагинов. Движок будет искать плагины в нем
 /**
  * Системные настройки модулей
  */

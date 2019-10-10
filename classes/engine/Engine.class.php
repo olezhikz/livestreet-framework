@@ -490,7 +490,7 @@ class Engine
      */
     protected function InitPluginHooks()
     {
-        if ($aPluginList = func_list_plugins()) {
+        if ($aPluginList = ModulePluginManager::listActive()) {
             $sDirHooks = Config::Get('path.application.plugins.server') . '/';
 
             foreach ($aPluginList as $sPluginName) {
@@ -516,7 +516,7 @@ class Engine
      */
     protected function LoadPlugins()
     {   
-        if ($aPluginList = func_list_plugins()) {  
+        if ($aPluginList = ModulePluginManager::listActive()) {  
             foreach ($aPluginList as $sPluginName) {   
                 $sClassName =  'Plugin' . ucfirst($sPluginName);
                 $oPlugin = new $sClassName();

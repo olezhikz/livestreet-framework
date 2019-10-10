@@ -143,6 +143,8 @@ class ModuleViewer extends Module
                 Config::LoadFromFile($sFile, false);
             }
         }
+        
+        
         /**
          * Разделитель заголовков страниц
          */

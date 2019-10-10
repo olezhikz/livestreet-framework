@@ -103,7 +103,8 @@ class Config
     * @param string $sFileConfig 
     * @param string $sKey plugin.name
     */
-    static public function setFromFile($sKey, $sFileConfig){
+    static public function setFromFile($sKey, $sFileConfig, $sInstance = self::DEFAULT_CONFIG_INSTANCE)
+    {
         if (!file_exists($sFileConfig)) {
             return;
         }
@@ -113,13 +114,14 @@ class Config
         if (!empty($aConfig) && is_array($aConfig)) {
             // Если конфиг этого модуля|плагина пуст, то загружаем массив целиком
             if (!self::isExist($sKey)) {
-                self::Set($sKey, $aConfig);
+                self::Set($sKey, $aConfig, $sInstance);
             } else {
                 // Если уже существую привязанные к модулю|плагину ключи,
                 // то сливаем старые и новое значения ассоциативно
                 self::Set(
                     $sKey,
-                    func_array_merge_assoc(self::Get($sKey), $aConfig)
+                    func_array_merge_assoc(self::Get($sKey), $aConfig), 
+                    $sInstance
                 );
             }
         }
@@ -168,7 +170,7 @@ class Config
             if ($bRewrite) {
                 $this->aConfig = $aConfig;
             } else {
-                $this->aConfig = $this->ArrayEmerge($this->aConfig, $aConfig);
+                $this->aConfig = func_array_merge_assoc($this->aConfig, $aConfig);
             }
             return true;
         }
@@ -363,18 +365,6 @@ class Config
     }
 
     /**
-     * Сливает ассоциативные массивы
-     *
-     * @param array $aArr1 Массив
-     * @param array $aArr2 Массив
-     * @return array
-     */
-    protected function ArrayEmerge($aArr1, $aArr2)
-    {
-        return array_replace_recursive($aArr1, $aArr2);
-    }
-
-    /**
      * Рекурсивный вариант array_keys
      *
      * @param  array $array Массив
@@ -384,46 +374,18 @@ class Config
     {
         if (!is_array($array)) {
             return false;
-        } else {
-            $keys = array_keys($array);
-            foreach ($keys as $k => $v) {
-                if ($append = $this->func_array_keys_recursive($array[$v])) {
-                    unset($keys[$k]);
-                    foreach ($append as $new_key) {
-                        $keys[] = $v . "." . $new_key;
-                    }
+        }
+            
+        $keys = array_keys($array);
+        foreach ($keys as $k => $v) {
+            if ($append = $this->func_array_keys_recursive($array[$v])) {
+                unset($keys[$k]);
+                foreach ($append as $new_key) {
+                    $keys[] = $v . "." . $new_key;
                 }
             }
-            return $keys;
         }
+        return $keys;
     }
-
-    /**
-     * Сливает два ассоциативных массива
-     *
-     * @param array $aArr1 Массив
-     * @param array $aArr2 Массив
-     * @return array
-     */
-    protected function func_array_merge_assoc($aArr1, $aArr2)
-    {
-        $aRes = $aArr1;
-        foreach ($aArr2 as $k2 => $v2) {
-            $bIsKeyInt = false;
-            if (is_array($v2)) {
-                foreach ($v2 as $k => $v) {
-                    if (is_int($k)) {
-                        $bIsKeyInt = true;
-                        break;
-                    }
-                }
-            }
-            if (is_array($v2) and !$bIsKeyInt and isset($aArr1[$k2])) {
-                $aRes[$k2] = $this->func_array_merge_assoc($aArr1[$k2], $v2);
-            } else {
-                $aRes[$k2] = $v2;
-            }
-        }
-        return $aRes;
-    }
+    
 }

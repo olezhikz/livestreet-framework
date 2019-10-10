@@ -210,7 +210,6 @@ class Router extends LsObject
      */
     public function Shutdown($bExit = true)
     { 
-        $this->AssignVars();
         $this->oEngine->Shutdown();
         if (is_callable(self::$fActionCallback)) {
             echo call_user_func(self::$fActionCallback);
@@ -324,18 +323,6 @@ class Router extends LsObject
                 unset($this->aConfigRoute['page'][$sPage]);
             }
         }
-    }
-
-    /**
-     * Загружает в шаблонизатор Smarty необходимые переменные
-     *
-     */
-    protected function AssignVars()
-    {
-        $this->Viewer_Assign('sAction', $this->Standart(self::$sAction));
-        $this->Viewer_Assign('sEvent', self::$sActionEvent);
-        $this->Viewer_Assign('aParams', self::$aParams);
-        $this->Viewer_Assign('PATH_WEB_CURRENT', func_urlspecialchars(self::$sPathWebCurrent));
     }
 
     /**

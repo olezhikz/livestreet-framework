@@ -51,7 +51,7 @@ class ModulePluginManager extends ModuleORM
     {
         parent::Init();
         
-        $this->sPluginsDir = Config::Get('path.application.server') . '/plugins/';
+        $this->sPluginsDir = Config::Get('path.application.server') . '/config/plugins/';
         
         $this->packages = new Packages\Packages(Config::Get('path.root.server') . '/vendor/composer/installed.json');
         $this->load();
@@ -296,33 +296,34 @@ class ModulePluginManager extends ModuleORM
      */
     public function RemovePlugin($sPlugin)
     {
-        $sPlugin = strtolower($sPlugin);
-        $aPluginItemsActive = $this->GetPluginsActive();
-        /**
-         * Если плагин активен, деактивируем его
-         */
-        if (in_array($sPlugin, $aPluginItemsActive)) {
-            if (!$this->DeactivatePlugin($sPlugin)) {
-                return false;
-            }
-        }
-        $sClassPlugin = 'Plugin' . func_camelize($sPlugin);
-        $oPlugin = new $sClassPlugin;
-        /**
-         * Сначала очищаем данные БД от плагина, а затем выполняем кастомный метод удаления плагина
-         */
-        if ($oPlugin->Remove()) {
-            /**
-             * Делаем откат изменений БД, которые делал плагин (откат миграций)
-             */
-            $this->PurgePluginUpdate($sPlugin);
-            /**
-             * Удаляем директорию с плагином
-             */
-            func_rmdir($this->sPluginsDir . $sPlugin);
-            return true;
-        }
-        return false;
+        return true;
+//        $sPlugin = strtolower($sPlugin);
+//        $aPluginItemsActive = $this->GetPluginsActive();
+//        /**
+//         * Если плагин активен, деактивируем его
+//         */
+//        if (in_array($sPlugin, $aPluginItemsActive)) {
+//            if (!$this->DeactivatePlugin($sPlugin)) {
+//                return false;
+//            }
+//        }
+//        $sClassPlugin = 'Plugin' . func_camelize($sPlugin);
+//        $oPlugin = new $sClassPlugin;
+//        /**
+//         * Сначала очищаем данные БД от плагина, а затем выполняем кастомный метод удаления плагина
+//         */
+//        if ($oPlugin->Remove()) {
+//            /**
+//             * Делаем откат изменений БД, которые делал плагин (откат миграций)
+//             */
+//            $this->PurgePluginUpdate($sPlugin);
+//            /**
+//             * Удаляем директорию с плагином
+//             */
+//            func_rmdir($this->sPluginsDir . $sPlugin);
+//            return true;
+//        }
+//        return false;
     }
     
     /**
@@ -419,7 +420,6 @@ class ModulePluginManager extends ModuleORM
          * Записываем данные в файл PLUGINS.DAT
          */
         
-        $this->Logger_Notice($this->sPluginsDir . Config::Get('sys.plugins.activation_file'));
         if (@file_put_contents($this->sPluginsDir . Config::Get('sys.plugins.activation_file'),
                 implode(PHP_EOL, $aPlugins)) !== false
         ) {
@@ -679,5 +679,23 @@ class ModulePluginManager extends ModuleORM
             usort($aVersions, $funcSort);
         }
         return $aVersions;
+    }
+    
+    /**
+     * Список активных плагинов
+     * @return array
+     */
+    public static function listActive() 
+    {
+        $sPluginsListFile = Config::Get('path.application.server') . '/config/plugins/' 
+                . Config::Get('sys.plugins.activation_file');
+
+        if(!file_exists($sPluginsListFile)){
+            return [];
+        }
+
+        $aPluginRaw =  @file($sPluginsListFile);
+
+        return $aPluginRaw = array_map('trim', $aPluginRaw);
     }
 }

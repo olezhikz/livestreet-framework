@@ -427,24 +427,20 @@ function func_array_sort_by_keys($array, $aKeys)
  */
 function func_array_merge_assoc($aArr1, $aArr2)
 {
-    $aRes = $aArr1;
-    foreach ($aArr2 as $k2 => $v2) {
-        $bIsKeyInt = false;
-        if (is_array($v2)) {
-            foreach ($v2 as $k => $v) {
-                if (is_int($k)) {
-                    $bIsKeyInt = true;
-                    break;
-                }
-            }
-        }
-        if (is_array($v2) and !$bIsKeyInt and isset($aArr1[$k2])) {
-            $aRes[$k2] = func_array_merge_assoc($aArr1[$k2], $v2);
-        } else {
-            $aRes[$k2] = $v2;
-        }
-    }
-    return $aRes;
+    /*
+    * Объект слияния массивов с доп функциями
+    */
+    $merger = new \Ckr\Util\ArrayMerger($aArr1, $aArr2);
+    /*
+     * Не перезаписывать значения с числовыми ключами
+     */
+    $merger->overwriteNumericKey(false);
+    /*
+     * Убирать дубликаты значений с числовыми ключами
+     */
+    $merger->preventDoubleValuesWhenAppendingNumericKeys(true);
+
+    return $merger->mergeData();
 }
 
 
@@ -513,45 +509,6 @@ function func_camelize($sStr)
         $sCamelized .= ucfirst($sPart);
     }
     return $sCamelized;
-}
-
-
-function func_list_plugins($bAll = false)
-{
-    $sPluginsDir = Config::Get('path.application.plugins.server');
-    $sPluginsListFile = $sPluginsDir . '/' . Config::Get('sys.plugins.activation_file');
-    
-    if(!file_exists($sPluginsListFile)){
-        return [];
-    }
-    
-    $aPluginRaw =  @file($sPluginsListFile);
-    
-    return $aPluginRaw = array_map('trim', $aPluginRaw);
-//    $aPlugin = array();
-//    if ($bAll) {
-//        $aPluginRaw = array();
-//        $aPaths = glob("$sPluginsDir/*", GLOB_ONLYDIR);
-//        if ($aPaths) {
-//            foreach ($aPaths as $sPath) {
-//                $aPluginRaw[] = basename($sPath);
-//            }
-//        }
-//    } else {
-//        if ($aPluginRaw = @file($sPluginsListFile)) {
-//            $aPluginRaw = array_map('trim', $aPluginRaw);
-//            $aPluginRaw = array_unique($aPluginRaw);
-//        }
-//    }
-//    if ($aPluginRaw) {
-//        foreach ($aPluginRaw as $sPlugin) {
-//            $sPluginXML = "$sPluginsDir/$sPlugin/plugin.xml";
-//            if (is_file($sPluginXML)) {
-//                $aPlugin[] = $sPlugin;
-//            }
-//        }
-//    }
-//    return $aPlugin;
 }
 
 function func_convert_entity_to_array(Entity $oEntity, $aMethods = null, $sPrefix = '')

@@ -98,16 +98,4 @@ if (file_exists(Config::Get('path.application.server') . "/config/config.{$sEnvi
  */
 Engine::getInstance()->LoadConfigPlugins();
 
-foreach (Engine::getInstance()->GetPlugins() as $sPlugin => $oPlugin) {
-    /**
-    * Смотрим конфиг плагина в /application/config/plugins/[plugin_name]/config.php
-    */
-    $sFileUserConfig = Config::get('path.application.server') . "/config/plugins/{$sPlugin}/config.php";
-    Config::setFromFile("plugin.$sPlugin", $sFileUserConfig);
-    /**
-     * Смотрим конфиг плагина текущего окружения в /application/config/plugins/[plugin_name]/config.[environment].php
-     */
-    $sFileUserConfig = Config::get('path.application.server') . "/config/plugins/{$sPlugin}/config.{$sEnvironmentCurrent}.php";
-    Config::setFromFile("plugin.$sPlugin", $sFileUserConfig);
-}
 

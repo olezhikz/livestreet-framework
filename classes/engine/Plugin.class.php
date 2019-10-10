@@ -106,13 +106,24 @@ abstract class Plugin extends LsObject
         
         $sPlugin = strtolower(str_replace('Plugin', '', $rc->getShortName()));
         /*
-         * Добавляем путь до плаина в конфиг
+         * Добавляем путь до плагина в конфиг
          */
         Config::Set("path.plugin.$sPlugin.server", $sDir);
         Config::Set("path.plugin.$sPlugin.template", self::GetTemplatePath($sPlugin));
                 
         Config::setFromFile("plugin.$sPlugin", $sDir . '/config/config.php');
         Config::setFromFile("plugin.$sPlugin", $sDir . '/config/config.'. Engine::GetEnvironment().'.php');
+        
+        /**
+        * Смотрим конфиг плагина в /application/config/plugins/[plugin_name]/config.php
+        */
+        $sFileUserConfig = Config::get('path.application.server') . "/config/plugins/{$sPlugin}/config.php";
+        Config::setFromFile("plugin.$sPlugin", $sFileUserConfig);
+        /**
+        * Смотрим конфиг плагина текущего окружения в /application/config/plugins/[plugin_name]/config.[environment].php
+        */
+        $sFileUserConfig = Config::get('path.application.server') . "/config/plugins/{$sPlugin}/config.".Engine::GetEnvironment().".php";
+        Config::setFromFile("plugin.$sPlugin", $sFileUserConfig);
         
         /*
          * Подключаем include

@@ -359,10 +359,19 @@ abstract class Action extends LsObject
         foreach ($this->aVars as $key => $value) {
             $this->Viewer_Assign($key, $value);
         }
+        
+        $this->Viewer_Assign('sAction', Router::getInstance()->Standart(Router::GetAction()));
+        $this->Viewer_Assign('sEvent', Router::GetActionEvent());
+        $this->Viewer_Assign('aParams', Router::GetParams());
+        $this->Viewer_Assign('PATH_WEB_CURRENT', func_urlspecialchars(Router::GetPathWebCurrent()));
+        
         return $this->Viewer_Fetch($this->sActionTemplate);
     }
     
     protected function fetchAjax() {
+        /*
+         * todo: Исключить объявление объекта Viewer, Component если не будет выводиться шаблон
+         */
         $this->response = $this->response->withHeader('Content-type', 'application/json');
         
         /**

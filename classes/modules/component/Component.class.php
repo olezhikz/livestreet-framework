@@ -61,8 +61,7 @@ class ModuleComponent extends Module
     public function Init()
     {
         $this->InitComponentsList();
-        
-                
+          
     }
 
     /**
@@ -72,6 +71,7 @@ class ModuleComponent extends Module
     {       
         /*
         * Конфиг скинов должен загрузиться раньше инициализации компонентов
+         * todo: Убрать это недоразумение
         */
         if(!Engine::getInstance()->isInitModule('ModuleViewer')){
             $this->Viewer_GetHtmlTitleSeparation();
