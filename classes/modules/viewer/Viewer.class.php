@@ -127,6 +127,11 @@ class ModuleViewer extends Module
      * @var ModuleViewer_EntityOpenGraph
      */
     protected $oOpenGraph = array();
+    /**
+     *
+     * @var bool 
+     */
+    protected $isLoad = false;
 
     /**
      * Инициализация модуля
@@ -312,7 +317,7 @@ class ModuleViewer extends Module
     }
     
     public function Fetch($sTemplate) {
-        
+
         $this->Load();
         /**
          * Если шаблон найден то выводим, иначе ошибка
@@ -847,8 +852,7 @@ class ModuleViewer extends Module
      */
     protected function BuildHeadFiles()
     {
-        $this->Component_LoadAll();
-        
+       
         $this->Asset_Load();
         
         $this->SetHtmlHeadFiles([
@@ -1058,7 +1062,7 @@ class ModuleViewer extends Module
         $iNextPage = $iCurrentPage < $iCountPage ? $iCurrentPage + 1 : false;
         $iPrevPage = $iCurrentPage > 1 ? $iCurrentPage - 1 : false;
 
-        $sGetParams = '';
+        $sGetParams = '';  
         if (is_string($aGetParamsList) or count($aGetParamsList)) {
             $sGetParams = '?' . (is_array($aGetParamsList) ? http_build_query($aGetParamsList, '',
                     '&') : $aGetParamsList);
@@ -1453,6 +1457,11 @@ class ModuleViewer extends Module
     }
     
     public function Load() {
+        
+        if($this->isLoad){
+            return;
+        }
+        
         $this->Hook_Run('viewer_load');
         /**
          * Получаем настройки блоков из конфигов
@@ -1476,8 +1485,8 @@ class ModuleViewer extends Module
         /**
          * Рендерим меню для шаблонов и передаем контейнеры в шаблон
          */
-        $this->BuildMenu();
-        $this->MenuVarAssign();
+//        $this->BuildMenu();
+//        $this->MenuVarAssign();
         /**
          * Через хук добавляем данные Open Graph
          */
@@ -1485,6 +1494,8 @@ class ModuleViewer extends Module
         $this->Hook_AddExecFunction('template_html_head_end', function () use ($_this) {
             return $_this->GetOpenGraph()->render();
         }, 10000);
+        
+        $this->isLoad = true;
     }
 
     /**

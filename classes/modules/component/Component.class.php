@@ -60,7 +60,6 @@ class ModuleComponent extends Module
      */
     public function Init()
     {
-        $this->InitComponentsList();
           
     }
 
@@ -71,17 +70,12 @@ class ModuleComponent extends Module
     {       
         /*
         * Конфиг скинов должен загрузиться раньше инициализации компонентов
-         * todo: Убрать это недоразумение
         */
-        if(!Engine::getInstance()->isInitModule('ModuleViewer')){
-            $this->Viewer_GetHtmlTitleSeparation();
-        }
         
         if ($aList = Config::Get('components') and is_array($aList)) {
             
-            
             func_array_simpleflip($aList, array());
-            $this->aComponentsList = array_merge_recursive($this->aComponentsList, $aList);
+            $this->aComponentsList = array_merge_recursive($aList, $this->aComponentsList);
         }
     }
 
@@ -91,6 +85,7 @@ class ModuleComponent extends Module
      */
     public function LoadAll()
     {
+        $this->InitComponentsList();
         /**
          * Подгрузка из кеша данных компонентов
          */
@@ -99,7 +94,6 @@ class ModuleComponent extends Module
          * Для каждого компонента считываем данные из json
          */
         $aComponentsName = array_keys($this->aComponentsList);
-        
         /**
          * Подключаем каждый компонент
          */
