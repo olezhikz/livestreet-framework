@@ -5,9 +5,10 @@
  
 {block 'options'}
     {component_define_params params=[ 
-        'attr',  
+        'attributes',  
         'classes',
-        'mods'
+        'mods',
+        'popover'
     ]}
 {/block}
 

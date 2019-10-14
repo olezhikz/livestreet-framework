@@ -31,19 +31,37 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
 {
     if (isset($aParams['params'])) {
         if (is_array($aParams['params'])) {
-            $aComponentParams = $aParams['params'];
+            $aDefineParams = $aParams['params'];
         } 
     } else {
         trigger_error("component_define_params: missing 'params' parameter", E_USER_WARNING);
         return;
     }
-    print_r($aComponentParams);
-    foreach ($aComponentParams as $key => $mValue) {
-        $mVar = $oSmarty->getTemplateVars($key);
-        if (!$mVar) {
-            $oSmarty->assign($key, $mValue);
+    
+    $aVars = $oSmarty->getTemplateVars('component_vars');
+    
+    foreach ($aDefineParams as $key => $mValue) {
+        
+        if(is_int($key) && isset($aVars[$mValue])){
+            $oSmarty->assign($mValue, $aVars[$mValue]);
+            continue;
         }
+        
+        if(!is_int($key)){
+            if(isset($aVars[$key])){
+                $oSmarty->assign($key, $aVars[$key]);
+            }else{
+                $oSmarty->assign($key, $mValue);
+            }
+        }
+        
     }
+    /*
+     * Устанавливаем результирующий список параметров компонента
+     */
+    $aComponentParams = $oSmarty->getTemplateVars('component_params');
+    $aDefineParams = array_merge(is_array($aComponentParams)?$aComponentParams:[], $aDefineParams);
+    $oSmarty->assign('component_params', $aDefineParams);
 
     return false;
 }

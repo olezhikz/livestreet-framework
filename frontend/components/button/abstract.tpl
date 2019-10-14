@@ -7,7 +7,7 @@
 
 {block 'options' append}
     {component_define_params params=[ 
-        'text', 
+        'text',
         'disabled'
     ]}
 {/block}
