@@ -1,7 +1,0 @@
-{
-    "name": "list-group",
-    "version": "1.0.0",
-    "templates": {
-        "list-group": "list-group.tpl"
-    }
-}

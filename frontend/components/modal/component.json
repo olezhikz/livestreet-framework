@@ -1,7 +1,0 @@
-{
-    "name": "modal",
-    "version": "1.0.0",
-    "templates": {
-        "modal": "modal.tpl"
-    }
-}

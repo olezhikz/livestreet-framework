@@ -1,0 +1,11 @@
+{
+    "name": "component",
+    "templates": {
+        "abstract": "abstract.tpl"
+    },
+    "assets": {
+        "js": {
+            "component": "js/component.js"
+        }
+    }
+}

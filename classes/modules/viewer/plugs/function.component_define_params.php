@@ -37,7 +37,7 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
         trigger_error("component_define_params: missing 'params' parameter", E_USER_WARNING);
         return;
     }
-    
+    print_r($aComponentParams);
     foreach ($aComponentParams as $key => $mValue) {
         $mVar = $oSmarty->getTemplateVars($key);
         if (!$mVar) {

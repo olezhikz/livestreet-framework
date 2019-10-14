@@ -1,8 +1,0 @@
-{
-    "name": "navbar",
-    "version": "1.0.0",
-    
-    "templates": {
-        "navbar": "navbar.tpl"
-    }
-}
