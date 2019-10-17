@@ -87,8 +87,6 @@ class ModuleMessage extends Module
         $this->Session_Set('message_notice_session', $this->GetNoticeSession());
         $this->Session_Set('message_error_session', $this->GetErrorSession());
 
-        $this->Viewer_Assign('aMsgError', $this->GetError());
-        $this->Viewer_Assign('aMsgNotice', $this->GetNotice());
     }
 
     /**

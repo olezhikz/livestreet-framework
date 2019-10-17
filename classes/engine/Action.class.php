@@ -332,9 +332,7 @@ abstract class Action extends LsObject
                     case self::RESPONSE_TYPE_JSON_IFRAME:
                             $result = $this->fetchJSONIframe();
                         break;
-                    default:
-                            $result = $this->fetchHTML($result);
-                        break;
+                   
                 }
                 
                 $this->response->getBody()->write( $result );
@@ -352,13 +350,20 @@ abstract class Action extends LsObject
      */
     protected function fetchHTML($result = null) {
         $this->response = $this->response->withHeader('Content-type', 'text/html; charset=utf-8');
+        
         if($result){
             return $result;
         }
         
+        $this->Hook_Run("action_fetch_html_before",
+                array('event' => $this->sCurrentEvent, 'params' => $this->GetParams()));
+        
         foreach ($this->aVars as $key => $value) {
             $this->Viewer_Assign($key, $value);
         }
+        
+        $this->Viewer_Assign('aMsgError', $this->Message_GetError());
+        $this->Viewer_Assign('aMsgNotice', $this->Message_GetNotice());
         
         $this->Viewer_Assign('sAction', Router::getInstance()->Standart(Router::GetAction()));
         $this->Viewer_Assign('sEvent', Router::GetActionEvent());
@@ -369,9 +374,7 @@ abstract class Action extends LsObject
     }
     
     protected function fetchAjax() {
-        /*
-         * todo: Исключить объявление объекта Viewer, Component если не будет выводиться шаблон
-         */
+        
         $this->response = $this->response->withHeader('Content-type', 'application/json');
         
         /**

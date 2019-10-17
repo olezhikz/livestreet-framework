@@ -149,7 +149,6 @@ class ModuleViewer extends Module
             }
         }
         
-        
         /**
          * Разделитель заголовков страниц
          */
