@@ -403,13 +403,12 @@ class Router extends LsObject
      * @return Psr7\ServerRequest
      */
     protected function createRequest() {
-        $request =  \GuzzleHttp\Psr7\ServerRequest::fromGlobals();
         
-        $request = $request->withAttribute('action', self::GetAction());
-        $request = $request->withAttribute('event', self::GetActionEvent());
-        $request = $request->withAttribute('params', self::GetParams());
+        return \PhpComp\Http\Message\HttpFactory::createServerRequestFromArray($_SERVER, LS\HTTP\Request::class)
+                ->withAttribute('action', self::GetAction())
+                ->withAttribute('event', self::GetActionEvent())
+                ->withAttribute('params', self::GetParams());
         
-        return $request;
     }
     
     /**
@@ -417,7 +416,7 @@ class Router extends LsObject
      * @return Psr7\ServerRequest
      */
     protected function createResponse() {
-        self::$response =  new \GuzzleHttp\Psr7\Response(
+        self::$response = \PhpComp\Http\Message\HttpFactory::createResponse(
             200
         );
         
