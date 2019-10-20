@@ -119,7 +119,14 @@ class ModuleLogger extends Module
                     $sFormatterName = ucfirst(array_shift($aFormatter));
                     $oRefClass = new ReflectionClass("Monolog\\Formatter\\{$sFormatterName}Formatter");
                     $oFormatter = $oRefClass->newInstanceArgs($aFormatter);
+                    
+                    
+                    if($sFormatterName == "Line" and Config::Get('sys.logs.include_stack_traces')){
+                        $oFormatter->includeStacktraces(true);
+                    }
+                    
                     $oHandler->setFormatter($oFormatter);
+                    
                 }
             }
             /**

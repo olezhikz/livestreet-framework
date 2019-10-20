@@ -26,7 +26,7 @@
         "narrowspark/http-emitter":"0.8.0",
         "olegdemidov/composer-packages":"dev-master",
         "ckr/arraymerger":"2.0.0",
-        "livestreet/http-message": "dev-master"
+        "php-comp/http-message": "v1.4.1"
     },
     "autoload": {
         "psr-4" : {

@@ -168,6 +168,7 @@ $config['sys']['logs']['sql_error'] = true;            // логировать �
 $config['sys']['logs']['sql_error_file'] = 'sql_error.log'; // файл лога ошибок SQL
 $config['sys']['logs']['cron'] = true;            // логировать или нет cron скрипты
 $config['sys']['logs']['php'] = true;            // логировать или нет PHP ошибки
+$config['sys']['logs']['include_stack_traces'] = true;            // Выводить весь стек ошибки
 $config['sys']['logs']['console'] = false;            // позволяет удобно выводить отладочную информацию через консоль браузера
 $config['sys']['logs']['format'] = "[%datetime%] %channel%.%level_name% %extra.process_id% %extra.uid%: %message% %context%\n"; // Дефолтный формат логов
 /**
