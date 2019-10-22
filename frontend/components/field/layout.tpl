@@ -13,7 +13,7 @@
  *  @param string  $readonly
  *}
  
-{extends "component@component.abstract"}
+{extends "component@component.layout"}
 
 {block 'options' append}
     {component_define_params params=[ 

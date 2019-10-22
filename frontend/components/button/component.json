@@ -1,6 +1,7 @@
 {
     "name": "button",
     "templates": {
-        "abstract": "abstract.tpl"
+        "layout": "layout.tpl",
+        "docs": "docs.tpl"
     }
 }

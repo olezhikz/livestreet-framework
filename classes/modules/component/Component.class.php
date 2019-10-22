@@ -274,6 +274,7 @@ class ModuleComponent extends Module
     public function GetTemplatePath($sNameFull, $sTemplate = null, $bCheckDelegate = true)
     {
         list($sPlugin, $sName, $sTemplateParse) = $this->ParseName($sNameFull);
+        
         /**
          * По дефолту используем в качестве имени шаблона название компонента
          */
@@ -309,11 +310,12 @@ class ModuleComponent extends Module
                 $sTpl = "{$sTemplate}.tpl";
             }
             $sFile = $sPath . '/' . $sTpl;
+
             if (file_exists($sFile)) {
                 return $sFile;
             }
         }
-        return false;
+        throw new OutOfRangeException("Template {$sNameFull} not found");
     }
 
     /**

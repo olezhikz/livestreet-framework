@@ -101,7 +101,7 @@ abstract class Action extends LsObject
      */
     protected $sCurrentAction = null;
     /**
-     * @var Psr\Http\Message\ServerRequestInterface 
+     * @var PhpComp\Http\Message\ServerRequest
      */
     protected $request;
     /**
@@ -370,7 +370,7 @@ abstract class Action extends LsObject
         $this->Viewer_Assign('aParams', Router::GetParams());
         $this->Viewer_Assign('PATH_WEB_CURRENT', func_urlspecialchars(Router::GetPathWebCurrent()));
         
-        return $this->Viewer_Fetch($this->sActionTemplate);
+        return $this->Viewer_Fetch($this->GetTemplate());
     }
     
     protected function fetchAjax() {
@@ -521,6 +521,9 @@ abstract class Action extends LsObject
         return $this->aParams;
     }
 
+    protected function getRequest($key) {
+        return $this->request->getParam($key);
+    }
 
     /**
      * Установить значение параметра(эмуляция параметра в URL).

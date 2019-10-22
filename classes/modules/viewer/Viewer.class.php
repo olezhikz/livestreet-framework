@@ -475,20 +475,14 @@ class ModuleViewer extends Module
      */
     public function AddBlock($sGroup, $sName, $aParams = array(), $iPriority = 5)
     {
-        /**
-         * Если не указана директория шаблона, но указана приналежность к плагину,
-         * то "вычисляем" правильную директорию
-         */
-        if (!isset($aParams['dir']) and isset($aParams['plugin'])) {
-            $aParams['dir'] = Plugin::GetTemplatePath($aParams['plugin']);
-        }
+        
         /**
          * Если смогли определить тип блока то добавляем его
          */
-        $sType = $this->DefineTypeBlock($sName, isset($aParams['plugin']) ? $aParams['plugin'] : null);
+        $sType = $this->DefineTypeBlock($sName);
         if ($sType == 'undefined') {
             return false;
-        }
+        } 
         /**
          * Если тип "template" и есть параметр "dir", то получаем полный путь до шаблона
          */
@@ -587,20 +581,14 @@ class ModuleViewer extends Module
      * Определяет тип блока
      *
      * @param string $sName Название блока
-     * @param string|null $sPlugin код плагина, если блок принадлежит плагину
      * @return string ('block','template','undefined')
      */
-    protected function DefineTypeBlock($sName, $sPlugin = null)
+    protected function DefineTypeBlock($sName)
     {
-        $sDir = $sPlugin ? Plugin::GetTemplatePath($sPlugin) : null;
-        /**
-         * Если ли обработчик блока?
-         */
-        $sClassBlock = ($sPlugin ? 'Plugin' . func_camelize($sPlugin) . '_' : '') . 'Block' . func_camelize($sName);
-        if (class_exists($sClassBlock)) {
+        if (class_exists($sName)) {
             return 'block';
         }
-        if ($this->TemplateExists(is_null($sDir) ? $sName : rtrim($sDir, '/') . '/' . ltrim($sName, '/'))) {
+        if ($this->TemplateExists( $sName )) {
             /**
              * Если найден шаблон по имени блока то считаем его простым шаблоном
              */
@@ -791,58 +779,6 @@ class ModuleViewer extends Module
             uasort($aBlocks, array($this, '_SortBlocks'));
             $this->aBlocks[$sGroup] = array_reverse($aBlocks);
         }
-    }
-
-    /**
-     * Добавляет js файл в конец списка
-     *
-     * @param $sJs    Файл js
-     * @param array $aParams Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo' для исключения повторного добавления файла с таким именем
-     * @param bool $bReplace Заменять файл или нет
-     * @return bool
-     */
-    public function AppendScript($sJs, $aParams = array(), $bReplace = false)
-    {
-//        return $this->Asset_AddJs($sJs, $aParams, false, $bReplace);
-    }
-
-    /**
-     * Добавляет js файл в начало списка
-     *
-     * @param $sJs    Файл js
-     * @param array $aParams Параметры, например, можно указать параметр 'name'=>'jquery.plugin.foo' для исключения повторного добавления файла с таким именем
-     * @param bool $bReplace Заменять файл или нет
-     * @return bool
-     */
-    public function PrependScript($sJs, $aParams = array(), $bReplace = false)
-    {
-//        return $this->Asset_AddJs($sJs, $aParams, true, $bReplace);
-    }
-
-    /**
-     * Добавляет css файл в конец списка
-     *
-     * @param $sCss    Файл css стилей
-     * @param array $aParams Параметры, например, можно указать параметр 'name'=>'blueprint' для исключения повторного добавления файла с таким именем
-     * @param bool $bReplace Заменять файл или нет
-     * @return bool
-     */
-    public function AppendStyle($sCss, $aParams = array(), $bReplace = false)
-    {
-        return $this->Asset_AddCss($sCss, $aParams,  $bReplace);
-    }
-
-    /**
-     * Добавляет css файл в начало списка
-     *
-     * @param $sCss    Файл css стилей
-     * @param array $aParams Параметры, например, можно указать параметр 'name'=>'blueprint' для исключения повторного добавления файла с таким именем
-     * @param bool $bReplace Заменять файл или нет
-     * @return bool
-     */
-    public function PrependStyle($sCss, $aParams = array(), $bReplace = false)
-    {
-        return $this->Asset_AddCss($sCss, $aParams,  $bReplace);
     }
 
     /**
