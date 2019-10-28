@@ -1,8 +1,8 @@
 {
-    "name": "button",
+    "name": "badge",
+    "version": "1.0.0",
     "templates": {
         "layout": "layout.tpl",
-        "layout-group": "layout-group.tpl",
         "docs": "docs.tpl"
     }
 }

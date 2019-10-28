@@ -1,8 +1,7 @@
 {
-    "name": "button",
+    "name": "icon",
     "templates": {
         "layout": "layout.tpl",
-        "layout-group": "layout-group.tpl",
         "docs": "docs.tpl"
     }
 }
