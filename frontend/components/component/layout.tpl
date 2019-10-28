@@ -9,6 +9,8 @@
  * @param string  $tag              Тег основного элемента
  *}
  
+{block name="before_options"}{/block}
+ 
 {block 'options'}
     {component_define_params params=[ 
         'attr',  
@@ -40,6 +42,8 @@
     
 {/block}
 
+{block name="before_content"}{/block}
 
 {block name="content"}{/block}
 
+{block name="after_content"}{/block}
