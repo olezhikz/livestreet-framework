@@ -2,6 +2,8 @@
     "name": "nav",
     "version": "1.0.0",
     "templates": {
-        "layout": "layout.tpl"
+        "layout": "layout.tpl",
+        "item-layout": "item-layout.tpl",
+        "docs": "docs.tpl"
     }
 }
