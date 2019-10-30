@@ -2,15 +2,17 @@
  * Карточка
  *
  * @param mixed   $content         Содержание
- * @param mixed   $title           Текст оповещения
+ * @param mixed   $header          Заоловок
+ * @param mixed   $footer          Подвал
  *}
 
 {extends "component@component.layout"}
 
 {block 'options' append}
     {component_define_params params=[ 
-        'title'
-        'text' 
+        'header',
+        'content',
+        'footer'
     ]}
 {/block}
 

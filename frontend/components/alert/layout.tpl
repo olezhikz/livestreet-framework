@@ -9,8 +9,9 @@
 
 {block 'options' append}
     {component_define_params params=[ 
-        'title'
-        'text' 
+        'title',
+        'text',
+        'dismissible'
     ]}
 {/block}
 

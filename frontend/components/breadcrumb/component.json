@@ -1,0 +1,8 @@
+{
+    "name": "breadcrumb",
+    "version": "1.0.0",
+    "templates": {
+        "layout": "layout.tpl",
+        "docs": "docs.tpl"
+    }
+}

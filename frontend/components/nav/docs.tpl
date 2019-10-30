@@ -10,7 +10,7 @@
 
     {capture 'test_example_content'}
         {component 'nav' 
-            mods="primary" 
+            mods="pills" 
             activeItem='second' 
             items=[
                 [
@@ -27,7 +27,8 @@
                 ],
                 [
                     text => 'Четвертй пункт',
-                    name => 'other4'
+                    name => 'other4',
+                    disabled => true
                 ]
             ]}
         
@@ -35,7 +36,7 @@
 
     {capture 'test_example_code'}
         {ldelim}component 'nav' 
-            mods="primary" 
+            mods="pills" 
             activeItem='second' 
             items=[
                 [
@@ -52,13 +53,13 @@
                 ],
                 [
                     text => 'Четвертй пункт',
-                    name => 'other4'
+                    name => 'other4',
+                    disabled => true
                 ],
             ]{rdelim}
        
     {/capture}
 
     {test_example content=$smarty.capture.test_example_content code=$smarty.capture.test_example_code}
-
-
+   
 {/block}
