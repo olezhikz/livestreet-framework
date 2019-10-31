@@ -15,20 +15,24 @@
  *
  * @link http://www.livestreetcms.com
  * @copyright 2013 OOO "ЛС-СОФТ"
- * @author Maxim Mzhelskiy <rus.engine@gmail.com>
+ * @author Oleg Demidov
  *
  */
 
 /**
- * Модификатор declension: склонение существительных в зависимости от множественного числа
- *
- * @param      $iCount
- * @param      $mForms
- * @param null $sLang
- *
- * @return mixed
+ * Плагин для смарти
+ * Подключает шаблон компонента блоком
+ * 
+ * @param type $aParams
+ * @param type $sContent
+ * @param type $oSmarty
+ * @param type $bRepeat
+ * @return type
  */
-function smarty_prefilter_default_name_argment($source, &$smarty)
-{    echo "33";
-   return preg_replace('\{component\s{2}\"', '{component name="', $source);
+function smarty_block_componentb($aParams, $sContent, &$oSmarty, &$bRepeat)
+{
+    if($sContent){
+        $aParams['content'] = $sContent;
+        return smarty_function_component($aParams, $oSmarty);
+    }
 }

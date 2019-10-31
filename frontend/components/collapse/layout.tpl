@@ -6,11 +6,10 @@
 
  *}
  
-{extends "component@component.layout"}
+{extends "component@button.layout"}
 
 {block 'options' append}
     {component_define_params params=[ 
-        'button',
         'content'
     ]}
 {/block}

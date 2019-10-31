@@ -8,7 +8,8 @@
     {test_heading text='Коллапс'}
 
     {capture 'test_example_content'}
-        {component 'collapse' button="Свернуть" content="Сворачиваемы контент"}
+{*        {component 'collapse' button="Свернуть" content="Сворачиваемы контент"}*}
+        {componentb 'collapse' button="Свернуть" }ss{/componentb}
     {/capture}
 
     {capture 'test_example_code'}
