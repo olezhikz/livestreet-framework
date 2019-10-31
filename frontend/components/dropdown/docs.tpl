@@ -6,18 +6,29 @@
 {block 'content'}
     
     
-    {test_heading text='Значки'}
+    {test_heading text='Выпадаеющее меню'}
 
     {capture 'test_example_content'}
-        {component 'badge' mods="success" text='user'}
-        {component 'badge' mods="primary" text='22'}
-        {component 'badge' mods="danger" text={component 'icon' icon='user'}}
+        {component 'dropdown' 
+            mods = "success" 
+            text = 'Dropdown'
+            items = [
+                [
+                    text => "item 1"
+                ]
+            ]}
+        
     {/capture}
 
     {capture 'test_example_code'}
-        {ldelim}component 'badge' mods="success" text='user'{rdelim}
-        {ldelim}component 'badge' mods="primary" text='22'{rdelim}
-        {ldelim}component 'badge' mods="danger" text={ldelim}component 'icon' icon='user'{rdelim}{rdelim}
+        {ldelim}component 'dropdown' 
+            mods = "success" 
+            text = 'Dropdown'
+            items = [
+                [
+                    text => "item 1"
+                ]
+            ]{rdelim}
     
     {/capture}
 

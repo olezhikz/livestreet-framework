@@ -5,10 +5,14 @@
  * @param mixed   $text           Текст оповещения
  *}
 
-{extends "component@button.layout"}
+{extends "component@component.layout"}
 
 {block 'options' append}
     {component_define_params params=[ 
-        'items'
+        'items',
+        'text',
+        'disabled',
+        'icon',
+        'badge'
     ]}
 {/block}
