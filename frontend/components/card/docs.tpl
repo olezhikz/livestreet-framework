@@ -13,6 +13,11 @@
             content = 'Содержание карточки' 
             header  = "Верхняя часть карточки"
             footer  = "Подвал"}
+        <br>
+        {component 'card' 
+            body    = 'Содержание карточки в теле' 
+            header  = "Верхняя часть карточки"
+            footer  = "Подвал"}
     {/capture}
 
     {capture 'test_example_code'}
@@ -20,6 +25,18 @@
             content = 'Содержание карточки' 
             header  = "Верхняя часть карточки"
             footer  = "Подвал"{rdelim}
+            
+        {ldelim}component 'card' 
+            body    = 'Содержание карточки в теле' 
+            header  = "Верхняя часть карточки"
+            footer  = "Подвал"{rdelim}
+            
+        {ldelim}cblock 'card' 
+            header  = "Верхняя часть карточки"
+            footer  = "Подвал"{rdelim}
+            Содержание карточки
+        {ldelim}/cblock{rdelim}
+            
     
     {/capture}
 

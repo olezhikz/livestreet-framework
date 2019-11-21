@@ -1,7 +1,8 @@
 {**
  * Коллапс
  *
- * @param mixed   $button       Текст кнопки или массив с параметрами кнопки
+ * @param mixed   $text         Текст кнопки или массив с параметрами кнопки
+ * @param mixed   $toggle       Кнопка со всеми атрибутами
  * @param string  $content      Содержание
 
  *}
@@ -10,6 +11,9 @@
 
 {block 'options' append}
     {component_define_params params=[ 
-        'content'
+        'text',
+        'toggle',
+        'content',
+        'id'
     ]}
 {/block}

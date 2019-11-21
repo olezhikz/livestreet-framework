@@ -8,12 +8,13 @@
     {test_heading text='Коллапс'}
 
     {capture 'test_example_content'}
-{*        {component 'collapse' button="Свернуть" content="Сворачиваемы контент"}*}
-        {componentb 'collapse' button="Свернуть" }ss{/componentb}
+{*        {component 'collapse' text="Свернуть" content="Сворачиваемы контент"}*}
+        {cblock 'collapse' text="Свернуть" }Сворачиваемы контент{/cblock}
     {/capture}
 
     {capture 'test_example_code'}
-        {ldelim}component 'collapse' button="Свернуть" content="Сворачиваемы контент"{rdelim}
+        {ldelim}component 'collapse' text="Свернуть" content="Сворачиваемы контент"{rdelim}
+        {ldelim}cblock 'collapse' text="Свернуть" {rdelim}Сворачиваемы контент{ldelim}/cblock{rdelim}
     
     {/capture}
 

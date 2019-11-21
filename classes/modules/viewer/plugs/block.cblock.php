@@ -29,7 +29,7 @@
  * @param type $bRepeat
  * @return type
  */
-function smarty_block_componentb($aParams, $sContent, &$oSmarty, &$bRepeat)
+function smarty_block_cblock($aParams, $sContent, &$oSmarty, &$bRepeat)
 {
     if($sContent){
         $aParams['content'] = $sContent;
