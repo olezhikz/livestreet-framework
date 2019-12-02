@@ -53,7 +53,7 @@ function smarty_function_hook($aParams, &$oSmarty)
         }
     }
     $aResultHook = Engine::getInstance()->Hook_Run($sHookName, $bUseArray ? $aArgsRef : $aParams);
-
+    
     if ($bUseArray) {
         /**
          * Если хуку необходимо вернуть результат в виде массива
@@ -87,7 +87,7 @@ function smarty_function_hook($aParams, &$oSmarty)
     }
 
     if (!empty($aParams['assign'])) {
-        $oSmarty->assign($aParams['assign'], $mReturn);
+        $oSmarty->assign($aParams['assign'], $mReturn, true);
     } else {
         return $mReturn;
     }

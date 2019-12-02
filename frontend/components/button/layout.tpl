@@ -26,10 +26,6 @@
     
     {$role = $role|default:"button"}
     
-{/block}
-
-{block "after_options" append}
-    
     {if $form}
         {$attr['form'] = $form}
     {/if}
@@ -40,3 +36,4 @@
     {/if}
     
 {/block}
+

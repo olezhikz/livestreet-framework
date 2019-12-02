@@ -5,11 +5,17 @@
 {block 'content'}
     
     
-    {test_heading text='Коллапс'}
+    {test_heading text='Форма'}
 
     {capture 'test_example_content'}
-        {component 'collapse'  button="Свернуть" content="Сворачиваемы контент"}<br>
-        {componentb 'collapse' button="Свернуть" }Сворачиваемы контент{/componentb}
+        {componentb 'form'}
+            <div class="form-group">
+                {component 'field.text' name="login" label="Login"}
+            </div>
+            <div class="form-group">
+                {component 'field.password' name="pass" label="Пароль"}
+            </div>
+        {/componentb}
     {/capture}
 
     {capture 'test_example_code'}

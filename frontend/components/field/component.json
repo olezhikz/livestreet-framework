@@ -1,6 +1,7 @@
 {
     "name": "field",
     "templates": {
-        "layout": "layout.tpl"
+        "layout": "layout.tpl",
+        "docs"  : "docs.tpl"
     }
 }

@@ -29,7 +29,7 @@
     ]}
     
     {*
-         Валидация
+        Валидация
     *}
     {$validateRules = []}
     {if $validate}
@@ -37,6 +37,7 @@
             {$validateRules['data-remote'] = "true"}
             {$validateRules['data-param-field'] = $validate.field|default:$name}
             {$validateRules['data-param-scenario'] = $validate.scenario|default:$validate.entity->_getValidateScenario()}
+            
             {if is_object($validate.entity)}
                 {$validateRules['data-param-entity'] = get_class($validate.entity)}
             {else}
@@ -63,15 +64,20 @@
     {/if}
     
     {if $placeholder}
-        {$attributes.placeholder = $placeholder}
+        {$attr.placeholder = $placeholder}
     {/if}
+    
     {if $name}
-        {$attributes.name = $name}
+        {$attr.name = $name}
+    {/if} 
+    
+    {if $readonly}
+        {$attr.readonly = true}
     {/if}
 
     {if !$id}
-        {$attributes.id = "field{math equation='rand()'}"}
+        {$attr.id = "field{math equation='rand()'}"}
     {else}
-        {$attributes.id = $id}
+        {$attr.id = $id}
     {/if}   
 {/block}

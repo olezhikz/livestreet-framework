@@ -40,22 +40,29 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
     
     $aVars = $oSmarty->getTemplateVars('component_vars');
     
+    $aParams = [];
+    
     foreach ($aDefineParams as $key => $mValue) {
         
         if(is_int($key) && isset($aVars[$mValue])){
-            $oSmarty->assign($mValue, $aVars[$mValue]);
+            $aParams[$mValue] = $aVars[$mValue];
+            $oSmarty->assignByRef($mValue, $aParams[$mValue]);
             continue;
         }
         
         if(!is_int($key)){
             if(isset($aVars[$key])){
-                $oSmarty->assign($key, $aVars[$key]);
+                $aParams[$key] = $aVars[$aVars[$key]];
+                $oSmarty->assignByRef($key, $aParams[$key]);
             }else{
-                $oSmarty->assign($key, $mValue);
+                $aParams[$key] = $mValue;
+                $oSmarty->assignByRef($key, $aParams[$key]);
             }
         }
         
     }
+    
+    $oSmarty->assign('params', $aParams);
     /*
      * Устанавливаем результирующий список параметров компонента
      */

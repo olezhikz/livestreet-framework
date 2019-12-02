@@ -1,0 +1,7 @@
+{
+    "name": "form",
+    "version": "1.0.0",
+    "templates": {
+        "layout": "layout.tpl"
+    }
+}

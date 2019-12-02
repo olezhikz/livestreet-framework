@@ -7,8 +7,7 @@
  * @param string  $role             Вспомогательный атрибут role
  * @param string  $tag              Тег основного элемента
  *}
- 
-{block name="before_options"}{/block}
+
  
 {block 'options'}
     {component_define_params params=[ 
@@ -16,18 +15,23 @@
         'classes',
         'mods',
         'role',
-        'tag'
+        'tag',
+        'hook'
     ]}
-    
-{/block}
-
-{block name="after_options"}
     
     {if $role}
         {$attr['role'] = $role}
     {/if}
-    
 {/block}
+
+{if $hook}
+    {hook 
+        run         = $hook 
+        params      = $params 
+        array       = true 
+        array_merge = true 
+        assign      = 'params'}
+{/if}
 
 {strip}
     {block name="before_content"}{/block}
