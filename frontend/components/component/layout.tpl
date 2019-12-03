@@ -16,7 +16,8 @@
         'mods',
         'role',
         'tag',
-        'hook'
+        'hook',
+        'content'
     ]}
     
     {if $role}

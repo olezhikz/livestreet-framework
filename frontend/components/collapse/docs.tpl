@@ -9,12 +9,12 @@
 
     {capture 'test_example_content'}
         {component 'collapse'  button="Свернуть" content="Сворачиваемы контент"}<br>
-        {componentb 'collapse' button="Свернуть" }Сворачиваемы контент{/componentb}
+        {cblock 'collapse' button="Свернуть" }Сворачиваемы контент{/cblock}
     {/capture}
 
     {capture 'test_example_code'}
         {ldelim}component 'collapse' button="Свернуть" content="Сворачиваемы контент"{rdelim}
-        {ldelim}componentb 'collapse' button="Свернуть" {rdelim}Сворачиваемы контент{ldelim}/componentb{rdelim}
+        {ldelim}cblock 'collapse' button="Свернуть" {rdelim}Сворачиваемы контент{ldelim}/cblock{rdelim}
         
     
     {/capture}
