@@ -315,7 +315,7 @@ class ModuleComponent extends Module
                 return $sFile;
             }
         }
-        throw new OutOfRangeException("Template {$sNameFull} not found");
+        throw new OutOfRangeException("Template {$sNameFull} ".print_r($aData['paths'],true)." not found");
     }
 
     /**

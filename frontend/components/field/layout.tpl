@@ -11,6 +11,7 @@
  *  @param string  $label            Метка 
  *  @param string  $type
  *  @param string  $readonly
+ *  @param string  $disabled
  *}
  
 {extends "component@component.layout"}
@@ -25,7 +26,8 @@
         'desc', 
         'value', 
         'type',
-        'readonly'
+        'readonly',
+        'disabled'
     ]}
     
     {*
@@ -73,6 +75,10 @@
     
     {if $readonly}
         {$attr.readonly = true}
+    {/if}
+    
+    {if $disabled}
+        {$attr.disabled = true}
     {/if}
 
     {if !$id}
