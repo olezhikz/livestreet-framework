@@ -46,23 +46,29 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
         
         if(is_int($key) && isset($aVars[$mValue])){
             $aParams[$mValue] = $aVars[$mValue];
-            $oSmarty->assignByRef($mValue, $aParams[$mValue]);
             continue;
         }
         
         if(!is_int($key)){
-            if(isset($aVars[$key])){
+            if(isset($aVars[$key]) and $aVars[$key] !== null){
                 $aParams[$key] = $aVars[$aVars[$key]];
-                $oSmarty->assignByRef($key, $aParams[$key]);
             }else{
                 $aParams[$key] = $mValue;
-                $oSmarty->assignByRef($key, $aParams[$key]);
             }
         }
         
     }
-    
+    /*
+     * Переменная params для доступа ко всем переменным компонента
+     */
     $oSmarty->assign('params', $aParams);
+    /*
+     * Загружаем по ссылке все переменные шаблона из массива
+     * для привязки переменных к значениям массива
+     */
+    foreach ($aParams as $key => &$value) {
+        $oSmarty->assignByRef($key, $value);
+    }
     /*
      * Устанавливаем результирующий список параметров компонента
      */

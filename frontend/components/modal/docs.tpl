@@ -8,7 +8,22 @@
     {test_heading text='Модальные окна'}
 
     {capture 'test_example_content'}
+        {component "button"
+            attr = [
+                'data-toggle'   => "modal", 
+                'data-target'   => "#exampleModal"
+            ]
+            text = "Пример модальноо окна"
+        }
         
+        {cblock "modal"
+            closed  = true
+            id      = "exampleModal"
+            header  = "Заголовок"
+            footer  = "Подвал"
+        }
+            Контент внутри модальноо окна
+        {/cblock}
     {/capture}
 
     {capture 'test_example_code'}
