@@ -29,52 +29,47 @@
  */
 function smarty_function_component_define_params($aParams, &$oSmarty)
 {
-    if (isset($aParams['params'])) {
-        if (is_array($aParams['params'])) {
-            $aDefineParams = $aParams['params'];
-        } 
-    } else {
+    if (!isset($aParams['params']) or !is_array($aParams['params'])) {
         trigger_error("component_define_params: missing 'params' parameter", E_USER_WARNING);
         return;
     }
     
-    $aVars = $oSmarty->getTemplateVars('component_vars');
-    
-    $aParams = [];
-    
-    foreach ($aDefineParams as $key => $mValue) {
-        
-        if(is_int($key) && isset($aVars[$mValue])){
-            $aParams[$mValue] = $aVars[$mValue];
-            continue;
-        }
-        
-        if(!is_int($key)){
-            if(isset($aVars[$key]) and $aVars[$key] !== null){
-                $aParams[$key] = $aVars[$aVars[$key]];
-            }else{
-                $aParams[$key] = $mValue;
-            }
-        }
-        
-    }
     /*
-     * Переменная params для доступа ко всем переменным компонента
+     * Приводим к ассоциативному виду 
      */
-    $oSmarty->assign('params', $aParams);
+    $aDefineParams = [];
+    foreach ($aParams['params'] as $key => $value) {
+        if(is_integer($key)){
+            $aDefineParams[$value] = null;
+        }else{
+            $aDefineParams[$key] = $value;
+        }
+    }
+    
+    /*
+     * Параметры переданые компоненту
+     */
+    $aParams = $oSmarty->getTemplateVars('params');
     /*
      * Загружаем по ссылке все переменные шаблона из массива
      * для привязки переменных к значениям массива
      */
-    foreach ($aParams as $key => &$value) {
-        $oSmarty->assignByRef($key, $value);
+    foreach ($aDefineParams as $key => $value) {
+        if(!array_key_exists($key, $aParams)){
+            if(!is_null($value)){
+                $oSmarty->assignByRef($key, $value);
+            }
+            continue;
+        }
+        $oSmarty->assignByRef($key, $aParams[$key]);
+        
     }
+    
     /*
-     * Устанавливаем результирующий список параметров компонента
+     * Ключи предыдущих объявленных параметров
+     * Сливапем с текущими ключами объявленных параметров
      */
-    $aComponentParams = $oSmarty->getTemplateVars('component_params');
-    $aDefineParams = array_merge(is_array($aComponentParams)?$aComponentParams:[], $aDefineParams);
-    $oSmarty->assign('component_params', $aDefineParams);
+    $oSmarty->append('define_params', array_keys($aDefineParams));
 
     return false;
 }
