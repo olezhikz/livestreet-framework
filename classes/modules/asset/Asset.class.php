@@ -248,7 +248,7 @@ class ModuleAsset extends Module
         foreach ($assets->getNames() as $name) {
             $asset = $assets->get($name);
             
-            if(file_exists($sDir.'/'.$asset->getTargetPath())){
+            if(!Config::Get('module.asset.force_write') and file_exists($sDir.'/'.$asset->getTargetPath())){
                 continue;
             }
             /*

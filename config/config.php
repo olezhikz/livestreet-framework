@@ -337,6 +337,7 @@ $config['module']['asset']['js']['default_attr'] = [
 ];
 // Аттрибуты тегов <link> по умолчанию
 $config['module']['asset']['css']['default_attr'] = []; 
+$config['module']['asset']['force_write'] = false;  // Публиковать ресурсы при каждом запросе. Сильно замедляет, необходимо в режиме разработки
 // Модель Component
 $config['module']['component']['cache_tree'] = false; // кешировать или нет построение дерева компонентов
 $config['module']['component']['cache_data'] = false; // кешировать или нет данные компонентов

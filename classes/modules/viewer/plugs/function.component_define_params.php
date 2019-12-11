@@ -35,9 +35,12 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
     }
     
     /*
+     * Прибавляем полезные параметры компонента
+     */
+    $aDefineParams = [ 'component' => null, 'template' => null];
+    /*
      * Приводим к ассоциативному виду 
      */
-    $aDefineParams = [];
     foreach ($aParams['params'] as $key => $value) {
         if(is_integer($key)){
             $aDefineParams[$value] = null;
@@ -49,27 +52,46 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
     /*
      * Параметры переданые компоненту
      */
-    $aParams = $oSmarty->getTemplateVars('params');
+    $aVars = $oSmarty->getTemplateVars('vars');
+    if(!$aVars){
+        $aVars = [];
+    }
+    
+    /**
+     * Формируем параметры
+     */
+    $aParams = [];
+    foreach ($aDefineParams as $key => $value) {
+        if(!array_key_exists($key, $aVars)){
+            if(!is_null($value)){
+                $aParams[$key] = $value;
+            }
+            continue;
+        }
+        $aParams[$key] = $aVars[$key];
+        
+    }
+    /*
+     * Добавляем все параметры в шаблон
+     */
+    $oSmarty->append('params', $aParams, true);
     /*
      * Загружаем по ссылке все переменные шаблона из массива
      * для привязки переменных к значениям массива
      */
-    foreach ($aDefineParams as $key => $value) {
-        if(!array_key_exists($key, $aParams)){
-            if(!is_null($value)){
-                $oSmarty->assignByRef($key, $value);
-            }
-            continue;
-        }
-        $oSmarty->assignByRef($key, $aParams[$key]);
-        
-    }
-    
+    foreach ($aParams as $key => &$value) 
+    {
+        $oSmarty->assign($key, $value);
+    }    
     /*
      * Ключи предыдущих объявленных параметров
      * Сливапем с текущими ключами объявленных параметров
      */
-    $oSmarty->append('define_params', array_keys($aDefineParams));
+    foreach (array_keys($aDefineParams) as $value) 
+    {
+        $oSmarty->append('define_params', $value);
+    }
+    
 
     return false;
 }

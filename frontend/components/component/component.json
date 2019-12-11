@@ -1,7 +1,8 @@
 {
     "name": "component",
     "templates": {
-        "layout": "layout.tpl"
+        "layout": "layout.tpl",
+        "docs"  : "docs.tpl"
     },
     "assets": {
         "js": {

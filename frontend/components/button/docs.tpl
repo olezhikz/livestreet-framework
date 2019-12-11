@@ -9,6 +9,13 @@
     {test_heading text='Кнопки'}
 
     {capture 'test_example_content'}
+        
+        {plugin_docs_params params = [
+            ['text', 'string', 'null', 'Текст кнопки'],
+            ['icon', 'string', 'null', 'Иконка перед текстом'],
+            ['badge', 'string', 'null', 'Метка после текста']
+        ]}
+        
         {component 'button' text='Кнопка' mods='primary'}
         {component 'button' text='Ссылка' mods='primary' url='http://example.com'}
     {/capture}

@@ -9,6 +9,11 @@
     {test_heading text='Меню'}
 
     {capture 'test_example_content'}
+        {plugin_docs_params params = [
+            ['items', 'array', 'null', 'Массив элементов меню [text, name]'],
+            ['activeItem', 'string', 'null', 'Имя name активного пункта']
+        ]}
+        
         {component 'nav' 
             mods="pills" 
             activeItem='second' 

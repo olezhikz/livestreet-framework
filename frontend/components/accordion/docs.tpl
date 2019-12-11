@@ -8,6 +8,11 @@
     {test_heading text='Аккордион'}
 
     {capture 'test_example_content'}
+        {plugin_docs_params params = [
+            ['items', 'array', 'null', 'Массив элементов аккордиона [text, content, name]'],
+            ['activeItem', 'string', 'null', 'Имя name активного - раскрытого элемента']
+        ]}
+        
         {component 'accordion' 
             activeItem = 'two'
             items = [

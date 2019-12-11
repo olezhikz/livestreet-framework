@@ -9,6 +9,11 @@
     {test_heading text='Значки'}
 
     {capture 'test_example_content'}
+        
+        {plugin_docs_params params = [
+            ['text', 'string', 'null', 'Текст метки']
+        ]}
+        
         {component 'badge' mods="success" text='user'}
         {component 'badge' mods="primary" text='22'}
         {component 'badge' mods="danger" text={component 'icon' icon='user'}}

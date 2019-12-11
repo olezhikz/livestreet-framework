@@ -13,7 +13,8 @@
                 'data-toggle'   => "modal", 
                 'data-target'   => "#exampleModal"
             ]
-            text = "Пример модальноо окна"
+            mods    = "primary"
+            text = "Пример модального окна"
         }
         
         {cblock "modal"
@@ -22,12 +23,28 @@
             header  = "Заголовок"
             footer  = "Подвал"
         }
-            Контент внутри модальноо окна
+            Контент внутри модального окна
         {/cblock}
     {/capture}
 
     {capture 'test_example_code'}
-        {ldelim}cblock 'form'{rdelim}
+        {ldelim}component "button"
+            attr = [
+                'data-toggle'   => "modal", 
+                'data-target'   => "#exampleModal"
+            ]
+            mods    = "primary"
+            text    = "Пример модального окна"
+        {rdelim}
+        
+        {ldelim}cblock "modal"
+            closed  = true
+            id      = "exampleModal"
+            header  = "Заголовок"
+            footer  = "Подвал"
+        {rdelim}
+            Контент внутри модального окна
+        {ldelim}/cblock{rdelim}
             
     
     {/capture}
