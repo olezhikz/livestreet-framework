@@ -33,35 +33,17 @@
     {*
         Валидация
     *}
-    {$validateRules = []}
     {if $validate}
-        {if $validate.remote}
-            {$validateRules['data-remote'] = "true"}
-            {$validateRules['data-param-field'] = $validate.field|default:$name}
-            {$validateRules['data-param-scenario'] = $validate.scenario|default:$validate.entity->_getValidateScenario()}
-            
-            {if is_object($validate.entity)}
-                {$validateRules['data-param-entity'] = get_class($validate.entity)}
-            {else}
-                {$validateRules['data-param-entity'] = $validate.entity}
-            {/if}
-            {if $validate.url}
-                {$validateRules['data-url'] = $validate.url}
-            {/if}
-            {if $validate.only_change}
-                {$validateRules['data-only-change'] = "true"}
-            {/if}
-        {else}
-            {if is_object($validate.entity)}
-                {$validate.scenario = $validate.entity->_getValidateScenario()}
-            {/if}
-            {field_make_rules 
-                entity      = $validate.entity 
-                field       = $validate.field|default:$name
-                scenario    = $validate.scenario
-                assign      = "validateRules"}
-        {/if}
-
+        
+        {field_make_rules 
+            entity      = $validate.entity 
+            field       = $name
+            scenario    = $validate.scenario
+            assign      = "validateRules"}
+         
+        {foreach $validateRules as $key => $value}
+            {$attr[$key] = $value}
+        {/foreach}
 
     {/if}
     

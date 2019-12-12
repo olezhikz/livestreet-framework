@@ -521,8 +521,8 @@ abstract class Action extends LsObject
         return $this->aParams;
     }
 
-    protected function getRequest($key) {
-        return $this->request->getParam($key);
+    protected function getRequest($key, $default = null) {
+        return $this->request->getParam($key, $default);
     }
 
     /**
