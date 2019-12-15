@@ -38,6 +38,14 @@ ls = (function ($) {
      */
     this.init = function (options) {
         this.options = $.extend({}, _defaults, options);
+        
+        var lsReady = new CustomEvent("lsReady", {
+            detail: {
+                options: options
+            }
+        });
+
+        document.dispatchEvent(lsReady);
     };
 
     return this;

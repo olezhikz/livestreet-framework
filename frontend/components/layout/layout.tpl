@@ -56,7 +56,7 @@
             {$aHtmlHeadFiles.js}
 
             <script>
-                document.addEventListener('DOMContentLoaded', function (evt) {
+                document.addEventListener('lsReady', function (evt) {
                     ls.lang.load({json var = $LS->Lang_GetLangJs()});
                     ls.registry.set({json var = $LS->Viewer_GetVarsJs()});
                 }, false);

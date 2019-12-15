@@ -46,9 +46,15 @@ class ModuleValidate_EntityValidatorCaptchaRecaptcha extends ModuleValidate_Enti
         if (is_array($sValue)) {
             return $this->getMessage($this->Lang_Get('validate.captcha.not_valid', null, false), 'msg');
         }
+        
         if ($this->allowEmpty && $this->isEmpty($sValue)) {
             return true;
         }
+        
+        if (!$this->allowEmpty && $this->isEmpty($sValue)) {
+            return $this->getMessage($this->Lang_Get('validate.recaptcha.is_empty', null, false), 'msg');
+        }
+        
         $sSecret = Config::Get('module.validate.recaptcha.secret_key');
         $sUrl = "https://www.google.com/recaptcha/api/siteverify?secret={$sSecret}&response={$sValue}";
         if (Config::Get('module.validate.recaptcha.use_ip')) {

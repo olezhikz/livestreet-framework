@@ -82,8 +82,23 @@ abstract class Entity extends LsObject
     public function __construct($aParam = false)
     {
         parent::__construct();
+        /*
+         * Добавлям в правила валидации из метода rules()
+         */
+        $this->aValidateRules = array_merge($this->aValidateRules, $this->rules());
+        
         $this->_setData($aParam);
         $this->Init();
+    }
+    
+    /**
+     * Правила валидации
+     * 
+     * @return array
+     */
+    protected function rules() 
+    {
+        return [];
     }
 
     /**

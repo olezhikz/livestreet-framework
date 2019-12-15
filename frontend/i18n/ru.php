@@ -141,6 +141,9 @@ return array(
         'captcha'     => array(
             'not_valid' => 'Поле %%field%% содержит неверный код',
         ),
+        'recaptcha' => [
+            'is_empty' => 'Подтвердите что вы не робот'
+        ],
         'compare'     => array(
             'must_repeated'      => 'Поле %%field%% должно повторять %%compare_field%%',
             'must_not_equal'     => 'Поле %%field%% не должно повторять %%compare_value%%',

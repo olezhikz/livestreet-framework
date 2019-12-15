@@ -594,6 +594,10 @@ abstract class Action extends LsObject
         $this->sResponseType = $sType;
     }
     
+    public function GetResponseType() {
+        return $this->sResponseType;
+    }
+    
     /**
      *  Добавить переменную в шаблон или ответ ajax
      * @param string $name
@@ -687,18 +691,19 @@ abstract class Action extends LsObject
 
             $sMsg = $aPathinfo['basename'] . ' [' . $aCallerSource['class'] . $aCallerSource['type'] . $aCallerSource['function'] . ': ' . $aCaller['line'] . ']';
             $this->Message_AddErrorSingle($sMsg, 'System error');
-            if ($this->Viewer_GetResponseAjax()) {
-                return true;
-            } else {
+            if ($this->GetResponseType() === self::RESPONSE_TYPE_HTML) {
                 return Router::Action('error', '500');
+            } else {
+                return;
             }
         } else {
-            if ($this->Viewer_GetResponseAjax()) {
-                $this->Message_AddErrorSingle('System error');
-                return true;
-            } else {
+            if ($this->GetResponseType() === self::RESPONSE_TYPE_HTML) {
                 return Router::Action('error', '500');
+            } else {
+                $this->Message_AddErrorSingle('System error');
+                return;
             }
+            
         }
     }
 
