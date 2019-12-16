@@ -173,7 +173,7 @@ class ModuleMail extends Module
         /**
          * Создаём объект phpMailer и устанвливаем ему необходимые настройки
          */
-        $this->oMailer = new PHPMailer(true);
+        $this->oMailer = new PHPMailer\PHPMailer\PHPMailer(true);
                 
         try {
             $this->oMailer->Host = $this->sHost;

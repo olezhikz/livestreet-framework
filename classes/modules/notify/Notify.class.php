@@ -121,7 +121,7 @@ class ModuleNotify extends Module
         $oNotifyTask = Engine::GetEntity('Notify_Task');
         $oNotifyTask->setUserMail($sMail);
         $oNotifyTask->setUserLogin($sName);
-        $oNotifyTask->setNotifyText($sBody);
+        $oNotifyTask->setNotifyText($sBody);        $this->Logger_Notice($sBody);
         $oNotifyTask->setNotifyTextAlt($sBodyAlt);
         $oNotifyTask->setNotifySubject($sSubject);
         $oNotifyTask->setDateCreated(date("Y-m-d H:i:s"));

@@ -923,7 +923,7 @@ class Router extends LsObject
      * @param string $sLocation URL для редиректа
      */
     static public function Location($sLocation)
-    {
+    {        
         self::getInstance()->oEngine->Shutdown();
         func_header_location($sLocation);
     }
