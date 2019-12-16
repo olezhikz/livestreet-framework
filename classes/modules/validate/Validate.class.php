@@ -149,11 +149,17 @@ class ModuleValidate extends Module
             /**
              * Иначе создаем валидатор по имени
              */
+            if(class_exists($sName)){
+                $oValidator = new $sName;
+            }else{
+                $sValidateName = 'Validator' . func_camelize($sName);
+                $oValidator = Engine::GetEntity('ModuleValidate_Entity' . $sValidateName);
+            }
+            
             if (!is_null($aFields)) {
                 $aParams['fields'] = $aFields;
             }
-            $sValidateName = 'Validator' . func_camelize($sName);
-            $oValidator = Engine::GetEntity('ModuleValidate_Entity' . $sValidateName);
+            
             foreach ($aParams as $sNameParam => $sValue) {
                 $oValidator->$sNameParam = $sValue;
             }
