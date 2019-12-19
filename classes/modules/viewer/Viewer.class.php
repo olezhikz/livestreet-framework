@@ -375,12 +375,12 @@ class ModuleViewer extends Module
      * @param bool $bLocal Загружает переменную в локальную область видимости шаблонизатора (доступна только для конкретного шаблона)
      * @param bool $bByRef Загружает переменную по ссылке
      */
-    public function Assign($mName, $mValue = null, $bLocal = false, $bByRef = false)
+    public function Assign($mName, $mValue = null, $bByRef = false)
     {
         if ($bByRef and isset($mValue[0])) {
             $this->oSmarty->assignByRef($mName, $mValue[0]);
         } else {
-            $this->oSmarty->assign($mName, $mValue, false, $bLocal);
+            $this->oSmarty->assign($mName, $mValue);
         }
     }
 

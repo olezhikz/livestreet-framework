@@ -74,14 +74,14 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
     /*
      * Добавляем все параметры в шаблон
      */
-    $oSmarty->append('params', $aParams, true);
+    $oSmarty->append('params', $aParams, true, true);
     /*
      * Загружаем по ссылке все переменные шаблона из массива
      * для привязки переменных к значениям массива
      */
     foreach ($aParams as $key => &$value) 
-    {
-        $oSmarty->assign($key, $value);
+    {   
+        $oSmarty->assign($key, $value, true);
     }    
     /*
      * Ключи предыдущих объявленных параметров
