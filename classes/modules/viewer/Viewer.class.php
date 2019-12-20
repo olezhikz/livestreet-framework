@@ -279,7 +279,7 @@ class ModuleViewer extends Module
          */
         $oModuleLang = Engine::getInstance()->GetModuleObject('Lang');
         $aLang =& $oModuleLang->GetLangMsgRef();
-        $this->Assign('aLang', array(&$aLang), false, true);
+        $this->Assign('aLang', array(&$aLang), true);
     }
 
     /**
