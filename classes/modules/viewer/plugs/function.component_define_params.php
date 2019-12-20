@@ -15,7 +15,7 @@
  *
  * @link http://www.livestreetcms.com
  * @copyright 2013 OOO "ЛС-СОФТ"
- * @author Maxim Mzhelskiy <rus.engine@gmail.com>
+ * @author Oleg Demidov
  *
  */
 
@@ -35,61 +35,43 @@ function smarty_function_component_define_params($aParams, &$oSmarty)
     }
     
     /*
-     * Прибавляем полезные параметры компонента
+     * Берем все переданные компоненту параметры
      */
-    $aDefineParams = [ 'component' => null, 'template' => null];
-    /*
-     * Приводим к ассоциативному виду 
-     */
-    foreach ($aParams['params'] as $key => $value) {
-        if(is_integer($key)){
-            $aDefineParams[$value] = null;
-        }else{
-            $aDefineParams[$key] = $value;
-        }
-    }
-    
-    /*
-     * Параметры переданые компоненту
-     */
-    $aVars = $oSmarty->getTemplateVars('vars');
-    if(!$aVars){
+    $aVars = $oSmarty->getTemplateVars('_params');
+    if(!is_array($aVars)){
         $aVars = [];
     }
-    
-    /**
-     * Формируем параметры
-     */
-    $aParams = [];
-    foreach ($aDefineParams as $key => $value) {
-        if(!array_key_exists($key, $aVars)){
-            if(!is_null($value)){
-                $aParams[$key] = $value;
-            }
-            continue;
+    /*
+     * Приводим к ассоциативному массиву
+     */ 
+    foreach ($aParams['params'] as $key => $value) {
+        if(is_integer($key)){
+            $aParams['params'][$value] = null;
+            unset($aParams['params'][$key]);
         }
-        $aParams[$key] = $aVars[$key];
-        
     }
     /*
-     * Добавляем все параметры в шаблон
+     * Получаем массив параметров по пересечению с обьявленными
      */
-    $oSmarty->append('params', $aParams, true, true);
+    $aVars = array_intersect_key($aVars, $aParams['params']);
     /*
-     * Загружаем по ссылке все переменные шаблона из массива
-     * для привязки переменных к значениям массива
+     * Добавляем значения по умолчанию
      */
-    foreach ($aParams as $key => &$value) 
-    {   
-        $oSmarty->assign($key, $value, true);
-    }    
+    $aVars = array_merge($aParams['params'], $aVars);
     /*
-     * Ключи предыдущих объявленных параметров
-     * Сливапем с текущими ключами объявленных параметров
+     * Загружаем ссылки
      */
-    foreach (array_keys($aDefineParams) as $value) 
+    $oSmarty->appendByRef('params', $aVars, true);
+    
+    foreach ($aVars as $key => &$value) {
+        $oSmarty->assignByRef($key, $value);
+    }
+    /*
+     * Сливаем с текущими ключами объявленных параметров
+     */
+    foreach ($aParams['params'] as $sDefKey => $val) 
     {
-        $oSmarty->append('define_params', $value);
+        $oSmarty->append('define_params', $sDefKey);
     }
     
 
