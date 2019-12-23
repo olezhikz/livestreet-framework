@@ -129,8 +129,9 @@ abstract class Action extends LsObject
         $this->response = $response;
         
         $this->RegisterEvent();
-        $this->sCurrentAction = $request->getAttribute('action');
-        $this->aParams = $request->getAttribute('params');
+        $this->sCurrentAction   = $request->getAttribute('action');
+        $this->sCurrentEvent    = $request->getAttribute('event');
+        $this->aParams          = $request->getAttribute('params');
     }
 
     /**
@@ -259,7 +260,7 @@ abstract class Action extends LsObject
      */
     public function ExecEvent()
     {
-        $this->sCurrentEvent = $this->request->getAttribute('event');
+        
         
         if ($this->sCurrentEvent == null) {
             $this->sCurrentEvent = $this->GetDefaultEvent();
@@ -277,7 +278,10 @@ abstract class Action extends LsObject
                         continue 2;
                     }
                 }
+                
                 $this->sCurrentEventName = $aEvent['name'];
+                $this->request->setAttribute('event_name', $this->sCurrentEventName);
+                
                 if ($aEvent['external']) {
                     if (!isset($this->aRegisterEventExternal[$aEvent['external']])) {
                         throw new Exception("External processing for event not found: " . $aEvent['external']);

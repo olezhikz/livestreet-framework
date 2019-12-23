@@ -404,11 +404,12 @@ class Router extends LsObject
      */
     protected function createRequest() {
         
-        return \PhpComp\Http\Message\HttpFactory::createServerRequestFromArray($_SERVER)
+        self::$request =  \PhpComp\Http\Message\HttpFactory::createServerRequestFromArray($_SERVER)
                 ->setAttribute('action', self::GetAction())
                 ->setAttribute('event', self::GetActionEvent())
                 ->setAttribute('params', self::GetParams());
         
+        return self::$request;
     }
     
     /**

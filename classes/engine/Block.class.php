@@ -87,6 +87,15 @@ abstract class Block extends LsObject
     {
         $this->sTemplate = $sTemplate;
     }
+    /**
+     * Загружает переменную в шаблон
+     * 
+     * @param string $sName
+     * @param type $mValue
+     */
+    public function assign(string $sName, $mValue) {
+        $this->Viewer_Assign($sName, $mValue);
+    }
 
     /**
      * Метод запуска обработки блока.

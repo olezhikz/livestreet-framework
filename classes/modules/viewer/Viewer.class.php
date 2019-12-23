@@ -619,7 +619,7 @@ class ModuleViewer extends Module
     {
         $sAction = strtolower(Router::GetAction());
         $sEvent = strtolower(Router::GetActionEvent());
-        $sEventName = strtolower(Router::GetActionEventName());
+        $sEventName = strtolower(Router::$request->getAttribute('event_name'));
         foreach ($this->aBlockRules as $sName => $aRule) {
             $bUse = false;
             /**

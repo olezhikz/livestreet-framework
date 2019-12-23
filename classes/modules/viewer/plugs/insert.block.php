@@ -46,9 +46,7 @@ function smarty_insert_block($aParams, &$oSmarty)
         $sBlock = 'Plugin' . func_camelize($aParams['params']['plugin']) . '_Block' . $sBlock;
     } else {
         $sBlockTemplate = 'blocks/block.' . $aParams['block'] . '.tpl';
-        $sBlock = 'Block' . $sBlock;
     }
-
     $sBlock = Engine::getInstance()->Plugin_GetDelegate('block', $sBlock);
     /**
      * параметры
