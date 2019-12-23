@@ -168,7 +168,7 @@ abstract class Action extends LsObject
      * @return mixed
      */
     public function ActionGet($sVar)
-    {
+    {        
         return $this->$sVar;
     }
 

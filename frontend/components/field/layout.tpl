@@ -41,8 +41,8 @@
             scenario    = $validate.scenario
             assign      = "validateRules"}
          
-        {foreach $validateRules as $key => $value}
-            {$attr[$key] = $value}
+        {foreach $validateRules as $key => $valRules}
+            {$attr[$key] = $valRules}
         {/foreach}
 
     {/if}
