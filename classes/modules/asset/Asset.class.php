@@ -61,6 +61,7 @@ class ModuleAsset extends Module
          */
         $this->builders['js'] = \LS\Module\Asset\Builder\BuilderJsHTML::class;
         $this->builders['css'] = \LS\Module\Asset\Builder\BuilderCssHTML::class;
+        $this->builders['img'] = \LS\Module\Asset\Builder\BuilderImgHTML::class;
                         
     }
     

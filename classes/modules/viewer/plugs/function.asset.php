@@ -24,34 +24,38 @@
  * Выводит HTML ресурса
  *
  * @author  Denis Shakhov
- * @param   array $params
+ * @param   array $aParams
  * @return  string
  */
-function smarty_function_asset( $params )
+function smarty_function_asset( $aParams )
 {
-    if ( ! $params['path'] ) return '';
-    
-    $params['type'] = $params['type'] ? $params['type'] : 'js';
-    $params['name'] = $params['name'] ? $params['name'] : pathinfo($params['path'], PATHINFO_FILENAME);
-    
-    Ls::$app->Asset_AddFromConfig( [
-            $params['type'] => [
-                $params['name'] => array(
-                    'file' => $params['path'], 
-                    'loader' => $params['loader'] ? $params['loader'] : '/LS/Modle/Asset/Loader/FileLoader',
-                    'filters' => $params['filters'] ? $params['filters'] : [],
-                    'attr' => $params['attr'] ? $params['attr'] : []
-                ),
-            ]
-        ]
-    );
-    
-    if($params['html']){
-        $assets = Ls::$app->Asset_CreateAsset($params['name']);
-
-        return Ls::$app->Asset_Build($params['type'], $assets);
-    }else{
-        Ls::$app->Asset_GetWebPath($params['name']);
+    if (empty($aParams['name'])) {
+        trigger_error("smarty_function_asset: missing 'name' parametr", E_USER_WARNING);
+        return;
     }
+    
+    if (empty($aParams['type'])) {
+        trigger_error("smarty_function_asset: missing 'type' parametr", E_USER_WARNING);
+        return;
+    }
+    
+    if (!empty($aParams['path'])) {
+        LS::E()->Asset_AddFromConfig( [
+                $aParams['type'] => [
+                    $aParams['name'] => array(
+                        'file' => $aParams['path'], 
+                        'loader' => $aParams['loader'] ? $aParams['loader'] : '/LS/Modle/Asset/Loader/FileLoader',
+                        'filters' => $aParams['filters'] ? $aParams['filters'] : [],
+                        'attr' => $aParams['attr'] ? $aParams['attr'] : []
+                    ),
+                ]
+            ]
+        );
+    }
+    
+    $assets = LS::E()->Asset_CreateAsset([$aParams['name']]);
+
+    return LS::E()->Asset_Build($aParams['type'], $assets);
+    
     
 }
